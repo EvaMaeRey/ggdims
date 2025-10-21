@@ -13,6 +13,15 @@ and discussions
 - [ggplot-extension-club/discussions/117](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/117#discussioncomment-14565426)
 - [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
 
+More related:
+
+- <https://distill.pub/2016/misread-tsne/>
+- McInnes Bluffer’s guide <https://www.youtube.com/watch?v=9iol3Lk6kyU>
+- <https://satijalab.org/seurat/articles/seurat5_sketch_analysis>
+- McInnes Learning from Machine Learning
+  <https://www.youtube.com/watch?v=6sSOr2Yaq80&t=759s>
+- <https://embed.tidymodels.org/>
+
 This is in the experimental/proof of concept phase. 🤔🚧
 
 # ggdims
@@ -144,6 +153,8 @@ p$mapping$dims[[2]]
 #> mvars(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)
 ```
 
+### dims_expand
+
 ``` r
 #' @export
 dims_expand <- function() {
@@ -194,23 +205,24 @@ plot$mapping$dims[[2]] <- rlang::parse_expr(new_dim_expr)
 plot
 
 }
+```
 
+</details>
 
-
-iris |> 
+``` r
+p <- iris |> 
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width)) + 
   dims_expand()
-```
 
-![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
-
-``` r
-
-last_plot()$mapping
+p$mapping
 #> Aesthetic mapping: 
 #> * `dims` -> `mvars(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)`
 ```
+
+## compute_tsne, geom_tsne
+
+<details>
 
 ``` r
 # compute_tsne0 allows individually listed variables that are all of the same type
@@ -302,7 +314,7 @@ iris |>
   geom_tsne0()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-7-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
 
 ``` r
 
@@ -316,7 +328,7 @@ p +
   aes(fill = Species)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-7-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
 
 ``` r
 geom_tsne <- function(...){
@@ -332,34 +344,28 @@ geom_tsne <- function(...){
 ``` r
 iris |> 
   ggplot() + 
-  aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width)) 
-```
-
-![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
-
-``` r
-
-last_plot() +
+  aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width)) +
   geom_tsne()
-```
-
-![](README_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
-
-``` r
 
 last_plot() + 
   aes(fill = Species)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-9-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-10-1.png)![](README_files/figure-gfm/unnamed-chunk-10-2.png)
+
+### Different perplexity
 
 ``` r
-# 
-# last_plot() + 
-#   dims_expand() # stable...
+iris |> 
+  ggplot() + 
+  aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width),
+      fill = Species) +
+  geom_tsne(perplexity = 10)
 ```
 
-# Now UMAP
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+
+# A little UMAP
 
 <details>
 
@@ -437,7 +443,7 @@ iris |>
   geom_umap()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
 
 ``` r
 
@@ -445,16 +451,77 @@ last_plot() +
   aes(fill = Species)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+
+------------------------------------------------------------------------
+
+### looking at the <https://distill.pub/2016/misread-tsne/>
+
+#### 1. ‘Those hyperparameters really matter’
 
 ``` r
-palmerpenguins::penguins |> 
-  sample_n(size = 200) |>
-  remove_missing() |> 
-  ggplot() + 
-  aes(dims = dims(bill_length_mm:body_mass_g)) + 
-  geom_umap() 
+hello_world_of_tsne <- data.frame(dim1 = rnorm(200) + 
+                                    c(rep(-5, 100), rep(5, 100)),
+                                  dim2 = rnorm(200),
+                                  type = c(rep("A", 100), rep("B", 100)))
 
-last_plot() + 
-  aes(fill = species)
+original <- hello_world_of_tsne |>
+  ggplot() + 
+  aes(x = dim1, 
+      y = dim2, 
+      fill = type) + 
+  geom_point(shape = 21, color = "white",
+             alpha = .5) + 
+  # coord_equal() + 
+  labs(title = "Original")
+
+base <- hello_world_of_tsne |>
+  ggplot() + 
+  aes(dims = dims(dim1:dim2)) + 
+  guides(fill = "none")
+
+pp2 <- base + 
+  geom_tsne(perplexity = 2) + 
+  labs(title = "perplexity = 2")
+
+pp5 <- base + 
+  geom_tsne(perplexity = 5) + 
+  labs(title = "perplexity = 5")
+
+pp30 <- base + 
+  geom_tsne(perplexity = 30) + 
+  labs(title = "perplexity = 30")
+
+pp50 <- base + 
+  geom_tsne(perplexity = 50) + 
+  labs(title = "perplexity = 50")
+
+pp100 <- base + 
+  geom_tsne(perplexity = 100) + 
+  labs(title = "perplexity = 100")
+
+
+library(patchwork)
+#> Warning: package 'patchwork' was built under R version 4.4.1
+original + pp2 + pp5 + pp30 + pp50 + pp100
+#> Warning: Computation failed in `stat_tsne0()`.
+#> Caused by error in `.check_tsne_params()`:
+#> ! perplexity is too large for the number of samples
 ```
+
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+
+# with group id
+last_plot() & aes(fill = type)
+#> Warning: Computation failed in `stat_tsne0()`.
+#> Caused by error in `.check_tsne_params()`:
+#> ! perplexity is too large for the number of samples
+```
+
+![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
