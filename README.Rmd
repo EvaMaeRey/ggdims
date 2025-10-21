@@ -438,7 +438,7 @@ pp5 <- ggplot(data = hello_world_of_tsne) +
 pp30 <- ggplot(data = hello_world_of_tsne) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 30) + 
-  labs(title = "perplexity = 30")
+  labs(title = "perplexity = 30"); pp30
 
 pp50 <- ggplot(data = hello_world_of_tsne) + 
   aes(dims = dims(dim1:dim2)) +

@@ -517,7 +517,12 @@ pp5 <- ggplot(data = hello_world_of_tsne) +
 pp30 <- ggplot(data = hello_world_of_tsne) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 30) + 
-  labs(title = "perplexity = 30")
+  labs(title = "perplexity = 30"); pp30
+```
+
+![](README_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+
+``` r
 
 pp50 <- ggplot(data = hello_world_of_tsne) + 
   aes(dims = dims(dim1:dim2)) +
@@ -538,7 +543,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100
 #> ! perplexity is too large for the number of samples
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-4.png)<!-- -->
 
 ``` r
 
@@ -554,7 +559,7 @@ last_plot() &
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-4.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-5.png)<!-- -->
 
 ``` r
 
