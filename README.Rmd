@@ -1,5 +1,8 @@
 ---
-output: github_document
+output: 
+  github_document:
+    toc: TRUE
+    toc_depth: 3
 ---
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -10,6 +13,8 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+
+## Supporting work and discussions
 
 Here, doing some further thinking about a dimensionality reduction framework for ggplot2. Based on some previous work
 
@@ -32,8 +37,6 @@ More related:
 
 This is in the experimental/proof of concept phase. 🤔🚧
 
-# ggdims
-
 <!-- badges: start -->
 
 <!-- badges: end -->
@@ -43,15 +46,13 @@ knitr::opts_chunk$set(echo = TRUE)
 options(tidyverse.quiet = TRUE)
 ```
 
-## Intro Thoughts
+## ggdims Intro Thoughts
 
 So, ggplot2 seems to be not well suited to taking a dataframe and doing dimensionality reduction within. The assumption is that you will specify how each and every variable to be visualized will be visualized (which feels very intuitive and is very nice to use!). But there's a whole world of dimension reduction and visualization that accompanies it, and is everyone left to their own devices to try to figure out how that should happen when using ggplot2 to plot this demensionality reduction?
 
-## goal
+## An implementation
 
 <details>
-
-### so we can certainly use aes to refer to some variables.
 
 ```{r}
 library(tidyverse)
@@ -465,7 +466,7 @@ panel_of_six_tsne_two_cluster <- last_plot()
 
 ```
 
-### 2. Cluster sizes in a t-SNE plot mean nothing
+### 2. 'Cluster sizes in a t-SNE plot mean nothing'
 
 Let's try to reproduce this (we'll shortcut but switching out the data across plot specifications): ![](images/clipboard-4082290261.png)
 
@@ -481,7 +482,11 @@ panel_of_six_tsne_two_cluster &
 
 ```
 
-### 3. Distances between clusters might not mean anything
+#### Side note on ggplyr::data_replace  X google gemini quick search
+
+![](images/clipboard-3482018450.png)
+
+### 3. 'Distances between clusters might not mean anything'
 
 Now let's look at these three clusters, where one cluster is far out:
 
@@ -502,7 +507,7 @@ panel_of_six_tsne_two_cluster &
 
 ```
 
-### 4. Random noise doesn't always look random
+### 4. 'Random noise doesn't always look random'
 
 ![](images/clipboard-109741735.png)
 

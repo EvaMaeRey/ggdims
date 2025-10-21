@@ -1,5 +1,29 @@
 
+- [Supporting work and discussions](#supporting-work-and-discussions)
+- [ggdims Intro Thoughts](#ggdims-intro-thoughts)
+- [An implementation](#an-implementation)
+  - [but we need these expanded out](#but-we-need-these-expanded-out)
+  - [so let’s use some ggplot_add to try to expand, and have these vars
+    listed out
+    individually](#so-lets-use-some-ggplot_add-to-try-to-expand-and-have-these-vars-listed-out-individually)
+  - [dims_expand](#dims_expand)
+- [compute_tsne, geom_tsne](#compute_tsne-geom_tsne)
+  - [Different perplexity](#different-perplexity)
+- [A little UMAP](#a-little-umap)
+- [Try to reproduce some of ‘How to Use t-SNE Effectively’
+  https://distill.pub/2016/misread-tsne/](#try-to-reproduce-some-of-how-to-use-t-sne-effectively-httpsdistillpub2016misread-tsne)
+  - [1. ‘Those hyperparameters really
+    matter’](#1-those-hyperparameters-really-matter)
+  - [2. ‘Cluster sizes in a t-SNE plot mean
+    nothing’](#2-cluster-sizes-in-a-t-sne-plot-mean-nothing)
+  - [3. ‘Distances between clusters might not mean
+    anything’](#3-distances-between-clusters-might-not-mean-anything)
+  - [4. ‘Random noise doesn’t always look
+    random’](#4-random-noise-doesnt-always-look-random)
+
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
+## Supporting work and discussions
 
 Here, doing some further thinking about a dimensionality reduction
 framework for ggplot2. Based on some previous work
@@ -24,12 +48,10 @@ More related:
 
 This is in the experimental/proof of concept phase. 🤔🚧
 
-# ggdims
-
 <!-- badges: start -->
 <!-- badges: end -->
 
-## Intro Thoughts
+## ggdims Intro Thoughts
 
 So, ggplot2 seems to be not well suited to taking a dataframe and doing
 dimensionality reduction within. The assumption is that you will specify
@@ -39,11 +61,9 @@ world of dimension reduction and visualization that accompanies it, and
 is everyone left to their own devices to try to figure out how that
 should happen when using ggplot2 to plot this demensionality reduction?
 
-## goal
+## An implementation
 
 <details>
-
-### so we can certainly use aes to refer to some variables.
 
 ``` r
 library(tidyverse)
@@ -567,7 +587,7 @@ last_plot() &
 panel_of_six_tsne_two_cluster <- last_plot()
 ```
 
-### 2. Cluster sizes in a t-SNE plot mean nothing
+### 2. ‘Cluster sizes in a t-SNE plot mean nothing’
 
 Let’s try to reproduce this (we’ll shortcut but switching out the data
 across plot specifications): ![](images/clipboard-4082290261.png)
@@ -590,7 +610,11 @@ panel_of_six_tsne_two_cluster &
 
 ![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
-### 3. Distances between clusters might not mean anything
+#### Side note on ggplyr::data_replace X google gemini quick search
+
+![](images/clipboard-3482018450.png)
+
+### 3. ‘Distances between clusters might not mean anything’
 
 Now let’s look at these three clusters, where one cluster is far out:
 
@@ -618,7 +642,7 @@ panel_of_six_tsne_two_cluster &
 
 ![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
-### 4. Random noise doesn’t always look random
+### 4. ‘Random noise doesn’t always look random’
 
 ![](images/clipboard-109741735.png)
 
