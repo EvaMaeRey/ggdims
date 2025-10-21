@@ -331,6 +331,22 @@ p +
 ![](README_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
 
 ``` r
+
+
+theme_dims <- function(ink = "black", paper = "white"){
+  
+  theme_grey() +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          panel.border = element_rect(color = ink) 
+          )
+  
+}
+```
+
+``` r
 geom_tsne <- function(...){
   list(
     dims_expand(),
@@ -455,9 +471,13 @@ last_plot() +
 
 ------------------------------------------------------------------------
 
-### looking at the <https://distill.pub/2016/misread-tsne/>
+# Try to reproduce some of ‘How to Use t-SNE Effectively’ <https://distill.pub/2016/misread-tsne/>
 
-#### 1. ‘Those hyperparameters really matter’
+### 1. ‘Those hyperparameters really matter’
+
+Let’s try to reproduce the following with our `geom_tsne()`:
+
+![](images/clipboard-2588034840.png)
 
 ``` r
 hello_world_of_tsne <- data.frame(dim1 = rnorm(200) + 
@@ -468,35 +488,44 @@ hello_world_of_tsne <- data.frame(dim1 = rnorm(200) +
 original <- hello_world_of_tsne |>
   ggplot() + 
   aes(x = dim1, 
-      y = dim2, 
-      fill = type) + 
+      y = dim2) + 
   geom_point(shape = 21, color = "white",
              alpha = .5) + 
-  # coord_equal() + 
-  labs(title = "Original")
+  labs(title = "Original") + 
+  aes(fill = I("black"))
 
-base <- hello_world_of_tsne |>
-  ggplot() + 
-  aes(dims = dims(dim1:dim2)) + 
-  guides(fill = "none")
-
-pp2 <- base + 
+pp2 <- ggplot(data = hello_world_of_tsne) + 
+  aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 2) + 
-  labs(title = "perplexity = 2")
+  labs(title = "perplexity = 2"); pp2
+```
 
-pp5 <- base + 
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+
+``` r
+
+pp5 <- ggplot(data = hello_world_of_tsne) + 
+  aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 5) + 
-  labs(title = "perplexity = 5")
+  labs(title = "perplexity = 5"); pp5
+```
 
-pp30 <- base + 
+![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+
+``` r
+
+pp30 <- ggplot(data = hello_world_of_tsne) + 
+  aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 30) + 
   labs(title = "perplexity = 30")
 
-pp50 <- base + 
+pp50 <- ggplot(data = hello_world_of_tsne) + 
+  aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 50) + 
   labs(title = "perplexity = 50")
 
-pp100 <- base + 
+pp100 <- ggplot(data = hello_world_of_tsne) + 
+  aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 100) + 
   labs(title = "perplexity = 100")
 
@@ -509,18 +538,98 @@ original + pp2 + pp5 + pp30 + pp50 + pp100
 #> ! perplexity is too large for the number of samples
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
 
 ``` r
 
 # with group id
-last_plot() & aes(fill = type)
+last_plot() & 
+  aes(fill = type) &
+  guides(fill = "none") &
+  theme_dims() 
 #> Warning: Computation failed in `stat_tsne0()`.
 #> Caused by error in `.check_tsne_params()`:
 #> ! perplexity is too large for the number of samples
+#> Warning: annotation$theme is not a valid theme.
+#> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-4.png)<!-- -->
+
+``` r
+
+
+panel_of_six_tsne_two_cluster <- last_plot()
+```
+
+### 2. Cluster sizes in a t-SNE plot mean nothing
+
+Let’s try to reproduce this (we’ll shortcut but switching out the data
+across plot specifications): ![](images/clipboard-4082290261.png)
+
+``` r
+big_and_small_cluster <- data.frame(dim1 = c(rnorm(100), rnorm(100, sd = .1)) + 
+                                    c(rep(-5, 100), rep(5, 100)),
+                                  dim2 = c(rnorm(100), rnorm(100, sd = .1)),
+                                  type = c(rep("A", 100), rep("B", 100)))
+
+
+panel_of_six_tsne_two_cluster & 
+  ggplyr::data_replace(big_and_small_cluster)
+#> Warning: Computation failed in `stat_tsne0()`.
+#> Caused by error in `.check_tsne_params()`:
+#> ! perplexity is too large for the number of samples
+#> Warning: annotation$theme is not a valid theme.
+#> Please use `theme()` to construct themes.
+```
+
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+
+### 3. Distances between clusters might not mean anything
+
+Now let’s look at these three clusters, where one cluster is far out:
+
+![](images/clipboard-2639177458.png)
+
+``` r
+two_close_and_one_far <- data.frame(dim1 = rnorm(150) + 
+                                    c(rep(-5, 50), 
+                                      rep(5, 50),
+                                      rep(50, 50)),
+                                    dim2 = rnorm(150),
+                                    type = c(rep("A", 50), 
+                                           rep("B", 50),
+                                           rep("C", 50)))
+
+panel_of_six_tsne_two_cluster & 
+  ggplyr::data_replace(two_close_and_one_far)
+#> Warning: Computation failed in `stat_tsne0()`.
+#> Computation failed in `stat_tsne0()`.
+#> Caused by error in `.check_tsne_params()`:
+#> ! perplexity is too large for the number of samples
+#> Warning: annotation$theme is not a valid theme.
+#> Please use `theme()` to construct themes.
+```
+
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+
+### 4. Random noise doesn’t always look random
+
+![](images/clipboard-109741735.png)
+
+``` r
+random_noise <- data.frame(dim1 = rnorm(500),
+                           dim2 = rnorm(500))
+
+original + pp2 + pp5 + pp30 + pp50 + pp100 & 
+  ggplyr::data_replace(random_noise) &
+  aes(fill = I("darkblue")) &
+  theme_dims()
+#> Warning: annotation$theme is not a valid theme.
+#> Please use `theme()` to construct themes.
+```
+
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ------------------------------------------------------------------------
 

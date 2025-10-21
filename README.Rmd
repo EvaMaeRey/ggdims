@@ -11,32 +11,31 @@ knitr::opts_chunk$set(
 )
 ```
 
-Here, doing some further thinking about a dimensionality reduction framework for ggplot2. Based on some previous work 
+Here, doing some further thinking about a dimensionality reduction framework for ggplot2. Based on some previous work
 
-- [2025-07-18](https://evamaerey.github.io/mytidytuesday/2025-07-18-seurat_tsne_plot/seurat_tsne_plot.html)
-- [2025-08-19](https://evamaerey.github.io/mytidytuesday/2025-08-19-umap/umap.html)
-- [2025-10-11](https://evamaerey.github.io/mytidytuesday/2025-10-11-ggdims/ggdims.html) 
+-   [2025-07-18](https://evamaerey.github.io/mytidytuesday/2025-07-18-seurat_tsne_plot/seurat_tsne_plot.html)
+-   [2025-08-19](https://evamaerey.github.io/mytidytuesday/2025-08-19-umap/umap.html)
+-   [2025-10-11](https://evamaerey.github.io/mytidytuesday/2025-10-11-ggdims/ggdims.html)
 
-and discussions 
+and discussions
 
-- [ggplot-extension-club/discussions/117](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/117#discussioncomment-14565426)
-- [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
+-   [ggplot-extension-club/discussions/117](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/117#discussioncomment-14565426)
+-   [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
 
 More related:
 
-- https://distill.pub/2016/misread-tsne/
-- McInnes Bluffer's guide https://www.youtube.com/watch?v=9iol3Lk6kyU
-- https://satijalab.org/seurat/articles/seurat5_sketch_analysis
-- McInnes Learning from Machine Learning https://www.youtube.com/watch?v=6sSOr2Yaq80&t=759s
-- https://embed.tidymodels.org/
-
-
+-   <https://distill.pub/2016/misread-tsne/>
+-   McInnes Bluffer's guide <https://www.youtube.com/watch?v=9iol3Lk6kyU>
+-   <https://satijalab.org/seurat/articles/seurat5_sketch_analysis>
+-   McInnes Learning from Machine Learning <https://www.youtube.com/watch?v=6sSOr2Yaq80&t=759s>
+-   <https://embed.tidymodels.org/>
 
 This is in the experimental/proof of concept phase. 🤔🚧
 
 # ggdims
 
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 ```{r setup, include=FALSE}
@@ -44,17 +43,14 @@ knitr::opts_chunk$set(echo = TRUE)
 options(tidyverse.quiet = TRUE)
 ```
 
-
-
-
 ## Intro Thoughts
 
-So, ggplot2 seems to be not well suited to taking a dataframe and doing dimensionality reduction within.  The assumption is that you will specify how each and every variable to be visualized will be visualized (which feels very intuitive and is very nice to use!).  But there's a whole world of dimension reduction and visualization that accompanies it, and is everyone left to their own devices to try to figure out how that should happen when using ggplot2 to plot this demensionality reduction?
+So, ggplot2 seems to be not well suited to taking a dataframe and doing dimensionality reduction within. The assumption is that you will specify how each and every variable to be visualized will be visualized (which feels very intuitive and is very nice to use!). But there's a whole world of dimension reduction and visualization that accompanies it, and is everyone left to their own devices to try to figure out how that should happen when using ggplot2 to plot this demensionality reduction?
 
 ## goal
 
-<details> 
- 
+<details>
+
 ### so we can certainly use aes to refer to some variables.
 
 ```{r}
@@ -68,7 +64,6 @@ iris |>
 
 last_plot()$mapping
 ```
-
 
 ### but we need these expanded out
 
@@ -84,7 +79,6 @@ iris |>
   geom_tsne0()
 
 ```
-
 
 ```{r}
 mvars <- function(...) {
@@ -104,7 +98,6 @@ vars_unpack <- function(x) {
   
 }
 ```
-
 
 ### so let's use some ggplot_add to try to expand, and have these vars listed out individually
 
@@ -149,7 +142,6 @@ p$mapping$dims[[2]]
 
 
 ```
-
 
 ### dims_expand
 
@@ -215,7 +207,6 @@ p <- iris |>
 
 p$mapping
 ```
-
 
 ## compute_tsne, geom_tsne
 
@@ -295,9 +286,20 @@ p$mapping$dims
 p + 
   geom_tsne0() + 
   aes(fill = Species)
+
+
+theme_dims <- function(ink = "black", paper = "white"){
+  
+  theme_grey() +
+    theme(panel.background = element_blank(),
+          panel.grid = element_blank(),
+          axis.text = element_blank(),
+          axis.ticks = element_blank(),
+          panel.border = element_rect(color = ink) 
+          )
+  
+}
 ```
-
-
 
 ```{r}
 geom_tsne <- function(...){
@@ -308,8 +310,7 @@ geom_tsne <- function(...){
 }
 ```
 
-</details> 
-
+</details>
 
 ```{r, fig.show='hold'}
 iris |> 
@@ -320,7 +321,6 @@ iris |>
 last_plot() + 
   aes(fill = Species)
 ```
-
 
 ### Different perplexity
 
@@ -389,7 +389,6 @@ geom_umap <- function(...){
 
 </details>
 
-
 ```{r}
 iris |> 
   ggplot() + 
@@ -401,13 +400,15 @@ last_plot() +
 
 ```
 
+------------------------------------------------------------------------
 
----
+# Try to reproduce some of 'How to Use t-SNE Effectively' <https://distill.pub/2016/misread-tsne/>
 
+### 1. 'Those hyperparameters really matter'
 
-### looking at the https://distill.pub/2016/misread-tsne/
+Let's try to reproduce the following with our `geom_tsne()`:
 
-#### 1. 'Those hyperparameters really matter'
+![](images/clipboard-2588034840.png)
 
 ```{r}
 hello_world_of_tsne <- data.frame(dim1 = rnorm(200) + 
@@ -418,35 +419,34 @@ hello_world_of_tsne <- data.frame(dim1 = rnorm(200) +
 original <- hello_world_of_tsne |>
   ggplot() + 
   aes(x = dim1, 
-      y = dim2, 
-      fill = type) + 
+      y = dim2) + 
   geom_point(shape = 21, color = "white",
              alpha = .5) + 
-  # coord_equal() + 
-  labs(title = "Original")
+  labs(title = "Original") + 
+  aes(fill = I("black"))
 
-base <- hello_world_of_tsne |>
-  ggplot() + 
-  aes(dims = dims(dim1:dim2)) + 
-  guides(fill = "none")
-
-pp2 <- base + 
+pp2 <- ggplot(data = hello_world_of_tsne) + 
+  aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 2) + 
-  labs(title = "perplexity = 2")
+  labs(title = "perplexity = 2"); pp2
 
-pp5 <- base + 
+pp5 <- ggplot(data = hello_world_of_tsne) + 
+  aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 5) + 
-  labs(title = "perplexity = 5")
+  labs(title = "perplexity = 5"); pp5
 
-pp30 <- base + 
+pp30 <- ggplot(data = hello_world_of_tsne) + 
+  aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 30) + 
   labs(title = "perplexity = 30")
 
-pp50 <- base + 
+pp50 <- ggplot(data = hello_world_of_tsne) + 
+  aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 50) + 
   labs(title = "perplexity = 50")
 
-pp100 <- base + 
+pp100 <- ggplot(data = hello_world_of_tsne) + 
+  aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 100) + 
   labs(title = "perplexity = 100")
 
@@ -455,13 +455,70 @@ library(patchwork)
 original + pp2 + pp5 + pp30 + pp50 + pp100
 
 # with group id
-last_plot() & aes(fill = type)
+last_plot() & 
+  aes(fill = type) &
+  guides(fill = "none") &
+  theme_dims() 
+
+
+panel_of_six_tsne_two_cluster <- last_plot()
 
 ```
 
+### 2. Cluster sizes in a t-SNE plot mean nothing
+
+Let's try to reproduce this (we'll shortcut but switching out the data across plot specifications): ![](images/clipboard-4082290261.png)
+
+```{r}
+big_and_small_cluster <- data.frame(dim1 = c(rnorm(100), rnorm(100, sd = .1)) + 
+                                    c(rep(-5, 100), rep(5, 100)),
+                                  dim2 = c(rnorm(100), rnorm(100, sd = .1)),
+                                  type = c(rep("A", 100), rep("B", 100)))
 
 
----
+panel_of_six_tsne_two_cluster & 
+  ggplyr::data_replace(big_and_small_cluster)
+
+```
+
+### 3. Distances between clusters might not mean anything
+
+Now let's look at these three clusters, where one cluster is far out:
+
+![](images/clipboard-2639177458.png)
+
+```{r}
+two_close_and_one_far <- data.frame(dim1 = rnorm(150) + 
+                                    c(rep(-5, 50), 
+                                      rep(5, 50),
+                                      rep(50, 50)),
+                                    dim2 = rnorm(150),
+                                    type = c(rep("A", 50), 
+                                           rep("B", 50),
+                                           rep("C", 50)))
+
+panel_of_six_tsne_two_cluster & 
+  ggplyr::data_replace(two_close_and_one_far)
+
+```
+
+### 4. Random noise doesn't always look random
+
+![](images/clipboard-109741735.png)
+
+```{r}
+random_noise <- data.frame(dim1 = rnorm(500),
+                           dim2 = rnorm(500))
+
+original + pp2 + pp5 + pp30 + pp50 + pp100 & 
+  ggplyr::data_replace(random_noise) &
+  aes(fill = I("darkblue")) &
+  theme_dims()
+
+
+```
+
+------------------------------------------------------------------------
 
 ```{r, eval = F, echo = F}
 palmerpenguins::penguins |> 
@@ -474,8 +531,6 @@ palmerpenguins::penguins |>
 last_plot() + 
   aes(fill = species)
 ```
-
-
 
 ```{r, eval = F, echo = F}
 unvotes::un_votes |> 
@@ -508,8 +563,4 @@ un_ga_country_wide_rcid |>
 
 ```
 
-
----
-
-
-
+------------------------------------------------------------------------
