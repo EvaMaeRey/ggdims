@@ -1,0 +1,21 @@
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+Here, doing some further work on a dimensionality reduction framework
+for ggplot2. Based on some previous work
+
+- [2025-07-18](https://evamaerey.github.io/mytidytuesday/2025-07-18-seurat_tsne_plot/seurat_tsne_plot.html),
+- [2025-08-19](https://evamaerey.github.io/mytidytuesday/2025-08-19-umap/umap.html),
+- [2025-10-11](https://evamaerey.github.io/mytidytuesday/2025-10-11-ggdims/ggdims.html)
+
+and discussions
+
+- [ggplot-extension-club/discussions/117](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/117#discussioncomment-14565426)
+- [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
+
+# ggdims
+
+<!-- badges: start -->
+<!-- badges: end -->
+
+The goal of ggdims is to …
