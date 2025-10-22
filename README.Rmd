@@ -14,6 +14,34 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+
+<!-- badges: start -->
+
+<!-- badges: end -->
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+options(tidyverse.quiet = TRUE)
+```
+
+## ggdims Intro Thoughts
+
+ggplot2 seems to be not to be particularly obvious to extend for dimensionality reduction.  For viz with ggplot2 you generally specify how each and every variable is to be visualized (which does feel very intuitive and nice when you have few vars to visualize). But there's a whole world of dimension reduction and the visualization that accompanies it.  In this space, because it's not obvious how to extend, maybe less consistency might result as to dimensionality reduction APIs, which could make getting acquainted with a lot of techniques more challenging that it needs to be. 
+
+ggdims proposes the following API:
+
+```{r, eval = F}
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = dims(dim1:dim20, dim25)) +      # or similar
+  geom_reduction_technique()
+
+last_plot() + 
+  aes(color = label)    # indicate category
+```
+
+
+
 ## Supporting work and discussions
 
 Here, doing some further thinking about a dimensionality reduction framework for ggplot2. Based on some previous work
@@ -36,19 +64,6 @@ More related:
 -   <https://embed.tidymodels.org/>
 
 This is in the experimental/proof of concept phase. 🤔🚧
-
-<!-- badges: start -->
-
-<!-- badges: end -->
-
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-options(tidyverse.quiet = TRUE)
-```
-
-## ggdims Intro Thoughts
-
-So, ggplot2 seems to be not well suited to taking a dataframe and doing dimensionality reduction within. The assumption is that you will specify how each and every variable to be visualized will be visualized (which feels very intuitive and is very nice to use!). But there's a whole world of dimension reduction and visualization that accompanies it, and is everyone left to their own devices to try to figure out how that should happen when using ggplot2 to plot this demensionality reduction?
 
 ## An implementation
 

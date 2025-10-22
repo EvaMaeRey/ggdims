@@ -1,6 +1,6 @@
 
-- [Supporting work and discussions](#supporting-work-and-discussions)
 - [ggdims Intro Thoughts](#ggdims-intro-thoughts)
+- [Supporting work and discussions](#supporting-work-and-discussions)
 - [An implementation](#an-implementation)
   - [but we need these expanded out](#but-we-need-these-expanded-out)
   - [so let’s use some ggplot_add to try to expand, and have these vars
@@ -22,6 +22,31 @@
     random’](#4-random-noise-doesnt-always-look-random)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+<!-- badges: start -->
+<!-- badges: end -->
+
+## ggdims Intro Thoughts
+
+ggplot2 seems to be not to be particularly obvious to extend for
+dimensionality reduction. For viz with ggplot2 you generally specify how
+each and every variable is to be visualized (which does feel very
+intuitive and nice when you have few vars to visualize). But there’s a
+whole world of dimension reduction and the visualization that
+accompanies it. In this space, because it’s not obvious how to extend,
+maybe less consistency might result as to dimensionality reduction APIs,
+which could make getting acquainted with a lot of techniques more
+challenging that it needs to be.
+
+ggdims proposes the following API:
+
+``` r
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = dims(dim1:dim20, dim25)) +      # or similar
+  geom_reduction_technique()
+
+last_plot() + 
+  aes(color = label)    # indicate category
+```
 
 ## Supporting work and discussions
 
@@ -48,19 +73,6 @@ More related:
 
 This is in the experimental/proof of concept phase. 🤔🚧
 
-<!-- badges: start -->
-<!-- badges: end -->
-
-## ggdims Intro Thoughts
-
-So, ggplot2 seems to be not well suited to taking a dataframe and doing
-dimensionality reduction within. The assumption is that you will specify
-how each and every variable to be visualized will be visualized (which
-feels very intuitive and is very nice to use!). But there’s a whole
-world of dimension reduction and visualization that accompanies it, and
-is everyone left to their own devices to try to figure out how that
-should happen when using ggplot2 to plot this demensionality reduction?
-
 ## An implementation
 
 <details>
@@ -75,7 +87,7 @@ iris |>
   aes(dims = dims(Sepal.Length:Sepal.Width, Petal.Width))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-2-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-3-1.png)<!-- -->
 
 ``` r
 
@@ -126,7 +138,7 @@ iris |>
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width))
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-5-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-6-1.png)<!-- -->
 
 ``` r
 
@@ -334,7 +346,7 @@ iris |>
   geom_tsne0()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-8-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-9-1.png)<!-- -->
 
 ``` r
 
@@ -348,7 +360,7 @@ p +
   aes(fill = Species)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-8-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-9-2.png)<!-- -->
 
 ``` r
 
@@ -387,7 +399,7 @@ last_plot() +
   aes(fill = Species)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-10-1.png)![](README_files/figure-gfm/unnamed-chunk-10-2.png)
+![](README_files/figure-gfm/unnamed-chunk-11-1.png)![](README_files/figure-gfm/unnamed-chunk-11-2.png)
 
 ### Different perplexity
 
@@ -399,7 +411,7 @@ iris |>
   geom_tsne(perplexity = 10)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-11-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-12-1.png)<!-- -->
 
 # A little UMAP
 
@@ -479,7 +491,7 @@ iris |>
   geom_umap()
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
 
 ``` r
 
@@ -487,7 +499,7 @@ last_plot() +
   aes(fill = Species)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-13-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
 
 ------------------------------------------------------------------------
 
@@ -520,7 +532,7 @@ pp2 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 2"); pp2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
 
 ``` r
 
@@ -530,7 +542,7 @@ pp5 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 5"); pp5
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-2.png)<!-- -->
 
 ``` r
 
@@ -540,7 +552,7 @@ pp30 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 30"); pp30
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-3.png)<!-- -->
 
 ``` r
 
@@ -563,7 +575,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100
 #> ! perplexity is too large for the number of samples
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-4.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-4.png)<!-- -->
 
 ``` r
 
@@ -579,7 +591,7 @@ last_plot() &
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-14-5.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-15-5.png)<!-- -->
 
 ``` r
 
@@ -608,7 +620,7 @@ panel_of_six_tsne_two_cluster &
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-15-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
 
 #### Side note on ggplyr::data_replace X google gemini quick search
 
@@ -640,7 +652,7 @@ panel_of_six_tsne_two_cluster &
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-16-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
 
 ### 4. ‘Random noise doesn’t always look random’
 
@@ -658,7 +670,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-17-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-18-1.png)<!-- -->
 
 ------------------------------------------------------------------------
 
