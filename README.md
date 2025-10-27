@@ -32,11 +32,12 @@ ggplot2 lets you intuitively visualize data because you specify how each
 variable is to be communicated via a visual channel. However this
 individual-variable-to-individual-visual-channel specification framework
 does not lend itself easily to the world of dimension reduction and the
-visualization that accompanies it. The one-var-to-one-aesthetic usual
-requirement means that if may not feel obvious how to extend ggplot2 for
-dimensionality reduction. So even though using ggplot2 under-the-hood is
-common in the dim-red space, it feel like there may be less consistency
-across APIs, which could make getting quickly acquainted with a lot of
+visualization that accompanies it. The usual one-var-to-one-aesthetic
+requirement means that it may not feel obvious how to extend ggplot2 for
+dimensionality reduction, which deal with characterizing *many*
+variables. So even though using ggplot2 under-the-hood is common in the
+dim-red space, it feel like there may be less consistency across dim-red
+APIs, which could make getting quickly acquainted with a lot of
 techniques or doing comparative work more challenging that it needs to
 be. `ggdims` explores a new `dims()` and `dims_expand()` utility that
 might help with greater consistency across dim-red APIs and also with
