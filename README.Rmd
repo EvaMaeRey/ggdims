@@ -27,14 +27,14 @@ options(tidyverse.quiet = TRUE)
 
 ## ggdims Intro Thoughts
 
-ggplot2 seems to be not to be particularly obvious to extend for dimensionality reduction.  For viz with ggplot2 you generally specify how each and every variable is to be visualized (which does feel very intuitive and nice when you have few vars to visualize). But there's a whole world of dimension reduction and the visualization that accompanies it.  In this space, because it's not obvious how to extend, maybe less consistency might result as to dimensionality reduction APIs, which could make getting acquainted with a lot of techniques more challenging that it needs to be. 
+ggplot2 lets you intuitively visualize data because you specify how each variable is to be communicated via a visual channel.   However this individual-variable-to-individual-visual-channel specification framework does not lend itself easily to the world of dimension reduction and the visualization that accompanies it. The one-var-to-one-aesthetic usual requirement means that if may not feel obvious how to extend ggplot2 for dimensionality reduction.  So even though using ggplot2 under-the-hood is common in the dim-red space, it feel like there may be less consistency across APIs, which could make getting quickly acquainted with a lot of techniques or doing comparative work more challenging that it needs to be. `ggdims` explores a new `dims()` and `dims_expand()` utility that might help with greater consistency across dim-red APIs and also with standard ggplots, and within the ggplot2 extension ecosystem.
 
 ggdims proposes the following API:
 
 ```{r, eval = F}
 ggplot(data = my_high_dimensional_data) + 
   aes(dims = dims(dim1:dim20, dim25)) +      # or similar
-  geom_reduction_technique()
+  geom_reduction_technique()                 # default dim-red to 2D
 
 last_plot() + 
   aes(color = label)    # indicate category
@@ -44,16 +44,7 @@ last_plot() +
 
 ## Supporting work and discussions
 
-Here, doing some further thinking about a dimensionality reduction framework for ggplot2. Based on some previous work
-
--   [2025-07-18](https://evamaerey.github.io/mytidytuesday/2025-07-18-seurat_tsne_plot/seurat_tsne_plot.html)
--   [2025-08-19](https://evamaerey.github.io/mytidytuesday/2025-08-19-umap/umap.html)
--   [2025-10-11](https://evamaerey.github.io/mytidytuesday/2025-10-11-ggdims/ggdims.html)
-
-and discussions
-
--   [ggplot-extension-club/discussions/117](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/117#discussioncomment-14565426)
--   [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
+Here, doing some further thinking about a dimensionality reduction framework for ggplot2. Based on some previous work:  [2025-07-18](https://evamaerey.github.io/mytidytuesday/2025-07-18-seurat_tsne_plot/seurat_tsne_plot.html),   [2025-08-19](https://evamaerey.github.io/mytidytuesday/2025-08-19-umap/umap.html),   [2025-10-11](https://evamaerey.github.io/mytidytuesday/2025-10-11-ggdims/ggdims.html) and discussions    [ggplot-extension-club/discussions/117](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/117#discussioncomment-14565426) and [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
 
 More related:
 
@@ -62,6 +53,7 @@ More related:
 -   <https://satijalab.org/seurat/articles/seurat5_sketch_analysis>
 -   McInnes Learning from Machine Learning <https://www.youtube.com/watch?v=6sSOr2Yaq80&t=759s>
 -   <https://embed.tidymodels.org/>
+- https://vimeo.com/483185503?fl=pl&fe=sh
 
 This is in the experimental/proof of concept phase. 🤔🚧
 
@@ -418,7 +410,7 @@ last_plot() +
 
 ------------------------------------------------------------------------
 
-# Try to reproduce some of 'How to Use t-SNE Effectively' <https://distill.pub/2016/misread-tsne/>
+# Try to reproduce some of observations and figures in the Distill paper: 'How to Use t-SNE Effectively' <https://distill.pub/2016/misread-tsne/>
 
 ### 1. 'Those hyperparameters really matter'
 
