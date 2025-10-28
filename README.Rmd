@@ -10,7 +10,9 @@ output:
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  out.width = "33%",
+  fig.show = "hold"
 )
 ```
 
@@ -32,6 +34,8 @@ ggplot2 lets you intuitively visualize data because you specify how each variabl
 ggdims proposes the following API:
 
 ```{r, eval = F}
+library(ggplot2)
+
 ggplot(data = my_high_dimensional_data) + 
   aes(dims = dims(dim1:dim20, dim25)) +      # or similar
   geom_reduction_technique()                 # default dim-red to 2D
@@ -59,55 +63,49 @@ This is in the experimental/proof of concept phase. 🤔🚧
 
 ## An implementation
 
-<details>
+### `aes(dims = ?)` lets us capture an expression...
 
 ```{r}
 library(tidyverse)
 
 dims <- function(...){}
 
-iris |> 
-  ggplot() + 
-  aes(dims = dims(Sepal.Length:Sepal.Width, Petal.Width))
-
-last_plot()$mapping
+aes(dims = dims(Sepal.Length:Sepal.Width, Petal.Width))
 ```
 
-### but we need these expanded out
+Which means we can write something like this...
 
-Our syntax will actually use mvars, specifying each variable individually and vars_unpack within our computation.
+```{r, eval = F}
+iris |> 
+  ggplot() + 
+  aes(dims = dims(Sepal.Length:Sepal.Width, Petal.Width)) + 
+  geom_computation()
+```
+
+
+And maybe actually use an implied set of variables in our computation...
+
+
+
+### To expanded to the `:` referenced variables...
+
+Our strategy will actually use `dims_listed()` which takes vars listed individually, as described [here](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-10219152). Then we'll `vars_unpack()` within our computation.  
 
 ```{r, eval = F}
 iris |> 
   ggplot() + 
   aes(dims = 
-        mvars(Sepal.Length, Sepal.Width, 
+        dims_listed(Sepal.Length, Sepal.Width, 
                 Petal.Length, Petal.Width),
       fill = Species) +
-  geom_tsne0()
-
+  geom_tsne()
 ```
 
-```{r}
-mvars <- function(...) {
-  
-  varnames <- as.character(ensyms(...))
-  vars <- list(...)
-  listvec <- asplit(do.call(cbind, vars), 1)
-  structure(listvec, varnames = varnames)
 
-  }
-
-vars_unpack <- function(x) {
-  pca_vars <- x
-  df <- do.call(rbind, pca_vars)
-  colnames(df) <- attr(pca_vars, "varnames")
-  as.data.frame(df)
-  
-}
-```
 
 ### so let's use some ggplot_add to try to expand, and have these vars listed out individually
+
+### an exercise/experiment
 
 ```{r}
 iris |> 
@@ -142,16 +140,18 @@ var_names <- c(var_names, new_var_names)
 
 expanded_vars <- var_names |> paste(collapse = ", ") 
 
-new_dim_expr <- paste("mvars(", expanded_vars, ")")
+new_dim_expr <- paste("dims_listed(", expanded_vars, ")")
 
-p$mapping$dims[[2]] <- rlang::parse_expr(new_dim_expr)
+p$mapping <- modifyList(p$mapping, aes(dims0 = pi()))
 
-p$mapping$dims[[2]]
+p$mapping$dims0[[2]] <- rlang::parse_expr(new_dim_expr)
+
+p$mapping$dims0[[2]]
 
 
 ```
 
-### dims_expand
+### `dims_expand`
 
 ```{r}
 #' @export
@@ -196,7 +196,7 @@ var_names <- c(var_names, new_var_names)
 
 expanded_vars <- var_names |> paste(collapse = ", ") 
 
-new_dim_expr <- paste("mvars(", expanded_vars, ")")
+new_dim_expr <- paste("dims_listed(", expanded_vars, ")")
 
 plot$mapping$dims[[2]] <- rlang::parse_expr(new_dim_expr)
 
@@ -216,51 +216,80 @@ p <- iris |>
 p$mapping
 ```
 
+## Now let's actually define `dims_listed()` and `vars_unpack` 
+
+
+```{r}
+dims_listed <- function(...) {
+  
+  varnames <- as.character(ensyms(...))
+  vars <- list(...)
+  listvec <- asplit(do.call(cbind, vars), 1)
+  structure(listvec, varnames = varnames)
+
+  }
+
+vars_unpack <- function(x) {
+  pca_vars <- x
+  df <- do.call(rbind, pca_vars)
+  colnames(df) <- attr(pca_vars, "varnames")
+  as.data.frame(df)
+  
+}
+```
+
+# Applications: tsne, umap, PCA
+
 ## compute_tsne, geom_tsne
 
 <details>
 
 ```{r}
-# compute_tsne0 allows individually listed variables that are all of the same type
-compute_tsne0 <- function(data, scales, perplexity = 20){
-  
-  set.seed(1345)
-  
+# utility uses data with the required aes 'dims'
+data_vars_unpack <- function(data){
+
 # identify duplicates just based on tsne data
 data |>
   select(dims) |>
   mutate(vars_unpack(dims)) |>
-  select(-dims) ->
-data_unpacked ; data_unpacked
+  select(-dims)
 
-names_predictors <- names(data_unpacked); names_predictors
+}
 
-data_unpacked |>
-   duplicated() ->
-dups ; dups
-# #
-# # #
-data_unpacked |>
+
+
+```
+
+
+```{r}
+# compute_tsne0 allows individually listed variables that are all of the same type
+compute_tsne0 <- function(data, scales, perplexity = 20){
+  
+data_for_reduction <- data_vars_unpack(data)
+
+dups <- data_for_reduction |>
+   duplicated()
+
+clean_data <- data_for_reduction |>
     bind_cols(data) |>
      _[!dups,] |> 
-  remove_missing() ->
-clean_data ; clean_data
-# # # 
+  remove_missing()
+
+set.seed(1345)
 clean_data |>
-  _[names_predictors] |>
+  _[names(data_for_reduction)] |>
   as.matrix() |>
   Rtsne::Rtsne(perplexity = perplexity) |>
   _$Y |>
   as_tibble() |>
  rename(x = V1, y = V2) |>
  bind_cols(clean_data)
-#   
 
 }
 
 
 iris |> 
-  mutate(dims = mvars(Sepal.Length, Sepal.Width, 
+  mutate(dims = dims_listed(Sepal.Length, Sepal.Width, 
                 Petal.Length, Petal.Width)) |>
   select(dims) |>
   compute_tsne0()
@@ -284,7 +313,7 @@ geom_tsne0 <- make_constructor(GeomPointFill, stat = StatTsne0, perplexity = 30)
 iris |> 
   ggplot() + 
   aes(dims = 
-        mvars(Sepal.Length, Sepal.Width, 
+        dims_listed(Sepal.Length, Sepal.Width, 
                 Petal.Length, Petal.Width),
       fill = Species) +
   geom_tsne0()
@@ -340,44 +369,35 @@ iris |>
   geom_tsne(perplexity = 10)
 ```
 
-# A little UMAP
+## A little UMAP
 
 <details>
 
 ```{r}
 compute_umap <- function(data, scales, n_components = 2, random_state = 15){
   
-set.seed(1345)
-  
 # identify duplicates just based on tsne data
-data |>
-  select(dims) |>
-  mutate(vars_unpack(dims)) |>
-  select(-dims) ->
-data_unpacked ; data_unpacked
+data_for_reduction <- data_vars_unpack(data)
 
-names_predictors <- names(data_unpacked); names_predictors
+clean_data <- data_for_reduction |>
+  bind_cols(data) |>
+  remove_missing()
 
-data_unpacked |>
-    bind_cols(data) |>
-  remove_missing() ->
-clean_data ; clean_data
-
-# # # 
+set.seed(1345)
 clean_data |>
-  _[names_predictors] |>
-  umap::umap(n_components = n_components, random_state = random_state)  |>
+  _[names(data_for_reduction)] |>
+  umap::umap(n_components = n_components, 
+             random_state = random_state)  |>
   _$layout |>
   as_tibble() |>
  rename(x = V1, y = V2) |>
  bind_cols(clean_data)
-#   
 
 }
 
 iris |> 
   mutate(dims = 
-        mvars(Sepal.Length, Sepal.Width, 
+        dims_listed(Sepal.Length, Sepal.Width, 
                 Petal.Length, Petal.Width)) |>
   select(color = Species, dims) |>
   compute_umap()
@@ -408,9 +428,91 @@ last_plot() +
 
 ```
 
+## A little PCA
+
+```{r}
+compute_pca_rows <- function(data, scales){
+  
+  data_for_reduction <- data_vars_unpack(data)
+
+clean_data <- data_for_reduction |>
+  bind_cols(data) |>
+  remove_missing()
+
+set.seed(1345)
+reduced <- clean_data |>
+  _[names(data_for_reduction)] |>
+  ordr::ordinate(model = ~ prcomp(., scale. = TRUE)) |> 
+  _[[5]] |> 
+  as_tibble()
+
+reduced |>
+ bind_cols(clean_data)
+
+}
+
+
+iris |> 
+  mutate(dims = 
+        dims_listed(Sepal.Length, Sepal.Width, 
+                Petal.Length, Petal.Width)) |>
+  select(color = Species, dims) |>
+  compute_pca_rows() 
+
+StatPcaRows <- ggproto("StatPcaRows", Stat,
+                    compute_panel = compute_pca_rows,
+                    default_aes = aes(x = after_stat(PC1), 
+                                      y = after_stat(PC2))
+                    )
+
+geom_pca0 <- make_constructor(GeomPointFill, stat = StatPcaRows)
+
+geom_pca <- function(...){
+  
+  list(
+    dims_expand(),
+    geom_pca0(...)
+  )
+  
+}
+
+
+iris |> 
+  ggplot() + 
+  aes(dims = dims(Sepal.Length:Petal.Width)) + 
+  geom_pca()
+
+last_plot() + 
+  aes(fill = Species)
+
+
+last_plot() + 
+  aes(y = after_stat(PC3))
+```
+
+### w/ penguins
+
+```{r}
+palmerpenguins::penguins |>
+  ggplot() +
+  aes(dims = dims(bill_length_mm:body_mass_g)) +
+  geom_pca()
+
+last_plot() +
+  aes(fill = species)
+
+```
+
 ------------------------------------------------------------------------
 
 # Try to reproduce some of observations and figures in the Distill paper: 'How to Use t-SNE Effectively' <https://distill.pub/2016/misread-tsne/>
+
+
+```{r}
+knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
+
+
+```
 
 ### 1. 'Those hyperparameters really matter'
 
