@@ -325,7 +325,7 @@ p +
   aes(fill = Species)
 
 
-theme_dims <- function(ink = "black", paper = "white"){
+theme_ggdims <- function(ink = "black", paper = "white"){
   
   theme_grey() +
     theme(panel.background = element_blank(),
@@ -568,7 +568,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100
 last_plot() & 
   aes(fill = type) &
   guides(fill = "none") &
-  theme_dims() 
+  theme_ggdims() 
 
 
 panel_of_six_tsne_two_cluster <- last_plot()
@@ -627,7 +627,7 @@ random_noise <- data.frame(dim1 = rnorm(500),
 original + pp2 + pp5 + pp30 + pp50 + pp100 & 
   ggplyr::data_replace(random_noise) &
   aes(fill = I("darkblue")) &
-  theme_dims()
+  theme_ggdims()
 
 
 ```

@@ -382,7 +382,7 @@ p +
   aes(fill = Species)
 
 
-theme_dims <- function(ink = "black", paper = "white"){
+theme_ggdims <- function(ink = "black", paper = "white"){
   
   theme_grey() +
     theme(panel.background = element_blank(),
@@ -689,7 +689,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100
 last_plot() & 
   aes(fill = type) &
   guides(fill = "none") &
-  theme_dims() 
+  theme_ggdims() 
 #> Warning: Computation failed in `stat_tsne0()`.
 #> Caused by error in `.check_tsne_params()`:
 #> ! perplexity is too large for the number of samples
@@ -771,7 +771,7 @@ random_noise <- data.frame(dim1 = rnorm(500),
 original + pp2 + pp5 + pp30 + pp50 + pp100 & 
   ggplyr::data_replace(random_noise) &
   aes(fill = I("darkblue")) &
-  theme_dims()
+  theme_ggdims()
 #> Warning: annotation$theme is not a valid theme.
 #> Please use `theme()` to construct themes.
 ```
