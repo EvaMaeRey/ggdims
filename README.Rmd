@@ -523,10 +523,14 @@ Let's try to reproduce the following with our `geom_tsne()`:
 ![](images/clipboard-2588034840.png)
 
 ```{r}
-hello_world_of_tsne <- data.frame(dim1 = rnorm(200) + 
-                                    c(rep(-5, 100), rep(5, 100)),
-                                  dim2 = rnorm(200),
-                                  type = c(rep("A", 100), rep("B", 100)))
+hello_world_of_tsne <- data.frame(dim1 = 
+                                    rnorm(101, mean = -.5,
+                                          sd = .1) |>
+                                    c(rnorm(101, mean = .5,
+                                            sd = .1)),
+                                   
+                                  dim2 = rnorm(202, sd = .1),
+                                  type = c(rep("A", 101), rep("B", 101)))
 
 dim(hello_world_of_tsne)
 
@@ -539,7 +543,7 @@ original <- hello_world_of_tsne |>
              aes(size = from_theme(pointsize * 1.5))) + 
   labs(title = "Original") + 
   aes(fill = I("black")) + 
-  coord_equal(xlim = c(-8,8), ylim = c(-8,8))
+  coord_equal(xlim = c(-1,1), ylim = c(-1,1))
 
 pp2 <- ggplot(data = hello_world_of_tsne) + 
   aes(dims = dims(dim1:dim2)) +
@@ -586,9 +590,10 @@ panel_of_six_tsne_two_cluster <- last_plot()
 Let's try to reproduce this (we'll shortcut but switching out the data across plot specifications): ![](images/clipboard-4082290261.png)
 
 ```{r}
-big_and_small_cluster <- data.frame(dim1 = c(rnorm(100), rnorm(100, sd = .1)) + 
-                                    c(rep(-5, 100), rep(5, 100)),
-                                  dim2 = c(rnorm(100), rnorm(100, sd = .1)),
+big_and_small_cluster <- data.frame(dim1 = c(rnorm(100, -.5, sd = .1),
+                                             rnorm(100, .7, sd = .03)),
+                                  dim2 = c(rnorm(100, sd = .1), 
+                                           rnorm(100, sd = .03)),
                                   type = c(rep("A", 100), rep("B", 100)))
 
 
@@ -608,11 +613,11 @@ Now let's look at these three clusters, where one cluster is far out:
 ![](images/clipboard-2639177458.png)
 
 ```{r}
-two_close_and_one_far <- data.frame(dim1 = rnorm(150) + 
-                                    c(rep(-5, 50), 
-                                      rep(5, 50),
-                                      rep(50, 50)),
-                                    dim2 = rnorm(150),
+two_close_and_one_far <- data.frame(dim1 = 
+                                    c(rnorm(50, -.75, .05), 
+                                      rnorm(50, -.35, .05),
+                                      rnorm(50, .75, .05)),
+                                    dim2 = rnorm(150, sd = .05),
                                     type = c(rep("A", 50), 
                                            rep("B", 50),
                                            rep("C", 50)))
@@ -627,8 +632,8 @@ panel_of_six_tsne_two_cluster &
 ![](images/clipboard-109741735.png)
 
 ```{r}
-random_noise <- data.frame(dim1 = rnorm(500),
-                           dim2 = rnorm(500))
+random_noise <- data.frame(dim1 = rnorm(500, sd = .3),
+                           dim2 = rnorm(500, sd = .3))
 
 original + pp2 + pp5 + pp30 + pp50 + pp100 & 
   ggplyr::data_replace(random_noise) &
