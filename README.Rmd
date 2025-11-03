@@ -238,12 +238,6 @@ vars_unpack <- function(x) {
 }
 ```
 
-# Applications: tsne, umap, PCA
-
-## compute_tsne, geom_tsne
-
-<details>
-
 ```{r}
 # utility uses data with the required aes 'dims'
 data_vars_unpack <- function(data){
@@ -257,8 +251,16 @@ data |>
 }
 
 
-
 ```
+
+
+# Applications: tsne, umap, PCA
+
+## compute_tsne, geom_tsne
+
+<details>
+
+
 
 
 ```{r}
@@ -304,7 +306,7 @@ GeomPointFill <- ggproto("GeomPointFill",
                            modifyList(GeomPoint$default_aes, 
                                       aes(shape = 21, 
                                           color = from_theme(paper),
-                                          size = from_theme(pointsize * 2.5),
+                                          size = from_theme(pointsize * 1.5),
                                           alpha = .7,
                                           fill = from_theme(ink))))
 
@@ -505,7 +507,7 @@ last_plot() +
 
 ------------------------------------------------------------------------
 
-# Try to reproduce some of observations and figures in the Distill paper: 'How to Use t-SNE Effectively' <https://distill.pub/2016/misread-tsne/>
+# Try to reproduce some of observations and figures in the Distill paper: 'How to Use t-SNE Effectively' <https://distill.pub/2016/misread-tsne/>  with some verbatim visuals from the paper.
 
 
 ```{r}
@@ -526,14 +528,18 @@ hello_world_of_tsne <- data.frame(dim1 = rnorm(200) +
                                   dim2 = rnorm(200),
                                   type = c(rep("A", 100), rep("B", 100)))
 
+dim(hello_world_of_tsne)
+
 original <- hello_world_of_tsne |>
   ggplot() + 
   aes(x = dim1, 
       y = dim2) + 
   geom_point(shape = 21, color = "white",
-             alpha = .5) + 
+             alpha = .5, 
+             aes(size = from_theme(pointsize * 1.5))) + 
   labs(title = "Original") + 
-  aes(fill = I("black"))
+  aes(fill = I("black")) + 
+  coord_equal(xlim = c(-8,8), ylim = c(-8,8))
 
 pp2 <- ggplot(data = hello_world_of_tsne) + 
   aes(dims = dims(dim1:dim2)) +
@@ -562,13 +568,13 @@ pp100 <- ggplot(data = hello_world_of_tsne) +
 
 
 library(patchwork)
-original + pp2 + pp5 + pp30 + pp50 + pp100
+original + pp2 + pp5 + pp30 + pp50 + pp100 &
+  theme_ggdims() 
 
 # with group id
 last_plot() & 
   aes(fill = type) &
-  guides(fill = "none") &
-  theme_ggdims() 
+  guides(fill = "none")
 
 
 panel_of_six_tsne_two_cluster <- last_plot()

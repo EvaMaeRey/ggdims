@@ -21,7 +21,9 @@
     - [w/ penguins](#w-penguins)
 - [Try to reproduce some of observations and figures in the Distill
   paper: ‘How to Use t-SNE Effectively’
-  https://distill.pub/2016/misread-tsne/](#try-to-reproduce-some-of-observations-and-figures-in-the-distill-paper-how-to-use-t-sne-effectively-httpsdistillpub2016misread-tsne)
+  https://distill.pub/2016/misread-tsne/ with some verbatim visuals from
+  the
+  paper.](#try-to-reproduce-some-of-observations-and-figures-in-the-distill-paper-how-to-use-t-sne-effectively-httpsdistillpub2016misread-tsne-with-some-verbatim-visuals-from-the-paper)
   - [1. ‘Those hyperparameters really
     matter’](#1-those-hyperparameters-really-matter)
   - [2. ‘Cluster sizes in a t-SNE plot mean
@@ -279,12 +281,6 @@ vars_unpack <- function(x) {
 }
 ```
 
-# Applications: tsne, umap, PCA
-
-## compute_tsne, geom_tsne
-
-<details>
-
 ``` r
 # utility uses data with the required aes 'dims'
 data_vars_unpack <- function(data){
@@ -297,6 +293,12 @@ data |>
 
 }
 ```
+
+# Applications: tsne, umap, PCA
+
+## compute_tsne, geom_tsne
+
+<details>
 
 ``` r
 # compute_tsne0 allows individually listed variables that are all of the same type
@@ -361,7 +363,7 @@ GeomPointFill <- ggproto("GeomPointFill",
                            modifyList(GeomPoint$default_aes, 
                                       aes(shape = 21, 
                                           color = from_theme(paper),
-                                          size = from_theme(pointsize * 2.5),
+                                          size = from_theme(pointsize * 1.5),
                                           alpha = .7,
                                           fill = from_theme(ink))))
 
@@ -608,7 +610,7 @@ last_plot() +
 
 ------------------------------------------------------------------------
 
-# Try to reproduce some of observations and figures in the Distill paper: ‘How to Use t-SNE Effectively’ <https://distill.pub/2016/misread-tsne/>
+# Try to reproduce some of observations and figures in the Distill paper: ‘How to Use t-SNE Effectively’ <https://distill.pub/2016/misread-tsne/> with some verbatim visuals from the paper.
 
 ``` r
 knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
@@ -626,14 +628,19 @@ hello_world_of_tsne <- data.frame(dim1 = rnorm(200) +
                                   dim2 = rnorm(200),
                                   type = c(rep("A", 100), rep("B", 100)))
 
+dim(hello_world_of_tsne)
+#> [1] 200   3
+
 original <- hello_world_of_tsne |>
   ggplot() + 
   aes(x = dim1, 
       y = dim2) + 
   geom_point(shape = 21, color = "white",
-             alpha = .5) + 
+             alpha = .5, 
+             aes(size = from_theme(pointsize * 1.5))) + 
   labs(title = "Original") + 
-  aes(fill = I("black"))
+  aes(fill = I("black")) + 
+  coord_equal(xlim = c(-8,8), ylim = c(-8,8))
 
 pp2 <- ggplot(data = hello_world_of_tsne) + 
   aes(dims = dims(dim1:dim2)) +
@@ -678,10 +685,13 @@ pp100 <- ggplot(data = hello_world_of_tsne) +
 
 library(patchwork)
 #> Warning: package 'patchwork' was built under R version 4.4.1
-original + pp2 + pp5 + pp30 + pp50 + pp100
+original + pp2 + pp5 + pp30 + pp50 + pp100 &
+  theme_ggdims() 
 #> Warning: Computation failed in `stat_tsne0()`.
 #> Caused by error in `.check_tsne_params()`:
 #> ! perplexity is too large for the number of samples
+#> Warning: annotation$theme is not a valid theme.
+#> Please use `theme()` to construct themes.
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-20-4.png)<!-- -->
@@ -691,13 +701,12 @@ original + pp2 + pp5 + pp30 + pp50 + pp100
 # with group id
 last_plot() & 
   aes(fill = type) &
-  guides(fill = "none") &
-  theme_ggdims() 
+  guides(fill = "none")
 #> Warning: Computation failed in `stat_tsne0()`.
+#> annotation$theme is not a valid theme.
+#> Please use `theme()` to construct themes.
 #> Caused by error in `.check_tsne_params()`:
 #> ! perplexity is too large for the number of samples
-#> Warning: annotation$theme is not a valid theme.
-#> Please use `theme()` to construct themes.
 ```
 
 ![](README_files/figure-gfm/unnamed-chunk-20-5.png)<!-- -->
