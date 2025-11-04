@@ -6,24 +6,22 @@
     expression…](#aesdims---lets-us-capture-an-expression)
   - [To expanded to the `:` referenced
     variables…](#to-expanded-to-the--referenced-variables)
-  - [so let’s use some ggplot_add to try to expand, and have these vars
-    listed out
-    individually](#so-lets-use-some-ggplot_add-to-try-to-expand-and-have-these-vars-listed-out-individually)
+  - [so let’s use some ggplot_add to try to expand, and have these
+    individually specified
+    vars](#so-lets-use-some-ggplot_add-to-try-to-expand-and-have-these-individually-specified-vars)
   - [an exercise/experiment](#an-exerciseexperiment)
   - [`dims_expand`](#dims_expand)
 - [Now let’s actually define `dims_listed()` and
   `vars_unpack`](#now-lets-actually-define-dims_listed-and-vars_unpack)
 - [Applications: tsne, umap, PCA](#applications-tsne-umap-pca)
-  - [compute_tsne, geom_tsne](#compute_tsne-geom_tsne)
+  - [compute_tsne, geom_tsne, using
+    `Rtsne::Rtsne`](#compute_tsne-geom_tsne-using-rtsnertsne)
     - [Different perplexity](#different-perplexity)
-  - [A little UMAP](#a-little-umap)
-  - [A little PCA](#a-little-pca)
+  - [A little UMAP using `umap::umap`](#a-little-umap-using-umapumap)
+  - [A little PCA using
+    `ordr::ordinate`](#a-little-pca-using-ordrordinate)
     - [w/ penguins](#w-penguins)
-- [Try to reproduce some of observations and figures in the Distill
-  paper: ‘How to Use t-SNE Effectively’
-  https://distill.pub/2016/misread-tsne/ with some verbatim visuals from
-  the
-  paper.](#try-to-reproduce-some-of-observations-and-figures-in-the-distill-paper-how-to-use-t-sne-effectively-httpsdistillpub2016misread-tsne-with-some-verbatim-visuals-from-the-paper)
+- [Reproduction exercise](#reproduction-exercise)
   - [1. ‘Those hyperparameters really
     matter’](#1-those-hyperparameters-really-matter)
   - [2. ‘Cluster sizes in a t-SNE plot mean
@@ -96,6 +94,8 @@ This is in the experimental/proof of concept phase. 🤔🚧
 
 ## An implementation
 
+<details>
+
 ### `aes(dims = ?)` lets us capture an expression…
 
 ``` r
@@ -122,8 +122,8 @@ And maybe actually use an implied set of variables in our computation…
 
 ### To expanded to the `:` referenced variables…
 
-Our strategy will actually use `dims_listed()` which takes vars listed
-individually, as described
+Our strategy will actually use `dims_listed()` which takes vars
+individually specified, as described
 [here](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-10219152).
 Then we’ll `vars_unpack()` within our computation.
 
@@ -137,7 +137,11 @@ iris |>
   geom_tsne()
 ```
 
-### so let’s use some ggplot_add to try to expand, and have these vars listed out individually
+</details>
+
+### so let’s use some ggplot_add to try to expand, and have these individually specified vars
+
+<details>
 
 ### an exercise/experiment
 
@@ -145,6 +149,11 @@ iris |>
 iris |> 
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width))
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-6-1.png" width="55%" />
+
+``` r
 
 p <- last_plot()
 
@@ -191,9 +200,11 @@ p$mapping$dims0[[2]]
 #> dims_listed(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-6-1.png" width="33%" />
+</details>
 
 ### `dims_expand`
+
+<details>
 
 ``` r
 #' @export
@@ -262,6 +273,8 @@ p$mapping
 
 ## Now let’s actually define `dims_listed()` and `vars_unpack`
 
+<details>
+
 ``` r
 dims_listed <- function(...) {
   
@@ -294,15 +307,17 @@ data |>
 }
 ```
 
+</details>
+
 # Applications: tsne, umap, PCA
 
-## compute_tsne, geom_tsne
+## compute_tsne, geom_tsne, using `Rtsne::Rtsne`
 
 <details>
 
 ``` r
-# compute_tsne0 allows individually listed variables that are all of the same type
-compute_tsne0 <- function(data, scales, perplexity = 20){
+# compute_tsne allows individually listed variables that are all of the same type
+compute_tsne <- function(data, scales, perplexity = 20){
   
 data_for_reduction <- data_vars_unpack(data)
 
@@ -326,12 +341,28 @@ clean_data |>
 
 }
 
+compute_tsne_group_label <- function(data, scales, perplexity = 20, fun = mean){
+  
+  compute_tsne(data, scales, perplexity) |> 
+    summarise(x = fun(x),
+              y = fun(y),
+              .by = label)
+  
+}
 
+StatTsne <- ggproto("StatTsne", Stat, 
+                     compute_panel = compute_tsne)
+
+StatTsneGroup <- ggproto("StatTsneGroup", Stat, 
+                         compute_panel = compute_tsne_group_label)
+```
+
+``` r
 iris |> 
   mutate(dims = dims_listed(Sepal.Length, Sepal.Width, 
                 Petal.Length, Petal.Width)) |>
   select(dims) |>
-  compute_tsne0()
+  compute_tsne()
 #> Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if
 #> `.name_repair` is omitted as of tibble 2.0.0.
 #> ℹ Using compatibility `.name_repair`.
@@ -352,11 +383,21 @@ iris |>
 #>  9 -10.4  -13.4          4.4         2.9          1.4         0.2 <dbl [4]> 
 #> 10 -10.8  -15.9          4.9         3.1          1.5         0.1 <dbl [4]> 
 #> # ℹ 139 more rows
-  
 
-StatTsne0 <- ggproto("StatTsne0", Stat, 
-                     compute_panel = compute_tsne0)
+iris |> 
+  mutate(dims = dims_listed(Sepal.Length, Sepal.Width, 
+                Petal.Length, Petal.Width)) |>
+  select(dims, label = Species) |>
+  compute_tsne_group_label()
+#> # A tibble: 3 × 3
+#>   label           x      y
+#>   <fct>       <dbl>  <dbl>
+#> 1 setosa     -9.98  -18.2 
+#> 2 versicolor  0.857  13.1 
+#> 3 virginica   9.31    5.22
+```
 
+``` r
 GeomPointFill <- ggproto("GeomPointFill", 
                          GeomPoint,
                          default_aes = 
@@ -367,15 +408,31 @@ GeomPointFill <- ggproto("GeomPointFill",
                                           alpha = .7,
                                           fill = from_theme(ink))))
 
-geom_tsne0 <- make_constructor(GeomPointFill, stat = StatTsne0, perplexity = 30)
+geom_tsne0 <- make_constructor(GeomPointFill, 
+                               stat = StatTsne, 
+                               perplexity = 30)
 
+geom_tsne_label0 <- make_constructor(GeomText, 
+                                     stat = StatTsneGroup,
+                                     perplexity = 30)
+```
+
+``` r
 iris |> 
   ggplot() + 
   aes(dims = 
         dims_listed(Sepal.Length, Sepal.Width, 
                 Petal.Length, Petal.Width),
-      fill = Species) +
-  geom_tsne0()
+      fill = Species,
+      label = Species
+      ) +
+  geom_tsne0() + 
+  geom_tsne_label0()
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-14-1.png" width="55%" />
+
+``` r
 
 
 p$mapping$dims
@@ -385,8 +442,11 @@ p$mapping$dims
 p + 
   geom_tsne0() + 
   aes(fill = Species)
+```
 
+<img src="README_files/figure-gfm/unnamed-chunk-14-2.png" width="55%" />
 
+``` r
 theme_ggdims <- function(ink = "black", paper = "white"){
   
   theme_grey() +
@@ -400,13 +460,19 @@ theme_ggdims <- function(ink = "black", paper = "white"){
 }
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-11-1.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-11-2.png" width="33%" />
-
 ``` r
 geom_tsne <- function(...){
   list(
     dims_expand(),
     geom_tsne0(...)
+  )
+}
+
+
+geom_tsne_label <- function(...){
+  list(
+    dims_expand(),
+    geom_tsne_label0(...)
   )
 }
 ```
@@ -418,12 +484,26 @@ iris |>
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width)) +
   geom_tsne()
-
-last_plot() + 
-  aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-13-1.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-13-2.png" width="33%" />
+<img src="README_files/figure-gfm/unnamed-chunk-17-1.png" width="55%" />
+
+``` r
+
+last_plot() + 
+  aes(fill = Species) 
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-17-2.png" width="55%" />
+
+``` r
+
+last_plot() + 
+  aes(label = Species) + 
+  geom_tsne_label()
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-17-3.png" width="55%" />
 
 ### Different perplexity
 
@@ -435,16 +515,15 @@ iris |>
   geom_tsne(perplexity = 10)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-14-1.png" width="33%" />
+<img src="README_files/figure-gfm/unnamed-chunk-18-1.png" width="55%" />
 
-## A little UMAP
+## A little UMAP using `umap::umap`
 
 <details>
 
 ``` r
 compute_umap <- function(data, scales, n_components = 2, random_state = 15){
   
-# identify duplicates just based on tsne data
 data_for_reduction <- data_vars_unpack(data)
 
 clean_data <- data_for_reduction |>
@@ -484,15 +563,19 @@ iris |>
 #> 10  13.8 -4.81          4.9         3.1          1.5         0.1 setosa <dbl[…]>
 #> # ℹ 140 more rows
 
-StatUmap <- ggproto("StatUmap", Stat, 
-                     compute_panel = compute_umap)
 
+# define StatUmap
+StatUmap <- ggproto("StatUmap", 
+                    Stat, 
+                    compute_panel = compute_umap)
+
+# 
 geom_umap0 <- make_constructor(GeomPointFill, stat = StatUmap, random_state = 15, n_components = 4)
 
 geom_umap <- function(...){
   
   list(dims_expand(), 
-       geom_umap0())
+       geom_umap0(...))
   
 }
 ```
@@ -504,14 +587,21 @@ iris |>
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Width)) + 
   geom_umap()
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-20-1.png" width="55%" />
+
+``` r
 
 last_plot() + 
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-16-1.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-16-2.png" width="33%" />
+<img src="README_files/figure-gfm/unnamed-chunk-20-2.png" width="55%" />
 
-## A little PCA
+## A little PCA using `ordr::ordinate`
+
+<details>
 
 ``` r
 compute_pca_rows <- function(data, scales){
@@ -573,22 +663,35 @@ geom_pca <- function(...){
   )
   
 }
+```
 
+</details>
 
+``` r
 iris |> 
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Width)) + 
   geom_pca()
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-22-1.png" width="55%" />
+
+``` r
 
 last_plot() + 
   aes(fill = Species)
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-22-2.png" width="55%" />
+
+``` r
 
 
 last_plot() + 
   aes(y = after_stat(PC3))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-17-1.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-17-2.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-17-3.png" width="33%" />
+<img src="README_files/figure-gfm/unnamed-chunk-22-3.png" width="55%" />
 
 ### w/ penguins
 
@@ -599,6 +702,11 @@ palmerpenguins::penguins |>
   geom_pca()
 #> Warning: Removed 2 rows containing missing values or values outside the scale
 #> range.
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-23-1.png" width="55%" />
+
+``` r
 
 last_plot() +
   aes(fill = species)
@@ -606,11 +714,15 @@ last_plot() +
 #> range.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-18-1.png" width="33%" /><img src="README_files/figure-gfm/unnamed-chunk-18-2.png" width="33%" />
+<img src="README_files/figure-gfm/unnamed-chunk-23-2.png" width="55%" />
 
 ------------------------------------------------------------------------
 
-# Try to reproduce some of observations and figures in the Distill paper: ‘How to Use t-SNE Effectively’ <https://distill.pub/2016/misread-tsne/> with some verbatim visuals from the paper.
+# Reproduction exercise
+
+Try to reproduce some of observations and figures in the Distill paper:
+‘How to Use t-SNE Effectively’ <https://distill.pub/2016/misread-tsne/>
+with some verbatim visuals from the paper.
 
 ``` r
 knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
@@ -640,7 +752,7 @@ original <- hello_world_of_tsne |>
   aes(x = dim1, 
       y = dim2) + 
   geom_point(shape = 21, color = "white",
-             alpha = .5, 
+             alpha = .7, 
              aes(size = from_theme(pointsize * 1.5))) + 
   labs(title = "Original") + 
   aes(fill = I("black")) + 
@@ -652,7 +764,7 @@ pp2 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 2"); pp2
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
 ``` r
 
@@ -662,7 +774,7 @@ pp5 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 5"); pp5
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-2.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-2.png)<!-- -->
 
 ``` r
 
@@ -672,7 +784,7 @@ pp30 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 30"); pp30
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-3.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-3.png)<!-- -->
 
 ``` r
 
@@ -680,6 +792,11 @@ pp50 <- ggplot(data = hello_world_of_tsne) +
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 50) + 
   labs(title = "perplexity = 50")
+
+
+layer_data() |> dims()
+#> NULL
+
 
 pp100 <- ggplot(data = hello_world_of_tsne) + 
   aes(dims = dims(dim1:dim2)) +
@@ -691,14 +808,14 @@ library(patchwork)
 #> Warning: package 'patchwork' was built under R version 4.4.1
 original + pp2 + pp5 + pp30 + pp50 + pp100 &
   theme_ggdims() 
-#> Warning: Computation failed in `stat_tsne0()`.
+#> Warning: Computation failed in `stat_tsne()`.
 #> Caused by error in `.check_tsne_params()`:
 #> ! perplexity is too large for the number of samples
 #> Warning: annotation$theme is not a valid theme.
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-4.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-4.png)<!-- -->
 
 ``` r
 
@@ -706,14 +823,14 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
 last_plot() & 
   aes(fill = type) &
   guides(fill = "none")
-#> Warning: Computation failed in `stat_tsne0()`.
+#> Warning: Computation failed in `stat_tsne()`.
 #> annotation$theme is not a valid theme.
 #> Please use `theme()` to construct themes.
 #> Caused by error in `.check_tsne_params()`:
 #> ! perplexity is too large for the number of samples
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-20-5.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-25-5.png)<!-- -->
 
 ``` r
 
@@ -736,14 +853,14 @@ big_and_small_cluster <- data.frame(dim1 = c(rnorm(100, -.5, sd = .1),
 
 panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(big_and_small_cluster)
-#> Warning: Computation failed in `stat_tsne0()`.
+#> Warning: Computation failed in `stat_tsne()`.
 #> Caused by error in `.check_tsne_params()`:
 #> ! perplexity is too large for the number of samples
 #> Warning: annotation$theme is not a valid theme.
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-21-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 #### Side note on ggplyr::data_replace X google gemini quick search
 
@@ -757,25 +874,21 @@ Now let’s look at these three clusters, where one cluster is far out:
 
 ``` r
 two_close_and_one_far <- data.frame(dim1 = 
-                                    c(rnorm(50, -.75, .05), 
-                                      rnorm(50, -.35, .05),
-                                      rnorm(50, .75, .05)),
-                                    dim2 = rnorm(150, sd = .05),
-                                    type = c(rep("A", 50), 
-                                           rep("B", 50),
-                                           rep("C", 50)))
+                                    c(rnorm(150, -.75, .05), 
+                                      rnorm(150, -.35, .05),
+                                      rnorm(150, .75, .05)),
+                                    dim2 = rnorm(450, sd = .05),
+                                    type = c(rep("A", 150), 
+                                           rep("B", 150),
+                                           rep("C", 150)))
 
 panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(two_close_and_one_far)
-#> Warning: Computation failed in `stat_tsne0()`.
-#> Computation failed in `stat_tsne0()`.
-#> Caused by error in `.check_tsne_params()`:
-#> ! perplexity is too large for the number of samples
 #> Warning: annotation$theme is not a valid theme.
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
 
 ### 4. ‘Random noise doesn’t always look random’
 
@@ -793,8 +906,18 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 ------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
+
+``` r
+library(GGally)
+
+pm <- ggpairs(tips)
+
+str(pm)
+
+names(pm)
+```

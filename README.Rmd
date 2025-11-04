@@ -11,8 +11,8 @@ output:
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
-  out.width = "33%",
-  fig.show = "hold"
+  out.width = "55%"
+  # fig.show = "hold"
 )
 ```
 
@@ -63,6 +63,9 @@ This is in the experimental/proof of concept phase. 🤔🚧
 
 ## An implementation
 
+<details>
+
+
 ### `aes(dims = ?)` lets us capture an expression...
 
 ```{r}
@@ -89,7 +92,7 @@ And maybe actually use an implied set of variables in our computation...
 
 ### To expanded to the `:` referenced variables...
 
-Our strategy will actually use `dims_listed()` which takes vars listed individually, as described [here](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-10219152). Then we'll `vars_unpack()` within our computation.  
+Our strategy will actually use `dims_listed()` which takes vars individually specified, as described [here](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-10219152). Then we'll `vars_unpack()` within our computation.  
 
 ```{r, eval = F}
 iris |> 
@@ -101,9 +104,12 @@ iris |>
   geom_tsne()
 ```
 
+</details>
 
 
-### so let's use some ggplot_add to try to expand, and have these vars listed out individually
+### so let's use some ggplot_add to try to expand, and have these individually specified vars 
+
+<details>
 
 ### an exercise/experiment
 
@@ -151,7 +157,12 @@ p$mapping$dims0[[2]]
 
 ```
 
+</details>
+
+
 ### `dims_expand`
+
+<details>
 
 ```{r}
 #' @export
@@ -218,6 +229,7 @@ p$mapping
 
 ## Now let's actually define `dims_listed()` and `vars_unpack` 
 
+<details>
 
 ```{r}
 dims_listed <- function(...) {
@@ -253,10 +265,11 @@ data |>
 
 ```
 
+</details>
 
 # Applications: tsne, umap, PCA
 
-## compute_tsne, geom_tsne
+## compute_tsne, geom_tsne, using `Rtsne::Rtsne`
 
 <details>
 
@@ -264,8 +277,8 @@ data |>
 
 
 ```{r}
-# compute_tsne0 allows individually listed variables that are all of the same type
-compute_tsne0 <- function(data, scales, perplexity = 20){
+# compute_tsne allows individually listed variables that are all of the same type
+compute_tsne <- function(data, scales, perplexity = 20){
   
 data_for_reduction <- data_vars_unpack(data)
 
@@ -289,17 +302,38 @@ clean_data |>
 
 }
 
+compute_tsne_group_label <- function(data, scales, perplexity = 20, fun = mean){
+  
+  compute_tsne(data, scales, perplexity) |> 
+    summarise(x = fun(x),
+              y = fun(y),
+              .by = label)
+  
+}
 
+StatTsne <- ggproto("StatTsne", Stat, 
+                     compute_panel = compute_tsne)
+
+StatTsneGroup <- ggproto("StatTsneGroup", Stat, 
+                         compute_panel = compute_tsne_group_label)
+```
+
+
+```{r}
 iris |> 
   mutate(dims = dims_listed(Sepal.Length, Sepal.Width, 
                 Petal.Length, Petal.Width)) |>
   select(dims) |>
-  compute_tsne0()
-  
+  compute_tsne()
 
-StatTsne0 <- ggproto("StatTsne0", Stat, 
-                     compute_panel = compute_tsne0)
+iris |> 
+  mutate(dims = dims_listed(Sepal.Length, Sepal.Width, 
+                Petal.Length, Petal.Width)) |>
+  select(dims, label = Species) |>
+  compute_tsne_group_label()
+```  
 
+```{r}
 GeomPointFill <- ggproto("GeomPointFill", 
                          GeomPoint,
                          default_aes = 
@@ -310,23 +344,37 @@ GeomPointFill <- ggproto("GeomPointFill",
                                           alpha = .7,
                                           fill = from_theme(ink))))
 
-geom_tsne0 <- make_constructor(GeomPointFill, stat = StatTsne0, perplexity = 30)
+geom_tsne0 <- make_constructor(GeomPointFill, 
+                               stat = StatTsne, 
+                               perplexity = 30)
 
+geom_tsne_label0 <- make_constructor(GeomText, 
+                                     stat = StatTsneGroup,
+                                     perplexity = 30)
+```
+
+
+```{r}
 iris |> 
   ggplot() + 
   aes(dims = 
         dims_listed(Sepal.Length, Sepal.Width, 
                 Petal.Length, Petal.Width),
-      fill = Species) +
-  geom_tsne0()
+      fill = Species,
+      label = Species
+      ) +
+  geom_tsne0() + 
+  geom_tsne_label0()
 
 
 p$mapping$dims
 p + 
   geom_tsne0() + 
   aes(fill = Species)
+```
 
 
+```{r}
 theme_ggdims <- function(ink = "black", paper = "white"){
   
   theme_grey() +
@@ -347,18 +395,30 @@ geom_tsne <- function(...){
     geom_tsne0(...)
   )
 }
+
+
+geom_tsne_label <- function(...){
+  list(
+    dims_expand(),
+    geom_tsne_label0(...)
+  )
+}
 ```
 
 </details>
 
-```{r, fig.show='hold'}
+```{r}
 iris |> 
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width)) +
   geom_tsne()
 
 last_plot() + 
-  aes(fill = Species)
+  aes(fill = Species) 
+
+last_plot() + 
+  aes(label = Species) + 
+  geom_tsne_label()
 ```
 
 ### Different perplexity
@@ -371,14 +431,13 @@ iris |>
   geom_tsne(perplexity = 10)
 ```
 
-## A little UMAP
+## A little UMAP using `umap::umap`
 
 <details>
 
 ```{r}
 compute_umap <- function(data, scales, n_components = 2, random_state = 15){
   
-# identify duplicates just based on tsne data
 data_for_reduction <- data_vars_unpack(data)
 
 clean_data <- data_for_reduction |>
@@ -404,15 +463,19 @@ iris |>
   select(color = Species, dims) |>
   compute_umap()
 
-StatUmap <- ggproto("StatUmap", Stat, 
-                     compute_panel = compute_umap)
 
+# define StatUmap
+StatUmap <- ggproto("StatUmap", 
+                    Stat, 
+                    compute_panel = compute_umap)
+
+# 
 geom_umap0 <- make_constructor(GeomPointFill, stat = StatUmap, random_state = 15, n_components = 4)
 
 geom_umap <- function(...){
   
   list(dims_expand(), 
-       geom_umap0())
+       geom_umap0(...))
   
 }
 ```
@@ -430,7 +493,9 @@ last_plot() +
 
 ```
 
-## A little PCA
+## A little PCA using `ordr::ordinate`
+
+<details>
 
 ```{r}
 compute_pca_rows <- function(data, scales){
@@ -477,8 +542,11 @@ geom_pca <- function(...){
   )
   
 }
+```
 
+</details>
 
+```{r}
 iris |> 
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Width)) + 
@@ -507,7 +575,9 @@ last_plot() +
 
 ------------------------------------------------------------------------
 
-# Try to reproduce some of observations and figures in the Distill paper: 'How to Use t-SNE Effectively' <https://distill.pub/2016/misread-tsne/>  with some verbatim visuals from the paper.
+# Reproduction exercise
+
+Try to reproduce some of observations and figures in the Distill paper: 'How to Use t-SNE Effectively' <https://distill.pub/2016/misread-tsne/>  with some verbatim visuals from the paper.
 
 
 ```{r}
@@ -539,7 +609,7 @@ original <- hello_world_of_tsne |>
   aes(x = dim1, 
       y = dim2) + 
   geom_point(shape = 21, color = "white",
-             alpha = .5, 
+             alpha = .7, 
              aes(size = from_theme(pointsize * 1.5))) + 
   labs(title = "Original") + 
   aes(fill = I("black")) + 
@@ -564,6 +634,10 @@ pp50 <- ggplot(data = hello_world_of_tsne) +
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 50) + 
   labs(title = "perplexity = 50")
+
+
+layer_data() |> dims()
+
 
 pp100 <- ggplot(data = hello_world_of_tsne) + 
   aes(dims = dims(dim1:dim2)) +
@@ -614,13 +688,13 @@ Now let's look at these three clusters, where one cluster is far out:
 
 ```{r}
 two_close_and_one_far <- data.frame(dim1 = 
-                                    c(rnorm(50, -.75, .05), 
-                                      rnorm(50, -.35, .05),
-                                      rnorm(50, .75, .05)),
-                                    dim2 = rnorm(150, sd = .05),
-                                    type = c(rep("A", 50), 
-                                           rep("B", 50),
-                                           rep("C", 50)))
+                                    c(rnorm(150, -.75, .05), 
+                                      rnorm(150, -.35, .05),
+                                      rnorm(150, .75, .05)),
+                                    dim2 = rnorm(450, sd = .05),
+                                    type = c(rep("A", 150), 
+                                           rep("B", 150),
+                                           rep("C", 150)))
 
 panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(two_close_and_one_far)
@@ -689,3 +763,15 @@ un_ga_country_wide_rcid |>
 ```
 
 ------------------------------------------------------------------------
+
+
+```{r, eval = F}
+library(GGally)
+
+pm <- ggpairs(tips)
+
+str(pm)
+
+names(pm)
+
+```
