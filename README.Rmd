@@ -269,7 +269,7 @@ data |>
 
 # Applications: tsne, umap, PCA
 
-## compute_tsne, geom_tsne, using `Rtsne::Rtsne`
+## compute_tsne, geom_tsne, using [`Rtsne::Rtsne`](https://github.com/jkrijthe/Rtsne)
 
 <details>
 
@@ -431,7 +431,7 @@ iris |>
   geom_tsne(perplexity = 10)
 ```
 
-## A little UMAP using `umap::umap`
+## A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
 
 <details>
 
@@ -719,7 +719,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
 
 ------------------------------------------------------------------------
 
-```{r, eval = F, echo = F}
+```{r}
 palmerpenguins::penguins |> 
   sample_n(size = 200) |>
   remove_missing() |> 
@@ -731,8 +731,10 @@ last_plot() +
   aes(fill = species)
 ```
 
-```{r, eval = F, echo = F}
+```{r}
 unvotes::un_votes |> 
+  arrange(rcid) |>
+  mutate(rcid = paste0("rc",rcid) |> fct_inorder()) |>
   mutate(num_vote = case_when(vote == "yes" ~ 1,
                               vote == "abstain" ~ .5,
                               vote == "no" ~ 0,
@@ -748,30 +750,30 @@ unvotes::un_votes |>
   mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
 un_ga_country_wide_rcid
 
-names(un_ga_country_wide_rcid) <- paste0("rcid", names(un_ga_country_wide_rcid))
-  
 
-unvotes::un_votes$rcid |> max()
+names(un_ga_country_wide_rcid) |> tail()
+```
 
-un_ga_country_wide_rcid |>
+
+
+```{r, out.width="100%"}
+dims_specs <- 
+  un_ga_country_wide_rcid |>
   ggplot() + 
-  aes(dims = dims(rcid3:rcid9147)) + 
-  geom_umap() +
-  aes(fill = rcidcontinent)
+  aes(dims = dims(rc3:rc9147), 
+      fill = continent)
+
+library(patchwork)
+(dims_specs + geom_pca() + labs(title = "PCA")) + 
+  (dims_specs + geom_tsne() + labs(title = "Tsne")) +  
+  (dims_specs + geom_umap() + labs(title = "UMAP")) + 
+  patchwork::plot_layout(guides = "collect") + 
+  plot_annotation(title = "UN General Assembly voting country projections")
 
 
+ggsave("hi.png", width = 12, height = 4)
+knitr::include_graphics("hi.png")
 ```
 
-------------------------------------------------------------------------
 
 
-```{r, eval = F}
-library(GGally)
-
-pm <- ggpairs(tips)
-
-str(pm)
-
-names(pm)
-
-```

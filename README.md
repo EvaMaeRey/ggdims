@@ -311,7 +311,7 @@ data |>
 
 # Applications: tsne, umap, PCA
 
-## compute_tsne, geom_tsne, using `Rtsne::Rtsne`
+## compute_tsne, geom_tsne, using [`Rtsne::Rtsne`](https://github.com/jkrijthe/Rtsne)
 
 <details>
 
@@ -517,7 +517,7 @@ iris |>
 
 <img src="README_files/figure-gfm/unnamed-chunk-18-1.png" width="55%" />
 
-## A little UMAP using `umap::umap`
+## A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
 
 <details>
 
@@ -910,14 +910,78 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
 
 ------------------------------------------------------------------------
 
-------------------------------------------------------------------------
+``` r
+palmerpenguins::penguins |> 
+  sample_n(size = 200) |>
+  remove_missing() |> 
+  ggplot() + 
+  aes(dims = dims(bill_length_mm:body_mass_g)) + 
+  geom_umap() 
+#> Warning: Removed 7 rows containing missing values or values outside the scale
+#> range.
+```
+
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
-library(GGally)
 
-pm <- ggpairs(tips)
-
-str(pm)
-
-names(pm)
+last_plot() + 
+  aes(fill = species)
 ```
+
+![](README_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
+
+``` r
+unvotes::un_votes |> 
+  arrange(rcid) |>
+  mutate(rcid = paste0("rc",rcid) |> fct_inorder()) |>
+  mutate(num_vote = case_when(vote == "yes" ~ 1,
+                              vote == "abstain" ~ .5,
+                              vote == "no" ~ 0,
+                              TRUE ~ .5 )) |>
+  # filter(rcid %in% 1:30) |>
+  pivot_wider(id_cols = c(country, country_code),
+    names_from = rcid, 
+              values_from = num_vote,
+              values_fill = .5
+            ) |>
+  mutate(continent = country_code |> 
+           countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
+  mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
+un_ga_country_wide_rcid
+#> Warning: There was 1 warning in `mutate()`.
+#> ℹ In argument: `continent = countrycode::countrycode(country_code, origin =
+#>   "iso2c", destination = "continent")`.
+#> Caused by warning:
+#> ! Some values were not matched unambiguously: CS, DD, YD, YU
+
+
+names(un_ga_country_wide_rcid) |> tail()
+#> [1] "rc9143"    "rc9144"    "rc9145"    "rc9146"    "rc9147"    "continent"
+```
+
+``` r
+dims_specs <- 
+  un_ga_country_wide_rcid |>
+  ggplot() + 
+  aes(dims = dims(rc3:rc9147), 
+      fill = continent)
+
+library(patchwork)
+(dims_specs + geom_pca() + labs(title = "PCA")) + 
+  (dims_specs + geom_tsne() + labs(title = "Tsne")) +  
+  (dims_specs + geom_umap() + labs(title = "UMAP")) + 
+  patchwork::plot_layout(guides = "collect") + 
+  plot_annotation(title = "UN General Assembly voting country projections")
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-31-1.png" width="100%" />
+
+``` r
+
+
+ggsave("hi.png", width = 12, height = 4)
+knitr::include_graphics("hi.png")
+```
+
+<img src="hi.png" width="100%" />
