@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>{ggdims}</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Gina (Evangeline) Reynolds, ASA CO-WY Chapter meeting November 14, 2025" />
+    <script src="libs/header-attrs-2.26/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/hygge.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# {ggdims}
+]
+.subtitle[
+## Toward a viz- and code-first hitchhiker’s guide to dimensionality reduction
+]
+.author[
+### Gina (Evangeline) Reynolds, ASA CO-WY Chapter meeting November 14, 2025
+]
+
+---
+
+
+
+
+class: inverse, bottom
+background-image: url(https://plus.unsplash.com/premium_photo-1686050878751-89499d28d153?ixlib=rb-4.1.0&amp;ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bmlnaHRza3l8ZW58MHx8MHx8fDA%3D&amp;auto=format&amp;fit=crop&amp;q=60&amp;w=500)
+background-size: cover
+
+# .Large[{ggdims}]
+## .small[Toward a viz- and code-first hitchhiker’s guide to dimensionality reduction]
+## .small[https://bit.ly/??]
+#### .tiny[Gina (Evangeline) Reynolds | 2025-11-14 | ASA, COWY, Image credit: Ales Krivec, Upsplash]
+
+
+
+
+
+
+&lt;style type="text/css"&gt;
+/* Change default body text size */
+.remark-slide-content {
+  font-size: 32px; /* Or use em, rem, or viewport units like 2vw */
+}
+
+/* Change font size for a specific class (e.g., for larger text) */
+.large-text {
+  font-size: 1.5em;
+}
+
+/* Change font size for code blocks */
+.remark-code {
+  font-size: 0.9em;
+}
+
+/* Change font size for inline code */
+.remark-inline-code {
+  font-size: 0.9em;
+}
+
+
+
+&lt;/style&gt;
+
+---
+class: inverse, middle, center
+
+# ggplot2 lets you intuitively translate variables to visual representation.
+
+
+
+---
+
+`aes(x &lt;- age)`
+
+`aes(color &lt;- sex)`
+
+`aes(linetype &lt;- employment status)`
+
+
+---
+class: inverse, middle
+
+# You specify how variables (e.g. sex, age, employment status) ...
+
+--
+
+# ... are to be communicated via visual channels (x position, y position, color, transparency, etc). 
+
+
+---
+class: inverse
+
+# But... ggplot2 allows individual-variable- 
+--
+to- individual-visual-channel mapping
+
+
+
+
+---
+class: inverse
+
+# The problem with 1-to-1:
+
+--
+
+## Doesn't lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, T-sne, UMAP)
+
+
+???
+
+## However, in ggplot2 these specifications are individual-variable-to-individual-visual-channel which does not lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, T-sne, UMAP). 
+
+---
+
+Martin Wattenberg 'How to use t-SNE effectively' 2016: 
+
+&gt; Paraphrase: 'it's worth taking the time to get a feel for what the algorithm does with some familiar, well understood distributions' 
+
+--
+
+&gt; Jump right in. Do some dimensionality reduction. Visualize. 
+
+---
+
+
+
+
+---
+
+Leland McInnes "Bluffer's Guide
+
+&gt; "I'm gonna try and give as much of a whirlwind tour of the 
+entire field of dimention reduction as I can in the time available." 
+
+&gt; "There are only two dimention reduction techniques.*"
+
+--
+
+&gt; The similarities are greater than the differences...
+
+
+---
+
+&gt; shouldn't we be able to fly (hitchhike) through trying out some of these techniques just like 
+
+&gt; should we have to learn a different paradigm/syntax for every technique?
+
+&gt; can we lean on syntax we already know (2D viz)
+
+
+---
+
+
+``` r
+ggplot(cars) + 
+  aes(x = speed,
+      y = dist) + 
+  geom_point()
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+
+
+---
+
+# Closer with `dims_listed()` approach
+
+
+``` r
+iris |&gt; 
+  ggplot() + 
+  aes(dims = 
+        dims_listed(Sepal.Length, Sepal.Width, 
+                Petal.Length, Petal.Width),
+      fill = Species
+      ) +
+  geom_tsne0()  # uses concatenated var...
+```
+
+---
+
+# But inefficient feel.  We really want to have a shortcut to specify a lot of variables (which dimred are good at using)
+
+![](images/clipboard-1333989283.png){width="25%"}
+
+
+---
+
+
+
+
+
+
+
+
+
+&lt;!-- README.md is generated from README.Rmd. Please edit that file --&gt;
+
+
+
+&lt;!-- badges: start --&gt;
+
+&lt;!-- badges: end --&gt;
+
+
+
+## ggdims Intro Thoughts
+
+ggplot2 lets you intuitively translate variables to visual representation. You specify how variables (e.g. sex, age, employment status) are to be communicated via visual channels (x and y axis position, color, transparency, etc). However, in ggplot2 these specifications are individual-variable-to-individual-visual-channel which does not lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, tsne, umap). The usual one-var-to-one-aesthetic requirement means that it may not feel obvious how to extend ggplot2 for dimensionality reduction visualization, which deals with characterizing *many* variables. So while using ggplot2 under-the-hood is common in the dim-red space, it feels like there may be less consistency across dim-red APIs. For users of these APIs, getting quickly acquainted with techniques (students) or doing comparative work (practitioners) may be more challenging than it needs to be. The {ggdims} package explores a new `dims()` and `dims_expand()` utility that could help with greater consistency across dim-red APIs, with standard ggplots, and within the ggplot2 extension ecosystem.
+
+ggdims proposes the following API:
+
+
+
+Can you generate an image of candy (like m&amp;ms or skittles) being poured out of a machine into a bag?
+
+![](images/clipboard-1333989283.png)
+
+## Supporting work and discussions
+
+Here, doing some further thinking about a dimensionality reduction framework for ggplot2. Based on some previous work: [2025-07-18](https://evamaerey.github.io/mytidytuesday/2025-07-18-seurat_tsne_plot/seurat_tsne_plot.html), [2025-08-19](https://evamaerey.github.io/mytidytuesday/2025-08-19-umap/umap.html), [2025-10-11](https://evamaerey.github.io/mytidytuesday/2025-10-11-ggdims/ggdims.html) and discussions [ggplot-extension-club/discussions/117](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/117#discussioncomment-14565426) and [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
+
+More related:
+
+-   &lt;https://distill.pub/2016/misread-tsne/&gt;
+-   McInnes Bluffer's guide &lt;https://www.youtube.com/watch?v=9iol3Lk6kyU&gt;
+-   &lt;https://satijalab.org/seurat/articles/seurat5_sketch_analysis&gt;
+-   McInnes Learning from Machine Learning &lt;https://www.youtube.com/watch?v=6sSOr2Yaq80&amp;t=759s&gt;
+-   &lt;https://embed.tidymodels.org/&gt;
+-   &lt;https://vimeo.com/483185503?fl=pl&amp;fe=sh&gt;
+
+This is in the experimental/proof of concept phase. 🤔🚧
+
+## An implementation
+
+&lt;details&gt;
+
+### `aes(dims = ?)` lets us capture an expression...
+
+
+```
+Aesthetic mapping: 
+* `dims` -&gt; `dims(Sepal.Length:Sepal.Width, Petal.Width)`
+```
+
+Which means we can write something like this...
+
+
+
+And maybe actually use an implied set of variables in our computation...
+
+### To expanded to the `:` referenced variables...
+
+Our strategy will actually use `dims_listed()` which takes vars individually specified, as described [here](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-10219152). Then we'll `vars_unpack()` within our computation.
+
+
+
+&lt;/details&gt;
+
+### so let's use some ggplot_add to try to expand, and have these individually specified vars
+
+&lt;details&gt;
+
+### an exercise/experiment
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+
+```
+dims(Sepal.Length:Petal.Length, Petal.Width)
+```
+
+```
+dims_listed(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)
+```
+
+&lt;/details&gt;
+
+### `dims_expand`
+
+&lt;details&gt;
+
+
+
+&lt;/details&gt;
+
+
+```
+Aesthetic mapping: 
+* `dims` -&gt; `dims_listed(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)`
+```
+
+## Now let's actually define `dims_listed()` and `vars_unpack`
+
+&lt;details&gt;
+
+
+
+
+
+&lt;/details&gt;
+
+# Applications: tsne, umap, PCA
+
+## compute_tsne, geom_tsne, using [`Rtsne::Rtsne`](https://github.com/jkrijthe/Rtsne)
+
+&lt;details&gt;
+
+
+
+
+```
+# A tibble: 149 × 7
+        x     y Sepal.Length Sepal.Width Petal.Length Petal.Width dims      
+    &lt;dbl&gt; &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;list[1d]&gt;
+ 1 -10.3  -19.3          5.1         3.5          1.4         0.2 &lt;dbl [4]&gt; 
+ 2 -11.2  -15.4          4.9         3            1.4         0.2 &lt;dbl [4]&gt; 
+ 3  -9.61 -14.7          4.7         3.2          1.3         0.2 &lt;dbl [4]&gt; 
+ 4 -10.1  -14.5          4.6         3.1          1.5         0.2 &lt;dbl [4]&gt; 
+ 5  -9.57 -19.5          5           3.6          1.4         0.2 &lt;dbl [4]&gt; 
+ 6  -9.59 -22.1          5.4         3.9          1.7         0.4 &lt;dbl [4]&gt; 
+ 7  -8.80 -14.9          4.6         3.4          1.4         0.3 &lt;dbl [4]&gt; 
+ 8  -9.98 -18.2          5           3.4          1.5         0.2 &lt;dbl [4]&gt; 
+ 9 -10.4  -13.4          4.4         2.9          1.4         0.2 &lt;dbl [4]&gt; 
+10 -10.8  -15.9          4.9         3.1          1.5         0.1 &lt;dbl [4]&gt; 
+# ℹ 139 more rows
+```
+
+```
+# A tibble: 3 × 3
+  label           x      y
+  &lt;fct&gt;       &lt;dbl&gt;  &lt;dbl&gt;
+1 setosa     -9.98  -18.2 
+2 versicolor  0.857  13.1 
+3 virginica   9.31    5.22
+```
+
+
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
+
+```
+&lt;quosure&gt;
+expr: ^dims_listed(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)
+env:  global
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-27-2.png)&lt;!-- --&gt;
+
+
+
+
+
+&lt;/details&gt;
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-30-2.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-30-3.png)&lt;!-- --&gt;
+
+### Different perplexity
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-31-1.png)&lt;!-- --&gt;
+
+## A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
+
+&lt;details&gt;
+
+
+```
+# A tibble: 150 × 8
+       x     y Sepal.Length Sepal.Width Petal.Length Petal.Width color  dims    
+   &lt;dbl&gt; &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;fct&gt;  &lt;list[1&gt;
+ 1  15.7 -4.39          5.1         3.5          1.4         0.2 setosa &lt;dbl[…]&gt;
+ 2  13.7 -4.54          4.9         3            1.4         0.2 setosa &lt;dbl[…]&gt;
+ 3  14.1 -5.12          4.7         3.2          1.3         0.2 setosa &lt;dbl[…]&gt;
+ 4  13.8 -5.22          4.6         3.1          1.5         0.2 setosa &lt;dbl[…]&gt;
+ 5  15.4 -4.27          5           3.6          1.4         0.2 setosa &lt;dbl[…]&gt;
+ 6  15.9 -3.28          5.4         3.9          1.7         0.4 setosa &lt;dbl[…]&gt;
+ 7  14.2 -5.35          4.6         3.4          1.4         0.3 setosa &lt;dbl[…]&gt;
+ 8  15.3 -4.62          5           3.4          1.5         0.2 setosa &lt;dbl[…]&gt;
+ 9  13.5 -5.33          4.4         2.9          1.4         0.2 setosa &lt;dbl[…]&gt;
+10  13.8 -4.81          4.9         3.1          1.5         0.1 setosa &lt;dbl[…]&gt;
+# ℹ 140 more rows
+```
+
+&lt;/details&gt;
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-33-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-33-2.png)&lt;!-- --&gt;
+
+## A little PCA using `ordr::ordinate`
+
+&lt;details&gt;
+
+
+```
+# A tibble: 150 × 10
+     PC1     PC2     PC3      PC4 Sepal.Length Sepal.Width Petal.Length
+   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;
+ 1 -2.26 -0.478   0.127   0.0241           5.1         3.5          1.4
+ 2 -2.07  0.672   0.234   0.103            4.9         3            1.4
+ 3 -2.36  0.341  -0.0441  0.0283           4.7         3.2          1.3
+ 4 -2.29  0.595  -0.0910 -0.0657           4.6         3.1          1.5
+ 5 -2.38 -0.645  -0.0157 -0.0358           5           3.6          1.4
+ 6 -2.07 -1.48   -0.0269  0.00659          5.4         3.9          1.7
+ 7 -2.44 -0.0475 -0.334  -0.0367           4.6         3.4          1.4
+ 8 -2.23 -0.222   0.0884 -0.0245           5           3.4          1.5
+ 9 -2.33  1.11   -0.145  -0.0268           4.4         2.9          1.4
+10 -2.18  0.467   0.253  -0.0398           4.9         3.1          1.5
+# ℹ 140 more rows
+# ℹ 3 more variables: Petal.Width &lt;dbl&gt;, color &lt;fct&gt;, dims &lt;list[1d]&gt;
+```
+
+&lt;/details&gt;
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-35-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-35-2.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-35-3.png)&lt;!-- --&gt;
+
+### w/ penguins
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-36-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-36-2.png)&lt;!-- --&gt;
+
+------------------------------------------------------------------------
+
+# Reproduction exercise
+
+Try to reproduce some of observations and figures in the Distill paper: 'How to Use t-SNE Effectively' &lt;https://distill.pub/2016/misread-tsne/&gt; with some verbatim visuals from the paper.
+
+
+
+### 1. 'Those hyperparameters really matter'
+
+Let's try to reproduce the following with our `geom_tsne()`:
+
+![](images/clipboard-2588034840.png)
+
+
+```
+[1] 202   3
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-38-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-38-2.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-38-3.png)&lt;!-- --&gt;
+
+```
+NULL
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-38-4.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-38-5.png)&lt;!-- --&gt;
+
+### 2. 'Cluster sizes in a t-SNE plot mean nothing'
+
+Let's try to reproduce this (we'll shortcut but switching out the data across plot specifications): ![](images/clipboard-4082290261.png)
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-39-1.png)&lt;!-- --&gt;
+
+#### Side note on ggplyr::data_replace X google gemini quick search
+
+![](images/clipboard-3482018450.png)
+
+### 3. 'Distances between clusters might not mean anything'
+
+Now let's look at these three clusters, where one cluster is far out:
+
+![](images/clipboard-2639177458.png)
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-40-1.png)&lt;!-- --&gt;
+
+### 4. 'Random noise doesn't always look random'
+
+![](images/clipboard-109741735.png)
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-41-1.png)&lt;!-- --&gt;
+
+------------------------------------------------------------------------
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-42-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-42-2.png)&lt;!-- --&gt;
+
+
+```
+[1] "rc9143"    "rc9144"    "rc9145"    "rc9146"    "rc9147"    "continent"
+```
+
+&lt;img src="asa-cowy-fall-2025_files/figure-html/unnamed-chunk-44-1.png" width="100%" /&gt;&lt;img src="hi.png" width="100%" /&gt;
+
+r flipbookr::chunk_reveal("unga_hitchhiking", display_type = 1)`
+
+---
+
+
+
+``` r
+un_ga_country_wide_rcid |&gt;
+  ggplot() + 
+  aes(dims = dims(rc3:rc9147), 
+      fill = continent) + 
+* geom_tsne()
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unga_hitchhiking-1.png)&lt;!-- --&gt;
+
+
+
+---
+
+
+
+---
+
+# details...
+
+
+---
+class: inverse, middle, center
+
+The usual one-var-to-one-aesthetic requirement means that it may not feel obvious how to extend ggplot2 for dimensionality reduction visualization, which deals with characterizing *many* variables. 
+
+So while using ggplot2 under-the-hood is common in the dim-red space, it feels like there may be less consistency across dim-red APIs.  
+
+
+---
+
+
+At the same time, these techniques are all in the same space, 
+
+- Florida talk
+
+- McInnes Bluffer’s guide https://www.youtube.com/watch?v=9iol3Lk6kyU
+
+
+---
+
+So why shouldn't we be able to 'talk' about them in the same way - even when it comes to encoding the plot.
+
+---
+
+ggpca, tsne
+
+---
+
+# And what if we could do this in the grammar of graphics ggplot2 paradigm?  
+
+https://satijalab.org/seurat/articles/seurat5_sketch_analysis
+
+"People like to click buttons"
+
+"People like to use ggplot2" (like to build up plots incrementally using intuitive syntax)
+
+---
+
+
+``` r
+library(ggplot2)
+
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = 
+        dims(var1:var200, var205)
+      ) +      
+  geom_dimred_technique()                 
+```
+
+
+
+
+---
+
+
+For users of these APIs, getting quickly acquainted with techniques (students) or doing comparative work (practitioners) may be more challenging than it needs to be. The {ggdims} package explores a new `dims()` and `dims_expand()` utility that could help with greater consistency across dim-red APIs, with standard ggplots, and within the ggplot2 extension ecosystem.
+
+
+
+
+
+
+
+---
+
+
+
+
+
+&lt;style type="text/css"&gt;
+.remark-code{line-height: 1.5; font-size: 80%}
+
+@media print {
+  .has-continuation {
+    display: block;
+  }
+}
+
+code.r.hljs.remark-code{
+  position: relative;
+  overflow-x: hidden;
+}
+
+
+code.r.hljs.remark-code:hover{
+  overflow-x:visible;
+  width: 500px;
+  border-style: solid;
+}
+
+
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:10",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false,
+  "seal": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

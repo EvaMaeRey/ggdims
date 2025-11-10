@@ -1,0 +1,317 @@
+---
+title: "{ggdims}"
+subtitle: "Toward a viz- and code-first hitchhiker's guide to dimensionality reduction"
+author: "Gina (Evangeline) Reynolds, ASA CO-WY Chapter meeting November 14, 2025"
+output:
+  xaringan::moon_reader:
+    lib_dir: libs
+    css: [default, hygge, ninjutsu]
+    nature:
+      ratio: 16:10
+      highlightStyle: github
+      highlightLines: true
+      countIncrementalSlides: false
+      seal: false
+---
+
+
+
+class: inverse, bottom
+background-image: url(https://plus.unsplash.com/premium_photo-1686050878751-89499d28d153?ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8MXx8bmlnaHRza3l8ZW58MHx8MHx8fDA%3D&auto=format&fit=crop&q=60&w=500)
+background-size: cover
+
+# .Large[{ggdims}]
+## .small[Toward a viz- and code-first hitchhiker’s guide to dimensionality reduction]
+## .small[https://bit.ly/??]
+#### .tiny[Gina (Evangeline) Reynolds | 2025-11-14 | ASA, COWY, Image credit: Ales Krivec, Upsplash]
+
+
+
+```{r, include = F}
+# This is the recommended set up for flipbooks
+# you might think about setting cache to TRUE as you gain practice --- building flipbooks from scratch can be time consuming
+knitr::opts_chunk$set(fig.width = 6, message = FALSE, warning = FALSE, comment = "", cache = T)
+library(flipbookr)
+library(tidyverse)
+```
+
+
+```{css, eval = TRUE, echo = FALSE}
+/* Change default body text size */
+.remark-slide-content {
+  font-size: 32px; /* Or use em, rem, or viewport units like 2vw */
+}
+
+/* Change font size for a specific class (e.g., for larger text) */
+.large-text {
+  font-size: 1.5em;
+}
+
+/* Change font size for code blocks */
+.remark-code {
+  font-size: 0.9em;
+}
+
+/* Change font size for inline code */
+.remark-inline-code {
+  font-size: 0.9em;
+}
+
+
+
+```
+
+---
+class: inverse, middle, center
+
+# ggplot2 lets you intuitively translate variables to visual representation.
+
+
+
+---
+
+`aes(x <- age)`
+
+`aes(color <- sex)`
+
+`aes(linetype <- employment status)`
+
+
+---
+class: inverse, middle
+
+# You specify how variables (e.g. sex, age, employment status) ...
+
+--
+
+# ... are to be communicated via visual channels (x position, y position, color, transparency, etc). 
+
+
+---
+class: inverse
+
+# But... ggplot2 allows individual-variable- 
+--
+to- individual-visual-channel mapping
+
+
+
+
+---
+class: inverse
+
+# The problem with 1-to-1:
+
+--
+
+## Doesn't lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, T-sne, UMAP)
+
+
+???
+
+## However, in ggplot2 these specifications are individual-variable-to-individual-visual-channel which does not lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, T-sne, UMAP). 
+
+---
+
+Martin Wattenberg 'How to use t-SNE effectively' 2016: 
+
+> Paraphrase: 'it's worth taking the time to get a feel for what the algorithm does with some familiar, well understood distributions' 
+
+--
+
+> Jump right in. Do some dimensionality reduction. Visualize. 
+
+---
+
+
+
+
+---
+
+Leland McInnes "Bluffer's Guide
+
+> "I'm gonna try and give as much of a whirlwind tour of the 
+entire field of dimention reduction as I can in the time available." 
+
+> "There are only two dimention reduction techniques.*"
+
+--
+
+> The similarities are greater than the differences...
+
+
+---
+
+> shouldn't we be able to fly (hitchhike) through trying out some of these techniques?
+
+--
+
+> should we have to learn a different paradigm/syntax for every technique?
+
+--
+
+> What if the syntax were something already familiar (2D viz - ggplot2 scatterplot)?
+
+
+---
+
+```{r}
+ggplot(cars) + 
+  aes(x = speed,
+      y = dist) + 
+  geom_point()
+
+
+
+```
+
+
+---
+
+# Closer with `dims_listed()` approach
+
+```{r eval = F}
+iris |> 
+  ggplot() + 
+  aes(dims = 
+        dims_listed(Sepal.Length, Sepal.Width, 
+                Petal.Length, Petal.Width),
+      fill = Species
+      ) +
+  geom_tsne0()  # uses concatenated var...
+```
+
+---
+
+# But inefficient feel.  We really want to have a shortcut to specify a lot of variables (which dimred are good at using)
+
+![](images/clipboard-1333989283.png){width="25%"}
+
+
+---
+
+```{r, child="README.Rmd", cache= T, echo = F, message=F, warning=F}
+
+
+
+```
+
+r flipbookr::chunk_reveal("unga_hitchhiking", display_type = 1)`
+
+---
+
+
+```{r unga_hitchhiking, eval = T, echo = T}
+un_ga_country_wide_rcid |>
+  ggplot() + 
+  aes(dims = dims(rc3:rc9147), 
+      fill = continent) + 
+  geom_tsne() #<<
+```
+
+
+
+---
+
+```{r}
+
+
+
+```
+
+---
+
+# details...
+
+
+---
+class: inverse, middle, center
+
+The usual one-var-to-one-aesthetic requirement means that it may not feel obvious how to extend ggplot2 for dimensionality reduction visualization, which deals with characterizing *many* variables. 
+
+So while using ggplot2 under-the-hood is common in the dim-red space, it feels like there may be less consistency across dim-red APIs.  
+
+
+---
+
+
+At the same time, these techniques are all in the same space, 
+
+- Florida talk
+
+- McInnes Bluffer’s guide https://www.youtube.com/watch?v=9iol3Lk6kyU
+
+
+---
+
+So why shouldn't we be able to 'talk' about them in the same way - even when it comes to encoding the plot.
+
+---
+
+ggpca, tsne
+
+---
+
+# And what if we could do this in the grammar of graphics ggplot2 paradigm?  
+
+https://satijalab.org/seurat/articles/seurat5_sketch_analysis
+
+"People like to click buttons"
+
+"People like to use ggplot2" (like to build up plots incrementally using intuitive syntax)
+
+---
+
+```{r, eval = F}
+library(ggplot2)
+
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = 
+        dims(var1:var200, var205)
+      ) +      
+  geom_dimred_technique()                 
+```
+
+
+
+
+---
+
+
+For users of these APIs, getting quickly acquainted with techniques (students) or doing comparative work (practitioners) may be more challenging than it needs to be. The {ggdims} package explores a new `dims()` and `dims_expand()` utility that could help with greater consistency across dim-red APIs, with standard ggplots, and within the ggplot2 extension ecosystem.
+
+
+
+
+
+
+
+---
+
+
+
+
+
+```{css, eval = TRUE, echo = FALSE}
+.remark-code{line-height: 1.5; font-size: 80%}
+
+@media print {
+  .has-continuation {
+    display: block;
+  }
+}
+
+code.r.hljs.remark-code{
+  position: relative;
+  overflow-x: hidden;
+}
+
+
+code.r.hljs.remark-code:hover{
+  overflow-x:visible;
+  width: 500px;
+  border-style: solid;
+}
+
+
+```

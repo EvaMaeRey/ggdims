@@ -30,6 +30,7 @@
     anything’](#3-distances-between-clusters-might-not-mean-anything)
   - [4. ‘Random noise doesn’t always look
     random’](#4-random-noise-doesnt-always-look-random)
+- [Minimal Packaging](#minimal-packaging)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- badges: start -->
@@ -61,7 +62,7 @@ ggdims proposes the following API:
 library(ggplot2)
 
 ggplot(data = my_high_dimensional_data) + 
-  aes(dims = dims(dim1:dim20, dim25)) +      # or similar
+  aes(dims = dims(var1:var200, var205)) +      # or similar
   geom_reduction_technique()                 # default dim-red to 2D
 
 last_plot() + 
@@ -132,7 +133,7 @@ iris |>
   ggplot() + 
   aes(dims = 
         dims_listed(Sepal.Length, Sepal.Width, 
-                Petal.Length, Petal.Width),
+                    Petal.Length, Petal.Width),
       fill = Species) +
   geom_tsne()
 ```
@@ -265,6 +266,9 @@ p <- iris |>
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width)) + 
   dims_expand()
+#> Warning: Using `as.character()` on a quosure is deprecated as of rlang 0.3.0. Please use
+#> `as_label()` or `as_name()` instead.
+#> This warning is displayed once every 8 hours.
 
 p$mapping
 #> Aesthetic mapping: 
@@ -276,6 +280,7 @@ p$mapping
 <details>
 
 ``` r
+#' @export
 dims_listed <- function(...) {
   
   varnames <- as.character(ensyms(...))
@@ -285,6 +290,7 @@ dims_listed <- function(...) {
 
   }
 
+#' @export
 vars_unpack <- function(x) {
   pca_vars <- x
   df <- do.call(rbind, pca_vars)
@@ -296,6 +302,7 @@ vars_unpack <- function(x) {
 
 ``` r
 # utility uses data with the required aes 'dims'
+#' @export
 data_vars_unpack <- function(data){
 
 # identify duplicates just based on tsne data
@@ -317,6 +324,7 @@ data |>
 
 ``` r
 # compute_tsne allows individually listed variables that are all of the same type
+#' @export
 compute_tsne <- function(data, scales, perplexity = 20){
   
 data_for_reduction <- data_vars_unpack(data)
@@ -341,6 +349,7 @@ clean_data |>
 
 }
 
+#' @export
 compute_tsne_group_label <- function(data, scales, perplexity = 20, fun = mean){
   
   compute_tsne(data, scales, perplexity) |> 
@@ -350,11 +359,33 @@ compute_tsne_group_label <- function(data, scales, perplexity = 20, fun = mean){
   
 }
 
+#' @export
 StatTsne <- ggproto("StatTsne", Stat, 
                      compute_panel = compute_tsne)
 
+#' @export
 StatTsneGroup <- ggproto("StatTsneGroup", Stat, 
                          compute_panel = compute_tsne_group_label)
+
+GeomPointFill <- ggproto("GeomPointFill", 
+                         GeomPoint,
+                         default_aes = 
+                           modifyList(GeomPoint$default_aes, 
+                                      aes(shape = 21, 
+                                          color = from_theme(paper),
+                                          size = from_theme(pointsize * 1.5),
+                                          alpha = .7,
+                                          fill = from_theme(ink))))
+
+#' @export
+geom_tsne0 <- make_constructor(GeomPointFill, 
+                               stat = StatTsne, 
+                               perplexity = 30)
+
+#' @export
+geom_tsne_label0 <- make_constructor(GeomText, 
+                                     stat = StatTsneGroup,
+                                     perplexity = 30)
 ```
 
 ``` r
@@ -398,26 +429,6 @@ iris |>
 ```
 
 ``` r
-GeomPointFill <- ggproto("GeomPointFill", 
-                         GeomPoint,
-                         default_aes = 
-                           modifyList(GeomPoint$default_aes, 
-                                      aes(shape = 21, 
-                                          color = from_theme(paper),
-                                          size = from_theme(pointsize * 1.5),
-                                          alpha = .7,
-                                          fill = from_theme(ink))))
-
-geom_tsne0 <- make_constructor(GeomPointFill, 
-                               stat = StatTsne, 
-                               perplexity = 30)
-
-geom_tsne_label0 <- make_constructor(GeomText, 
-                                     stat = StatTsneGroup,
-                                     perplexity = 30)
-```
-
-``` r
 iris |> 
   ggplot() + 
   aes(dims = 
@@ -430,7 +441,7 @@ iris |>
   geom_tsne_label0()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-14-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-9-1.png" width="55%" />
 
 ``` r
 
@@ -444,9 +455,10 @@ p +
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-14-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-9-2.png" width="55%" />
 
 ``` r
+#' @export
 theme_ggdims <- function(ink = "black", paper = "white"){
   
   theme_grey() +
@@ -461,6 +473,7 @@ theme_ggdims <- function(ink = "black", paper = "white"){
 ```
 
 ``` r
+#' @export
 geom_tsne <- function(...){
   list(
     dims_expand(),
@@ -468,7 +481,7 @@ geom_tsne <- function(...){
   )
 }
 
-
+#' @export
 geom_tsne_label <- function(...){
   list(
     dims_expand(),
@@ -486,7 +499,7 @@ iris |>
   geom_tsne()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-17-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-10-1.png" width="55%" />
 
 ``` r
 
@@ -494,7 +507,7 @@ last_plot() +
   aes(fill = Species) 
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-17-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-10-2.png" width="55%" />
 
 ``` r
 
@@ -503,7 +516,7 @@ last_plot() +
   geom_tsne_label()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-17-3.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-10-3.png" width="55%" />
 
 ### Different perplexity
 
@@ -515,7 +528,7 @@ iris |>
   geom_tsne(perplexity = 10)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-18-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-11-1.png" width="55%" />
 
 ## A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
 
@@ -589,7 +602,7 @@ iris |>
   geom_umap()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-20-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-12-1.png" width="55%" />
 
 ``` r
 
@@ -597,13 +610,14 @@ last_plot() +
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-20-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-12-2.png" width="55%" />
 
 ## A little PCA using `ordr::ordinate`
 
 <details>
 
 ``` r
+#' @export
 compute_pca_rows <- function(data, scales){
   
   data_for_reduction <- data_vars_unpack(data)
@@ -624,6 +638,27 @@ reduced |>
 
 }
 
+#' @export
+StatPcaRows <- ggproto("StatPcaRows", Stat,
+                    compute_panel = compute_pca_rows,
+                    default_aes = aes(x = after_stat(PC1), 
+                                      y = after_stat(PC2))
+                    )
+#' @export
+geom_pca0 <- make_constructor(GeomPointFill, stat = StatPcaRows)
+
+#' @export
+geom_pca <- function(...){
+  
+  list(
+    dims_expand(),
+    geom_pca0(...)
+  )
+  
+}
+```
+
+``` r
 
 iris |> 
   mutate(dims = 
@@ -646,23 +681,6 @@ iris |>
 #> 10 -2.18  0.467   0.253  -0.0398           4.9         3.1          1.5
 #> # ℹ 140 more rows
 #> # ℹ 3 more variables: Petal.Width <dbl>, color <fct>, dims <list[1d]>
-
-StatPcaRows <- ggproto("StatPcaRows", Stat,
-                    compute_panel = compute_pca_rows,
-                    default_aes = aes(x = after_stat(PC1), 
-                                      y = after_stat(PC2))
-                    )
-
-geom_pca0 <- make_constructor(GeomPointFill, stat = StatPcaRows)
-
-geom_pca <- function(...){
-  
-  list(
-    dims_expand(),
-    geom_pca0(...)
-  )
-  
-}
 ```
 
 </details>
@@ -674,7 +692,7 @@ iris |>
   geom_pca()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-22-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-14-1.png" width="55%" />
 
 ``` r
 
@@ -682,7 +700,7 @@ last_plot() +
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-22-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-14-2.png" width="55%" />
 
 ``` r
 
@@ -691,7 +709,7 @@ last_plot() +
   aes(y = after_stat(PC3))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-22-3.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-14-3.png" width="55%" />
 
 ### w/ penguins
 
@@ -704,7 +722,7 @@ palmerpenguins::penguins |>
 #> range.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-23-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-15-1.png" width="55%" />
 
 ``` r
 
@@ -714,7 +732,7 @@ last_plot() +
 #> range.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-23-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-15-2.png" width="55%" />
 
 ------------------------------------------------------------------------
 
@@ -762,9 +780,18 @@ pp2 <- ggplot(data = hello_world_of_tsne) +
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 2) + 
   labs(title = "perplexity = 2"); pp2
+#> Warning: Using `as.character()` on a quosure is deprecated as of rlang 0.3.0. Please use
+#> `as_label()` or `as_name()` instead.
+#> This warning is displayed once every 8 hours.
+#> Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if
+#> `.name_repair` is omitted as of tibble 2.0.0.
+#> ℹ Using compatibility `.name_repair`.
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+<img src="README_files/figure-gfm/unnamed-chunk-17-1.png" width="55%" />
 
 ``` r
 
@@ -774,7 +801,7 @@ pp5 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 5"); pp5
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-2.png)<!-- -->
+<img src="README_files/figure-gfm/unnamed-chunk-17-2.png" width="55%" />
 
 ``` r
 
@@ -784,7 +811,7 @@ pp30 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 30"); pp30
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-3.png)<!-- -->
+<img src="README_files/figure-gfm/unnamed-chunk-17-3.png" width="55%" />
 
 ``` r
 
@@ -805,7 +832,6 @@ pp100 <- ggplot(data = hello_world_of_tsne) +
 
 
 library(patchwork)
-#> Warning: package 'patchwork' was built under R version 4.4.1
 original + pp2 + pp5 + pp30 + pp50 + pp100 &
   theme_ggdims() 
 #> Warning: Computation failed in `stat_tsne()`.
@@ -815,7 +841,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-4.png)<!-- -->
+<img src="README_files/figure-gfm/unnamed-chunk-17-4.png" width="55%" />
 
 ``` r
 
@@ -830,7 +856,7 @@ last_plot() &
 #> ! perplexity is too large for the number of samples
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-25-5.png)<!-- -->
+<img src="README_files/figure-gfm/unnamed-chunk-17-5.png" width="55%" />
 
 ``` r
 
@@ -860,7 +886,7 @@ panel_of_six_tsne_two_cluster &
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
+<img src="README_files/figure-gfm/unnamed-chunk-18-1.png" width="55%" />
 
 #### Side note on ggplyr::data_replace X google gemini quick search
 
@@ -888,7 +914,7 @@ panel_of_six_tsne_two_cluster &
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-27-1.png)<!-- -->
+<img src="README_files/figure-gfm/unnamed-chunk-19-1.png" width="55%" />
 
 ### 4. ‘Random noise doesn’t always look random’
 
@@ -906,7 +932,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
 #> Please use `theme()` to construct themes.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
+<img src="README_files/figure-gfm/unnamed-chunk-20-1.png" width="55%" />
 
 ------------------------------------------------------------------------
 
@@ -921,7 +947,7 @@ palmerpenguins::penguins |>
 #> range.
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
+<img src="README_files/figure-gfm/unnamed-chunk-21-1.png" width="55%" />
 
 ``` r
 
@@ -929,7 +955,7 @@ last_plot() +
   aes(fill = species)
 ```
 
-![](README_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
+<img src="README_files/figure-gfm/unnamed-chunk-21-2.png" width="55%" />
 
 ``` r
 unvotes::un_votes |> 
@@ -975,7 +1001,7 @@ library(patchwork)
   plot_annotation(title = "UN General Assembly voting country projections")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-31-1.png" width="100%" />
+<img src="README_files/figure-gfm/unnamed-chunk-23-1.png" width="100%" />
 
 ``` r
 
@@ -985,3 +1011,41 @@ knitr::include_graphics("hi.png")
 ```
 
 <img src="hi.png" width="100%" />
+
+# Minimal Packaging
+
+``` r
+devtools::create(".")
+```
+
+``` r
+knitrExtra::chunk_to_dir(
+  c( "dims_expand" , "dims_listed"   ,   "data_vars_unpack", "compute_tsne"   ,  "theme_ggdims",     "geom_tsne"       , "compute_umap"     ,"compute_pca_rows" )
+)
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+
+devtools::document()
+#> ℹ Updating ggdims documentation
+#> ℹ Loading ggdims
+#> Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if
+#> `.name_repair` is omitted as of tibble 2.0.0.
+#> ℹ Using compatibility `.name_repair`.
+#> ℹ The deprecated feature was likely used in the ggdims package.
+#>   Please report the issue to the authors.
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
+#> Writing 'NAMESPACE'
+```
+
+``` r
+devtools::check(".")
+devtools::install(".", upgrade = "never")
+```
