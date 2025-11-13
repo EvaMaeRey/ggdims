@@ -125,7 +125,7 @@ Martin Wattenberg 'How to use t-SNE effectively' 2016:
 
 --
 
-&gt; Jump right in. Do some dimensionality reduction. Visualize. 
+&gt; Further paraphrase: Jump right in. Do some dimensionality reduction. Visualize. 
 
 ---
 
@@ -141,6 +141,8 @@ entire field of dimention reduction as I can in the time available."
 
 &gt; "There are only two dimention reduction techniques.*"
 
+&gt; * = "not quite true but morally the right thing to do"
+
 --
 
 &gt; The similarities are greater than the differences...
@@ -148,361 +150,903 @@ entire field of dimention reduction as I can in the time available."
 
 ---
 
-&gt; shouldn't we be able to fly (hitchhike) through trying out some of these techniques just like 
+&gt; shouldn't we be able to fly (hitchhike) through trying out some of these techniques?
+
+--
 
 &gt; should we have to learn a different paradigm/syntax for every technique?
 
-&gt; can we lean on syntax we already know (2D viz)
+--
+
+&gt; What if the syntax were something already familiar (2D viz - ggplot2 scatterplot)?
 
 
 ---
 
+count: false
+ 
+
+.panel1-scatter-auto[
 
 ``` r
-ggplot(cars) + 
+*library(ggplot2)
+```
+]
+ 
+.panel2-scatter-auto[
+
+]
+
+---
+count: false
+ 
+
+.panel1-scatter-auto[
+
+``` r
+library(ggplot2)
+
+ggplot(cars)
+```
+]
+ 
+.panel2-scatter-auto[
+![](asa-cowy-fall-2025_files/figure-html/scatter_auto_02_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-scatter-auto[
+
+``` r
+library(ggplot2)
+
+ggplot(cars) +
   aes(x = speed,
-      y = dist) + 
+      y = dist)
+```
+]
+ 
+.panel2-scatter-auto[
+![](asa-cowy-fall-2025_files/figure-html/scatter_auto_03_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-scatter-auto[
+
+``` r
+library(ggplot2)
+
+ggplot(cars) +
+  aes(x = speed,
+      y = dist) +
   geom_point()
 ```
+]
+ 
+.panel2-scatter-auto[
+![](asa-cowy-fall-2025_files/figure-html/scatter_auto_04_output-1.png)&lt;!-- --&gt;
+]
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+&lt;style&gt;
+.panel1-scatter-auto {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-scatter-auto {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-scatter-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
 
 
 ---
 
-# Closer with `dims_listed()` approach
+count: false
+ 
 
+.panel1-dims_listed-auto[
 
 ``` r
-iris |&gt; 
-  ggplot() + 
-  aes(dims = 
-        dims_listed(Sepal.Length, Sepal.Width, 
+*library(ggdims)
+```
+]
+ 
+.panel2-dims_listed-auto[
+
+]
+
+---
+count: false
+ 
+
+.panel1-dims_listed-auto[
+
+``` r
+library(ggdims)
+
+iris
+```
+]
+ 
+.panel2-dims_listed-auto[
+
+```
+    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
+1            5.1         3.5          1.4         0.2     setosa
+2            4.9         3.0          1.4         0.2     setosa
+3            4.7         3.2          1.3         0.2     setosa
+4            4.6         3.1          1.5         0.2     setosa
+5            5.0         3.6          1.4         0.2     setosa
+6            5.4         3.9          1.7         0.4     setosa
+7            4.6         3.4          1.4         0.3     setosa
+8            5.0         3.4          1.5         0.2     setosa
+9            4.4         2.9          1.4         0.2     setosa
+10           4.9         3.1          1.5         0.1     setosa
+11           5.4         3.7          1.5         0.2     setosa
+12           4.8         3.4          1.6         0.2     setosa
+13           4.8         3.0          1.4         0.1     setosa
+14           4.3         3.0          1.1         0.1     setosa
+15           5.8         4.0          1.2         0.2     setosa
+16           5.7         4.4          1.5         0.4     setosa
+17           5.4         3.9          1.3         0.4     setosa
+18           5.1         3.5          1.4         0.3     setosa
+19           5.7         3.8          1.7         0.3     setosa
+20           5.1         3.8          1.5         0.3     setosa
+21           5.4         3.4          1.7         0.2     setosa
+22           5.1         3.7          1.5         0.4     setosa
+23           4.6         3.6          1.0         0.2     setosa
+24           5.1         3.3          1.7         0.5     setosa
+25           4.8         3.4          1.9         0.2     setosa
+26           5.0         3.0          1.6         0.2     setosa
+27           5.0         3.4          1.6         0.4     setosa
+28           5.2         3.5          1.5         0.2     setosa
+29           5.2         3.4          1.4         0.2     setosa
+30           4.7         3.2          1.6         0.2     setosa
+31           4.8         3.1          1.6         0.2     setosa
+32           5.4         3.4          1.5         0.4     setosa
+33           5.2         4.1          1.5         0.1     setosa
+34           5.5         4.2          1.4         0.2     setosa
+35           4.9         3.1          1.5         0.2     setosa
+36           5.0         3.2          1.2         0.2     setosa
+37           5.5         3.5          1.3         0.2     setosa
+38           4.9         3.6          1.4         0.1     setosa
+39           4.4         3.0          1.3         0.2     setosa
+40           5.1         3.4          1.5         0.2     setosa
+41           5.0         3.5          1.3         0.3     setosa
+42           4.5         2.3          1.3         0.3     setosa
+43           4.4         3.2          1.3         0.2     setosa
+44           5.0         3.5          1.6         0.6     setosa
+45           5.1         3.8          1.9         0.4     setosa
+46           4.8         3.0          1.4         0.3     setosa
+47           5.1         3.8          1.6         0.2     setosa
+48           4.6         3.2          1.4         0.2     setosa
+49           5.3         3.7          1.5         0.2     setosa
+50           5.0         3.3          1.4         0.2     setosa
+51           7.0         3.2          4.7         1.4 versicolor
+52           6.4         3.2          4.5         1.5 versicolor
+53           6.9         3.1          4.9         1.5 versicolor
+54           5.5         2.3          4.0         1.3 versicolor
+55           6.5         2.8          4.6         1.5 versicolor
+56           5.7         2.8          4.5         1.3 versicolor
+57           6.3         3.3          4.7         1.6 versicolor
+58           4.9         2.4          3.3         1.0 versicolor
+59           6.6         2.9          4.6         1.3 versicolor
+60           5.2         2.7          3.9         1.4 versicolor
+61           5.0         2.0          3.5         1.0 versicolor
+62           5.9         3.0          4.2         1.5 versicolor
+63           6.0         2.2          4.0         1.0 versicolor
+64           6.1         2.9          4.7         1.4 versicolor
+65           5.6         2.9          3.6         1.3 versicolor
+66           6.7         3.1          4.4         1.4 versicolor
+67           5.6         3.0          4.5         1.5 versicolor
+68           5.8         2.7          4.1         1.0 versicolor
+69           6.2         2.2          4.5         1.5 versicolor
+70           5.6         2.5          3.9         1.1 versicolor
+71           5.9         3.2          4.8         1.8 versicolor
+72           6.1         2.8          4.0         1.3 versicolor
+73           6.3         2.5          4.9         1.5 versicolor
+74           6.1         2.8          4.7         1.2 versicolor
+75           6.4         2.9          4.3         1.3 versicolor
+76           6.6         3.0          4.4         1.4 versicolor
+77           6.8         2.8          4.8         1.4 versicolor
+78           6.7         3.0          5.0         1.7 versicolor
+79           6.0         2.9          4.5         1.5 versicolor
+80           5.7         2.6          3.5         1.0 versicolor
+81           5.5         2.4          3.8         1.1 versicolor
+82           5.5         2.4          3.7         1.0 versicolor
+83           5.8         2.7          3.9         1.2 versicolor
+84           6.0         2.7          5.1         1.6 versicolor
+85           5.4         3.0          4.5         1.5 versicolor
+86           6.0         3.4          4.5         1.6 versicolor
+87           6.7         3.1          4.7         1.5 versicolor
+88           6.3         2.3          4.4         1.3 versicolor
+89           5.6         3.0          4.1         1.3 versicolor
+90           5.5         2.5          4.0         1.3 versicolor
+91           5.5         2.6          4.4         1.2 versicolor
+92           6.1         3.0          4.6         1.4 versicolor
+93           5.8         2.6          4.0         1.2 versicolor
+94           5.0         2.3          3.3         1.0 versicolor
+95           5.6         2.7          4.2         1.3 versicolor
+96           5.7         3.0          4.2         1.2 versicolor
+97           5.7         2.9          4.2         1.3 versicolor
+98           6.2         2.9          4.3         1.3 versicolor
+99           5.1         2.5          3.0         1.1 versicolor
+100          5.7         2.8          4.1         1.3 versicolor
+101          6.3         3.3          6.0         2.5  virginica
+102          5.8         2.7          5.1         1.9  virginica
+103          7.1         3.0          5.9         2.1  virginica
+104          6.3         2.9          5.6         1.8  virginica
+105          6.5         3.0          5.8         2.2  virginica
+106          7.6         3.0          6.6         2.1  virginica
+107          4.9         2.5          4.5         1.7  virginica
+108          7.3         2.9          6.3         1.8  virginica
+109          6.7         2.5          5.8         1.8  virginica
+110          7.2         3.6          6.1         2.5  virginica
+111          6.5         3.2          5.1         2.0  virginica
+112          6.4         2.7          5.3         1.9  virginica
+113          6.8         3.0          5.5         2.1  virginica
+114          5.7         2.5          5.0         2.0  virginica
+115          5.8         2.8          5.1         2.4  virginica
+116          6.4         3.2          5.3         2.3  virginica
+117          6.5         3.0          5.5         1.8  virginica
+118          7.7         3.8          6.7         2.2  virginica
+119          7.7         2.6          6.9         2.3  virginica
+120          6.0         2.2          5.0         1.5  virginica
+121          6.9         3.2          5.7         2.3  virginica
+122          5.6         2.8          4.9         2.0  virginica
+123          7.7         2.8          6.7         2.0  virginica
+124          6.3         2.7          4.9         1.8  virginica
+125          6.7         3.3          5.7         2.1  virginica
+126          7.2         3.2          6.0         1.8  virginica
+127          6.2         2.8          4.8         1.8  virginica
+128          6.1         3.0          4.9         1.8  virginica
+129          6.4         2.8          5.6         2.1  virginica
+130          7.2         3.0          5.8         1.6  virginica
+131          7.4         2.8          6.1         1.9  virginica
+132          7.9         3.8          6.4         2.0  virginica
+133          6.4         2.8          5.6         2.2  virginica
+134          6.3         2.8          5.1         1.5  virginica
+135          6.1         2.6          5.6         1.4  virginica
+136          7.7         3.0          6.1         2.3  virginica
+137          6.3         3.4          5.6         2.4  virginica
+138          6.4         3.1          5.5         1.8  virginica
+139          6.0         3.0          4.8         1.8  virginica
+140          6.9         3.1          5.4         2.1  virginica
+141          6.7         3.1          5.6         2.4  virginica
+142          6.9         3.1          5.1         2.3  virginica
+143          5.8         2.7          5.1         1.9  virginica
+144          6.8         3.2          5.9         2.3  virginica
+145          6.7         3.3          5.7         2.5  virginica
+146          6.7         3.0          5.2         2.3  virginica
+147          6.3         2.5          5.0         1.9  virginica
+148          6.5         3.0          5.2         2.0  virginica
+149          6.2         3.4          5.4         2.3  virginica
+150          5.9         3.0          5.1         1.8  virginica
+```
+]
+
+---
+count: false
+ 
+
+.panel1-dims_listed-auto[
+
+``` r
+library(ggdims)
+
+iris |&gt;
+  ggplot()
+```
+]
+ 
+.panel2-dims_listed-auto[
+![](asa-cowy-fall-2025_files/figure-html/dims_listed_auto_03_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-dims_listed-auto[
+
+``` r
+library(ggdims)
+
+iris |&gt;
+  ggplot() +
+  aes(dims =
+        dims_listed(Sepal.Length, Sepal.Width,
+                Petal.Length, Petal.Width),
+      fill = Species
+      )
+```
+]
+ 
+.panel2-dims_listed-auto[
+![](asa-cowy-fall-2025_files/figure-html/dims_listed_auto_04_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-dims_listed-auto[
+
+``` r
+library(ggdims)
+
+iris |&gt;
+  ggplot() +
+  aes(dims =
+        dims_listed(Sepal.Length, Sepal.Width,
                 Petal.Length, Petal.Width),
       fill = Species
       ) +
-  geom_tsne0()  # uses concatenated var...
+  geom_tsne0()
 ```
+]
+ 
+.panel2-dims_listed-auto[
+![](asa-cowy-fall-2025_files/figure-html/dims_listed_auto_05_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-dims_listed-auto {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-dims_listed-auto {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-dims_listed-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
 
 ---
+background-image: url(images/clipboard-1333989283.png)
+background-size: fit
 
 # But inefficient feel.  We really want to have a shortcut to specify a lot of variables (which dimred are good at using)
 
 ![](images/clipboard-1333989283.png){width="25%"}
 
 
+
+
 ---
 
 
 
 
+count: false
+ 
 
+.panel1-tsne-auto[
 
-
-
-
-&lt;!-- README.md is generated from README.Rmd. Please edit that file --&gt;
-
-
-
-&lt;!-- badges: start --&gt;
-
-&lt;!-- badges: end --&gt;
-
-
-
-## ggdims Intro Thoughts
-
-ggplot2 lets you intuitively translate variables to visual representation. You specify how variables (e.g. sex, age, employment status) are to be communicated via visual channels (x and y axis position, color, transparency, etc). However, in ggplot2 these specifications are individual-variable-to-individual-visual-channel which does not lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, tsne, umap). The usual one-var-to-one-aesthetic requirement means that it may not feel obvious how to extend ggplot2 for dimensionality reduction visualization, which deals with characterizing *many* variables. So while using ggplot2 under-the-hood is common in the dim-red space, it feels like there may be less consistency across dim-red APIs. For users of these APIs, getting quickly acquainted with techniques (students) or doing comparative work (practitioners) may be more challenging than it needs to be. The {ggdims} package explores a new `dims()` and `dims_expand()` utility that could help with greater consistency across dim-red APIs, with standard ggplots, and within the ggplot2 extension ecosystem.
-
-ggdims proposes the following API:
-
-
-
-Can you generate an image of candy (like m&amp;ms or skittles) being poured out of a machine into a bag?
-
-![](images/clipboard-1333989283.png)
-
-## Supporting work and discussions
-
-Here, doing some further thinking about a dimensionality reduction framework for ggplot2. Based on some previous work: [2025-07-18](https://evamaerey.github.io/mytidytuesday/2025-07-18-seurat_tsne_plot/seurat_tsne_plot.html), [2025-08-19](https://evamaerey.github.io/mytidytuesday/2025-08-19-umap/umap.html), [2025-10-11](https://evamaerey.github.io/mytidytuesday/2025-10-11-ggdims/ggdims.html) and discussions [ggplot-extension-club/discussions/117](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/117#discussioncomment-14565426) and [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
-
-More related:
-
--   &lt;https://distill.pub/2016/misread-tsne/&gt;
--   McInnes Bluffer's guide &lt;https://www.youtube.com/watch?v=9iol3Lk6kyU&gt;
--   &lt;https://satijalab.org/seurat/articles/seurat5_sketch_analysis&gt;
--   McInnes Learning from Machine Learning &lt;https://www.youtube.com/watch?v=6sSOr2Yaq80&amp;t=759s&gt;
--   &lt;https://embed.tidymodels.org/&gt;
--   &lt;https://vimeo.com/483185503?fl=pl&amp;fe=sh&gt;
-
-This is in the experimental/proof of concept phase. 🤔🚧
-
-## An implementation
-
-&lt;details&gt;
-
-### `aes(dims = ?)` lets us capture an expression...
-
+``` r
+*iris
+```
+]
+ 
+.panel2-tsne-auto[
 
 ```
-Aesthetic mapping: 
-* `dims` -&gt; `dims(Sepal.Length:Sepal.Width, Petal.Width)`
+    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
+1            5.1         3.5          1.4         0.2     setosa
+2            4.9         3.0          1.4         0.2     setosa
+3            4.7         3.2          1.3         0.2     setosa
+4            4.6         3.1          1.5         0.2     setosa
+5            5.0         3.6          1.4         0.2     setosa
+6            5.4         3.9          1.7         0.4     setosa
+7            4.6         3.4          1.4         0.3     setosa
+8            5.0         3.4          1.5         0.2     setosa
+9            4.4         2.9          1.4         0.2     setosa
+10           4.9         3.1          1.5         0.1     setosa
+11           5.4         3.7          1.5         0.2     setosa
+12           4.8         3.4          1.6         0.2     setosa
+13           4.8         3.0          1.4         0.1     setosa
+14           4.3         3.0          1.1         0.1     setosa
+15           5.8         4.0          1.2         0.2     setosa
+16           5.7         4.4          1.5         0.4     setosa
+17           5.4         3.9          1.3         0.4     setosa
+18           5.1         3.5          1.4         0.3     setosa
+19           5.7         3.8          1.7         0.3     setosa
+20           5.1         3.8          1.5         0.3     setosa
+21           5.4         3.4          1.7         0.2     setosa
+22           5.1         3.7          1.5         0.4     setosa
+23           4.6         3.6          1.0         0.2     setosa
+24           5.1         3.3          1.7         0.5     setosa
+25           4.8         3.4          1.9         0.2     setosa
+26           5.0         3.0          1.6         0.2     setosa
+27           5.0         3.4          1.6         0.4     setosa
+28           5.2         3.5          1.5         0.2     setosa
+29           5.2         3.4          1.4         0.2     setosa
+30           4.7         3.2          1.6         0.2     setosa
+31           4.8         3.1          1.6         0.2     setosa
+32           5.4         3.4          1.5         0.4     setosa
+33           5.2         4.1          1.5         0.1     setosa
+34           5.5         4.2          1.4         0.2     setosa
+35           4.9         3.1          1.5         0.2     setosa
+36           5.0         3.2          1.2         0.2     setosa
+37           5.5         3.5          1.3         0.2     setosa
+38           4.9         3.6          1.4         0.1     setosa
+39           4.4         3.0          1.3         0.2     setosa
+40           5.1         3.4          1.5         0.2     setosa
+41           5.0         3.5          1.3         0.3     setosa
+42           4.5         2.3          1.3         0.3     setosa
+43           4.4         3.2          1.3         0.2     setosa
+44           5.0         3.5          1.6         0.6     setosa
+45           5.1         3.8          1.9         0.4     setosa
+46           4.8         3.0          1.4         0.3     setosa
+47           5.1         3.8          1.6         0.2     setosa
+48           4.6         3.2          1.4         0.2     setosa
+49           5.3         3.7          1.5         0.2     setosa
+50           5.0         3.3          1.4         0.2     setosa
+51           7.0         3.2          4.7         1.4 versicolor
+52           6.4         3.2          4.5         1.5 versicolor
+53           6.9         3.1          4.9         1.5 versicolor
+54           5.5         2.3          4.0         1.3 versicolor
+55           6.5         2.8          4.6         1.5 versicolor
+56           5.7         2.8          4.5         1.3 versicolor
+57           6.3         3.3          4.7         1.6 versicolor
+58           4.9         2.4          3.3         1.0 versicolor
+59           6.6         2.9          4.6         1.3 versicolor
+60           5.2         2.7          3.9         1.4 versicolor
+61           5.0         2.0          3.5         1.0 versicolor
+62           5.9         3.0          4.2         1.5 versicolor
+63           6.0         2.2          4.0         1.0 versicolor
+64           6.1         2.9          4.7         1.4 versicolor
+65           5.6         2.9          3.6         1.3 versicolor
+66           6.7         3.1          4.4         1.4 versicolor
+67           5.6         3.0          4.5         1.5 versicolor
+68           5.8         2.7          4.1         1.0 versicolor
+69           6.2         2.2          4.5         1.5 versicolor
+70           5.6         2.5          3.9         1.1 versicolor
+71           5.9         3.2          4.8         1.8 versicolor
+72           6.1         2.8          4.0         1.3 versicolor
+73           6.3         2.5          4.9         1.5 versicolor
+74           6.1         2.8          4.7         1.2 versicolor
+75           6.4         2.9          4.3         1.3 versicolor
+76           6.6         3.0          4.4         1.4 versicolor
+77           6.8         2.8          4.8         1.4 versicolor
+78           6.7         3.0          5.0         1.7 versicolor
+79           6.0         2.9          4.5         1.5 versicolor
+80           5.7         2.6          3.5         1.0 versicolor
+81           5.5         2.4          3.8         1.1 versicolor
+82           5.5         2.4          3.7         1.0 versicolor
+83           5.8         2.7          3.9         1.2 versicolor
+84           6.0         2.7          5.1         1.6 versicolor
+85           5.4         3.0          4.5         1.5 versicolor
+86           6.0         3.4          4.5         1.6 versicolor
+87           6.7         3.1          4.7         1.5 versicolor
+88           6.3         2.3          4.4         1.3 versicolor
+89           5.6         3.0          4.1         1.3 versicolor
+90           5.5         2.5          4.0         1.3 versicolor
+91           5.5         2.6          4.4         1.2 versicolor
+92           6.1         3.0          4.6         1.4 versicolor
+93           5.8         2.6          4.0         1.2 versicolor
+94           5.0         2.3          3.3         1.0 versicolor
+95           5.6         2.7          4.2         1.3 versicolor
+96           5.7         3.0          4.2         1.2 versicolor
+97           5.7         2.9          4.2         1.3 versicolor
+98           6.2         2.9          4.3         1.3 versicolor
+99           5.1         2.5          3.0         1.1 versicolor
+100          5.7         2.8          4.1         1.3 versicolor
+101          6.3         3.3          6.0         2.5  virginica
+102          5.8         2.7          5.1         1.9  virginica
+103          7.1         3.0          5.9         2.1  virginica
+104          6.3         2.9          5.6         1.8  virginica
+105          6.5         3.0          5.8         2.2  virginica
+106          7.6         3.0          6.6         2.1  virginica
+107          4.9         2.5          4.5         1.7  virginica
+108          7.3         2.9          6.3         1.8  virginica
+109          6.7         2.5          5.8         1.8  virginica
+110          7.2         3.6          6.1         2.5  virginica
+111          6.5         3.2          5.1         2.0  virginica
+112          6.4         2.7          5.3         1.9  virginica
+113          6.8         3.0          5.5         2.1  virginica
+114          5.7         2.5          5.0         2.0  virginica
+115          5.8         2.8          5.1         2.4  virginica
+116          6.4         3.2          5.3         2.3  virginica
+117          6.5         3.0          5.5         1.8  virginica
+118          7.7         3.8          6.7         2.2  virginica
+119          7.7         2.6          6.9         2.3  virginica
+120          6.0         2.2          5.0         1.5  virginica
+121          6.9         3.2          5.7         2.3  virginica
+122          5.6         2.8          4.9         2.0  virginica
+123          7.7         2.8          6.7         2.0  virginica
+124          6.3         2.7          4.9         1.8  virginica
+125          6.7         3.3          5.7         2.1  virginica
+126          7.2         3.2          6.0         1.8  virginica
+127          6.2         2.8          4.8         1.8  virginica
+128          6.1         3.0          4.9         1.8  virginica
+129          6.4         2.8          5.6         2.1  virginica
+130          7.2         3.0          5.8         1.6  virginica
+131          7.4         2.8          6.1         1.9  virginica
+132          7.9         3.8          6.4         2.0  virginica
+133          6.4         2.8          5.6         2.2  virginica
+134          6.3         2.8          5.1         1.5  virginica
+135          6.1         2.6          5.6         1.4  virginica
+136          7.7         3.0          6.1         2.3  virginica
+137          6.3         3.4          5.6         2.4  virginica
+138          6.4         3.1          5.5         1.8  virginica
+139          6.0         3.0          4.8         1.8  virginica
+140          6.9         3.1          5.4         2.1  virginica
+141          6.7         3.1          5.6         2.4  virginica
+142          6.9         3.1          5.1         2.3  virginica
+143          5.8         2.7          5.1         1.9  virginica
+144          6.8         3.2          5.9         2.3  virginica
+145          6.7         3.3          5.7         2.5  virginica
+146          6.7         3.0          5.2         2.3  virginica
+147          6.3         2.5          5.0         1.9  virginica
+148          6.5         3.0          5.2         2.0  virginica
+149          6.2         3.4          5.4         2.3  virginica
+150          5.9         3.0          5.1         1.8  virginica
 ```
+]
 
-Which means we can write something like this...
+---
+count: false
+ 
 
+.panel1-tsne-auto[
 
-
-And maybe actually use an implied set of variables in our computation...
-
-### To expanded to the `:` referenced variables...
-
-Our strategy will actually use `dims_listed()` which takes vars individually specified, as described [here](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-10219152). Then we'll `vars_unpack()` within our computation.
-
-
-
-&lt;/details&gt;
-
-### so let's use some ggplot_add to try to expand, and have these individually specified vars
-
-&lt;details&gt;
-
-### an exercise/experiment
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
-
+``` r
+iris |&gt;
+  ggplot()
 ```
-dims(Sepal.Length:Petal.Length, Petal.Width)
+]
+ 
+.panel2-tsne-auto[
+![](asa-cowy-fall-2025_files/figure-html/tsne_auto_02_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-tsne-auto[
+
+``` r
+iris |&gt;
+  ggplot() +
+  aes(dims =
+        dims(Sepal.Length:Petal.Width),
+      fill = Species
+      )
 ```
+]
+ 
+.panel2-tsne-auto[
+![](asa-cowy-fall-2025_files/figure-html/tsne_auto_03_output-1.png)&lt;!-- --&gt;
+]
 
+---
+count: false
+ 
+
+.panel1-tsne-auto[
+
+``` r
+iris |&gt;
+  ggplot() +
+  aes(dims =
+        dims(Sepal.Length:Petal.Width),
+      fill = Species
+      ) +
+  geom_tsne()
 ```
-dims_listed(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)
+]
+ 
+.panel2-tsne-auto[
+![](asa-cowy-fall-2025_files/figure-html/tsne_auto_04_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-tsne-auto {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-tsne-auto {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-tsne-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+
+count: false
+ 
+
+.panel1-umap-2[
+
+``` r
+library(ggdims)
+iris |&gt;
+  ggplot() +
+  aes(dims =
+        dims(Sepal.Length:Petal.Width),
+      fill = Species) +
+  geom_umap()
 ```
+]
+ 
+.panel2-umap-2[
+![](asa-cowy-fall-2025_files/figure-html/umap_2_01_output-1.png)&lt;!-- --&gt;
+]
 
-&lt;/details&gt;
+---
+count: false
+ 
 
-### `dims_expand`
+.panel1-umap-2[
 
-&lt;details&gt;
-
-
-
-&lt;/details&gt;
-
-
+``` r
+library(ggdims)
+iris |&gt;
+  ggplot() +
+  aes(dims =
+        dims(Sepal.Length:Petal.Width),
+      fill = Species) +
+  geom_umap()
 ```
-Aesthetic mapping: 
-* `dims` -&gt; `dims_listed(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)`
+]
+ 
+.panel2-umap-2[
+![](asa-cowy-fall-2025_files/figure-html/umap_2_02_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-umap-2 {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-umap-2 {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-umap-2 {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+
+---
+
+count: false
+ 
+
+.panel1-pca-2[
+
+``` r
+library(ggdims)
+iris |&gt;
+  ggplot() +
+  aes(dims =
+        dims(Sepal.Length:Petal.Width),
+      fill = Species) +
+  geom_pca()
 ```
+]
+ 
+.panel2-pca-2[
+![](asa-cowy-fall-2025_files/figure-html/pca_2_01_output-1.png)&lt;!-- --&gt;
+]
 
-## Now let's actually define `dims_listed()` and `vars_unpack`
+---
+count: false
+ 
 
-&lt;details&gt;
+.panel1-pca-2[
 
-
-
-
-
-&lt;/details&gt;
-
-# Applications: tsne, umap, PCA
-
-## compute_tsne, geom_tsne, using [`Rtsne::Rtsne`](https://github.com/jkrijthe/Rtsne)
-
-&lt;details&gt;
-
-
-
-
+``` r
+library(ggdims)
+iris |&gt;
+  ggplot() +
+  aes(dims =
+        dims(Sepal.Length:Petal.Width),
+      fill = Species) +
+  geom_pca()
 ```
-# A tibble: 149 × 7
-        x     y Sepal.Length Sepal.Width Petal.Length Petal.Width dims      
-    &lt;dbl&gt; &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;list[1d]&gt;
- 1 -10.3  -19.3          5.1         3.5          1.4         0.2 &lt;dbl [4]&gt; 
- 2 -11.2  -15.4          4.9         3            1.4         0.2 &lt;dbl [4]&gt; 
- 3  -9.61 -14.7          4.7         3.2          1.3         0.2 &lt;dbl [4]&gt; 
- 4 -10.1  -14.5          4.6         3.1          1.5         0.2 &lt;dbl [4]&gt; 
- 5  -9.57 -19.5          5           3.6          1.4         0.2 &lt;dbl [4]&gt; 
- 6  -9.59 -22.1          5.4         3.9          1.7         0.4 &lt;dbl [4]&gt; 
- 7  -8.80 -14.9          4.6         3.4          1.4         0.3 &lt;dbl [4]&gt; 
- 8  -9.98 -18.2          5           3.4          1.5         0.2 &lt;dbl [4]&gt; 
- 9 -10.4  -13.4          4.4         2.9          1.4         0.2 &lt;dbl [4]&gt; 
-10 -10.8  -15.9          4.9         3.1          1.5         0.1 &lt;dbl [4]&gt; 
-# ℹ 139 more rows
-```
+]
+ 
+.panel2-pca-2[
+![](asa-cowy-fall-2025_files/figure-html/pca_2_02_output-1.png)&lt;!-- --&gt;
+]
 
-```
-# A tibble: 3 × 3
-  label           x      y
-  &lt;fct&gt;       &lt;dbl&gt;  &lt;dbl&gt;
-1 setosa     -9.98  -18.2 
-2 versicolor  0.857  13.1 
-3 virginica   9.31    5.22
-```
-
-
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
-
-```
-&lt;quosure&gt;
-expr: ^dims_listed(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)
-env:  global
-```
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-27-2.png)&lt;!-- --&gt;
+&lt;style&gt;
+.panel1-pca-2 {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-pca-2 {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-pca-2 {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
 
 
 
 
 
-&lt;/details&gt;
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-30-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-30-2.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-30-3.png)&lt;!-- --&gt;
-
-### Different perplexity
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-31-1.png)&lt;!-- --&gt;
-
-## A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
-
-&lt;details&gt;
 
 
-```
-# A tibble: 150 × 8
-       x     y Sepal.Length Sepal.Width Petal.Length Petal.Width color  dims    
-   &lt;dbl&gt; &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt; &lt;fct&gt;  &lt;list[1&gt;
- 1  15.7 -4.39          5.1         3.5          1.4         0.2 setosa &lt;dbl[…]&gt;
- 2  13.7 -4.54          4.9         3            1.4         0.2 setosa &lt;dbl[…]&gt;
- 3  14.1 -5.12          4.7         3.2          1.3         0.2 setosa &lt;dbl[…]&gt;
- 4  13.8 -5.22          4.6         3.1          1.5         0.2 setosa &lt;dbl[…]&gt;
- 5  15.4 -4.27          5           3.6          1.4         0.2 setosa &lt;dbl[…]&gt;
- 6  15.9 -3.28          5.4         3.9          1.7         0.4 setosa &lt;dbl[…]&gt;
- 7  14.2 -5.35          4.6         3.4          1.4         0.3 setosa &lt;dbl[…]&gt;
- 8  15.3 -4.62          5           3.4          1.5         0.2 setosa &lt;dbl[…]&gt;
- 9  13.5 -5.33          4.4         2.9          1.4         0.2 setosa &lt;dbl[…]&gt;
-10  13.8 -4.81          4.9         3.1          1.5         0.1 setosa &lt;dbl[…]&gt;
-# ℹ 140 more rows
-```
-
-&lt;/details&gt;
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-33-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-33-2.png)&lt;!-- --&gt;
-
-## A little PCA using `ordr::ordinate`
-
-&lt;details&gt;
-
-
-```
-# A tibble: 150 × 10
-     PC1     PC2     PC3      PC4 Sepal.Length Sepal.Width Petal.Length
-   &lt;dbl&gt;   &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;        &lt;dbl&gt;       &lt;dbl&gt;        &lt;dbl&gt;
- 1 -2.26 -0.478   0.127   0.0241           5.1         3.5          1.4
- 2 -2.07  0.672   0.234   0.103            4.9         3            1.4
- 3 -2.36  0.341  -0.0441  0.0283           4.7         3.2          1.3
- 4 -2.29  0.595  -0.0910 -0.0657           4.6         3.1          1.5
- 5 -2.38 -0.645  -0.0157 -0.0358           5           3.6          1.4
- 6 -2.07 -1.48   -0.0269  0.00659          5.4         3.9          1.7
- 7 -2.44 -0.0475 -0.334  -0.0367           4.6         3.4          1.4
- 8 -2.23 -0.222   0.0884 -0.0245           5           3.4          1.5
- 9 -2.33  1.11   -0.145  -0.0268           4.4         2.9          1.4
-10 -2.18  0.467   0.253  -0.0398           4.9         3.1          1.5
-# ℹ 140 more rows
-# ℹ 3 more variables: Petal.Width &lt;dbl&gt;, color &lt;fct&gt;, dims &lt;list[1d]&gt;
-```
-
-&lt;/details&gt;
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-35-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-35-2.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-35-3.png)&lt;!-- --&gt;
-
-### w/ penguins
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-36-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-36-2.png)&lt;!-- --&gt;
-
-------------------------------------------------------------------------
-
-# Reproduction exercise
-
-Try to reproduce some of observations and figures in the Distill paper: 'How to Use t-SNE Effectively' &lt;https://distill.pub/2016/misread-tsne/&gt; with some verbatim visuals from the paper.
-
-
-
-### 1. 'Those hyperparameters really matter'
-
-Let's try to reproduce the following with our `geom_tsne()`:
-
-![](images/clipboard-2588034840.png)
-
-
-```
-[1] 202   3
-```
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-38-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-38-2.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-38-3.png)&lt;!-- --&gt;
-
-```
-NULL
-```
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-38-4.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-38-5.png)&lt;!-- --&gt;
-
-### 2. 'Cluster sizes in a t-SNE plot mean nothing'
-
-Let's try to reproduce this (we'll shortcut but switching out the data across plot specifications): ![](images/clipboard-4082290261.png)
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-39-1.png)&lt;!-- --&gt;
-
-#### Side note on ggplyr::data_replace X google gemini quick search
-
-![](images/clipboard-3482018450.png)
-
-### 3. 'Distances between clusters might not mean anything'
-
-Now let's look at these three clusters, where one cluster is far out:
-
-![](images/clipboard-2639177458.png)
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-40-1.png)&lt;!-- --&gt;
-
-### 4. 'Random noise doesn't always look random'
-
-![](images/clipboard-109741735.png)
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-41-1.png)&lt;!-- --&gt;
-
-------------------------------------------------------------------------
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-42-1.png)&lt;!-- --&gt;![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-42-2.png)&lt;!-- --&gt;
-
-
-```
-[1] "rc9143"    "rc9144"    "rc9145"    "rc9146"    "rc9147"    "continent"
-```
-
-&lt;img src="asa-cowy-fall-2025_files/figure-html/unnamed-chunk-44-1.png" width="100%" /&gt;&lt;img src="hi.png" width="100%" /&gt;
-
-r flipbookr::chunk_reveal("unga_hitchhiking", display_type = 1)`
 
 ---
 
 
 
 ``` r
-un_ga_country_wide_rcid |&gt;
+library(ggdims)
+iris |&gt;
   ggplot() + 
-  aes(dims = dims(rc3:rc9147), 
-      fill = continent) + 
-* geom_tsne()
+  aes(dims = dims(Sepal.Length:Petal.Width), 
+      fill = Species) + 
+  geom_pca()
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unga_hitchhiking-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+
+---
+
+
+```
+[1] 202   3
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+---
+
+r chunk_reveal("pp2")`
 
 
 
 ---
+
+r chunk_reveal("pp5", break_type = 1)`
+
+
+
+---
+
+r chunk_reveal("pp30", break_type = 2)`
+
+
+
+
+---
+
+r chunk_reveal("pp50", break_type = 1)`
+
+
+
+
+---
+
+r chunk_reveal("pp100", break_type = 1)`
+
+
+
+---
+
+
+``` r
+library(patchwork)
+original + pp2 + pp5 + pp30 + pp50 + pp100 &amp;
+  theme_ggdims() 
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+``` r
+# with group id
+last_plot() &amp; 
+  aes(fill = type) &amp;
+  guides(fill = "none")
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-6-2.png)&lt;!-- --&gt;
+
 
 
 
@@ -581,7 +1125,7 @@ For users of these APIs, getting quickly acquainted with techniques (students) o
 
 
 &lt;style type="text/css"&gt;
-.remark-code{line-height: 1.5; font-size: 80%}
+.remark-code{line-height: 1.5; font-size: 70%}
 
 @media print {
   .has-continuation {

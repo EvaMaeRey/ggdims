@@ -26,6 +26,9 @@ knitr::opts_chunk$set(echo = TRUE)
 options(tidyverse.quiet = TRUE)
 ```
 
+Go to [talk](./asa-cowy-fall-2025.html) ([source](asa-cowy-fall-2025.Rmd))
+
+
 ## ggdims Intro Thoughts
 
 ggplot2 lets you intuitively translate variables to visual representation. You specify how variables (e.g. sex, age, employment status) are to be communicated via visual channels (x and y axis position, color, transparency, etc). However, in ggplot2 these specifications are individual-variable-to-individual-visual-channel which does not lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, tsne, umap). The usual one-var-to-one-aesthetic requirement means that it may not feel obvious how to extend ggplot2 for dimensionality reduction visualization, which deals with characterizing *many* variables. So while using ggplot2 under-the-hood is common in the dim-red space, it feels like there may be less consistency across dim-red APIs. For users of these APIs, getting quickly acquainted with techniques (students) or doing comparative work (practitioners) may be more challenging than it needs to be. The {ggdims} package explores a new `dims()` and `dims_expand()` utility that could help with greater consistency across dim-red APIs, with standard ggplots, and within the ggplot2 extension ecosystem.
@@ -108,6 +111,8 @@ iris |>
 ### an exercise/experiment
 
 ```{r}
+library(tidyverse)
+
 iris |> 
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width))
@@ -158,6 +163,11 @@ p$mapping$dims0[[2]]
 <details>
 
 ```{r dims_expand}
+#' @export
+dims <- function(...){}
+
+
+
 #' @export
 dims_expand <- function() {
 
@@ -267,6 +277,20 @@ data |>
 
 <details>
 
+```{r aaa_GeomPointFill}
+#' @export
+GeomPointFill <- ggproto("GeomPointFill", 
+                         GeomPoint,
+                         default_aes = 
+                           modifyList(GeomPoint$default_aes, 
+                                      aes(shape = 21, 
+                                          color = from_theme(paper),
+                                          size = from_theme(pointsize * 1.5),
+                                          alpha = .7,
+                                          fill = from_theme(ink))))
+```
+
+
 ```{r compute_tsne}
 # compute_tsne allows individually listed variables that are all of the same type
 #' @export
@@ -312,15 +336,7 @@ StatTsne <- ggproto("StatTsne", Stat,
 StatTsneGroup <- ggproto("StatTsneGroup", Stat, 
                          compute_panel = compute_tsne_group_label)
 
-GeomPointFill <- ggproto("GeomPointFill", 
-                         GeomPoint,
-                         default_aes = 
-                           modifyList(GeomPoint$default_aes, 
-                                      aes(shape = 21, 
-                                          color = from_theme(paper),
-                                          size = from_theme(pointsize * 1.5),
-                                          alpha = .7,
-                                          fill = from_theme(ink))))
+
 
 #' @export
 geom_tsne0 <- make_constructor(GeomPointFill, 
@@ -431,6 +447,7 @@ iris |>
 <details>
 
 ```{r compute_umap}
+#' @export
 compute_umap <- function(data, scales, n_components = 2, random_state = 15){
   
 data_for_reduction <- data_vars_unpack(data)
@@ -451,22 +468,16 @@ clean_data |>
 
 }
 
-iris |> 
-  mutate(dims = 
-        dims_listed(Sepal.Length, Sepal.Width, 
-                Petal.Length, Petal.Width)) |>
-  select(color = Species, dims) |>
-  compute_umap()
-
-
-# define StatUmap
+#' @export
 StatUmap <- ggproto("StatUmap", 
                     Stat, 
                     compute_panel = compute_umap)
 
-# 
+#' @export
 geom_umap0 <- make_constructor(GeomPointFill, stat = StatUmap, random_state = 15, n_components = 4)
 
+
+#' @export
 geom_umap <- function(...){
   
   list(dims_expand(), 
@@ -478,6 +489,14 @@ geom_umap <- function(...){
 </details>
 
 ```{r}
+iris |> 
+  mutate(dims = 
+        dims_listed(Sepal.Length, Sepal.Width, 
+                Petal.Length, Petal.Width)) |>
+  select(color = Species, dims) |>
+  compute_umap()
+
+
 iris |> 
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Width)) + 
@@ -576,6 +595,29 @@ last_plot() +
 ```
 
 ------------------------------------------------------------------------
+
+
+# Minimal Packaging
+
+```{r}
+# knitrExtra::chunk_names_get()
+
+knitrExtra::chunk_to_dir(
+  c( "dims_expand" , "dims_listed", "data_vars_unpack", "compute_tsne",  "theme_ggdims", "geom_tsne", "compute_umap", "compute_pca_rows", "aaa_GeomPointFill" )
+)
+
+usethis::use_package("ggplot2")
+
+devtools::document()
+```
+
+```{r, eval = F}
+devtools::check(".")
+devtools::install(".", upgrade = "never")
+```
+
+
+
 
 # Reproduction exercise
 
@@ -775,22 +817,3 @@ knitr::include_graphics("hi.png")
 ```
 
 
-# Minimal Packaging
-
-
-```{r, eval = F}
-devtools::create(".")
-```
-
-```{r}
-knitrExtra::chunk_to_dir(
-  c( "dims_expand" , "dims_listed"   ,   "data_vars_unpack", "compute_tsne"   ,  "theme_ggdims",     "geom_tsne"       , "compute_umap"     ,"compute_pca_rows" )
-)
-
-devtools::document()
-```
-
-```{r, eval = F}
-devtools::check(".")
-devtools::install(".", upgrade = "never")
-```

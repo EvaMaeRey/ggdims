@@ -21,6 +21,7 @@
   - [A little PCA using
     `ordr::ordinate`](#a-little-pca-using-ordrordinate)
     - [w/ penguins](#w-penguins)
+- [Minimal Packaging](#minimal-packaging)
 - [Reproduction exercise](#reproduction-exercise)
   - [1. ‘Those hyperparameters really
     matter’](#1-those-hyperparameters-really-matter)
@@ -30,11 +31,13 @@
     anything’](#3-distances-between-clusters-might-not-mean-anything)
   - [4. ‘Random noise doesn’t always look
     random’](#4-random-noise-doesnt-always-look-random)
-- [Minimal Packaging](#minimal-packaging)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 <!-- badges: start -->
 <!-- badges: end -->
+
+Go to [talk](./asa-cowy-fall-2025.html)
+([source](asa-cowy-fall-2025.Rmd))
 
 ## ggdims Intro Thoughts
 
@@ -147,6 +150,8 @@ iris |>
 ### an exercise/experiment
 
 ``` r
+library(tidyverse)
+
 iris |> 
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width))
@@ -208,6 +213,11 @@ p$mapping$dims0[[2]]
 <details>
 
 ``` r
+#' @export
+dims <- function(...){}
+
+
+
 #' @export
 dims_expand <- function() {
 
@@ -323,6 +333,19 @@ data |>
 <details>
 
 ``` r
+#' @export
+GeomPointFill <- ggproto("GeomPointFill", 
+                         GeomPoint,
+                         default_aes = 
+                           modifyList(GeomPoint$default_aes, 
+                                      aes(shape = 21, 
+                                          color = from_theme(paper),
+                                          size = from_theme(pointsize * 1.5),
+                                          alpha = .7,
+                                          fill = from_theme(ink))))
+```
+
+``` r
 # compute_tsne allows individually listed variables that are all of the same type
 #' @export
 compute_tsne <- function(data, scales, perplexity = 20){
@@ -367,15 +390,7 @@ StatTsne <- ggproto("StatTsne", Stat,
 StatTsneGroup <- ggproto("StatTsneGroup", Stat, 
                          compute_panel = compute_tsne_group_label)
 
-GeomPointFill <- ggproto("GeomPointFill", 
-                         GeomPoint,
-                         default_aes = 
-                           modifyList(GeomPoint$default_aes, 
-                                      aes(shape = 21, 
-                                          color = from_theme(paper),
-                                          size = from_theme(pointsize * 1.5),
-                                          alpha = .7,
-                                          fill = from_theme(ink))))
+
 
 #' @export
 geom_tsne0 <- make_constructor(GeomPointFill, 
@@ -535,6 +550,7 @@ iris |>
 <details>
 
 ``` r
+#' @export
 compute_umap <- function(data, scales, n_components = 2, random_state = 15){
   
 data_for_reduction <- data_vars_unpack(data)
@@ -555,12 +571,39 @@ clean_data |>
 
 }
 
+#' @export
+StatUmap <- ggproto("StatUmap", 
+                    Stat, 
+                    compute_panel = compute_umap)
+
+#' @export
+geom_umap0 <- make_constructor(GeomPointFill, stat = StatUmap, random_state = 15, n_components = 4)
+
+
+#' @export
+geom_umap <- function(...){
+  
+  list(dims_expand(), 
+       geom_umap0(...))
+  
+}
+```
+
+</details>
+
+``` r
 iris |> 
   mutate(dims = 
         dims_listed(Sepal.Length, Sepal.Width, 
                 Petal.Length, Petal.Width)) |>
   select(color = Species, dims) |>
   compute_umap()
+#> Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if
+#> `.name_repair` is omitted as of tibble 2.0.0.
+#> ℹ Using compatibility `.name_repair`.
+#> This warning is displayed once every 8 hours.
+#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
+#> generated.
 #> # A tibble: 150 × 8
 #>        x     y Sepal.Length Sepal.Width Petal.Length Petal.Width color  dims    
 #>    <dbl> <dbl>        <dbl>       <dbl>        <dbl>       <dbl> <fct>  <list[1>
@@ -577,25 +620,6 @@ iris |>
 #> # ℹ 140 more rows
 
 
-# define StatUmap
-StatUmap <- ggproto("StatUmap", 
-                    Stat, 
-                    compute_panel = compute_umap)
-
-# 
-geom_umap0 <- make_constructor(GeomPointFill, stat = StatUmap, random_state = 15, n_components = 4)
-
-geom_umap <- function(...){
-  
-  list(dims_expand(), 
-       geom_umap0(...))
-  
-}
-```
-
-</details>
-
-``` r
 iris |> 
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Width)) + 
@@ -736,6 +760,50 @@ last_plot() +
 
 ------------------------------------------------------------------------
 
+# Minimal Packaging
+
+``` r
+# knitrExtra::chunk_names_get()
+
+knitrExtra::chunk_to_dir(
+  c( "dims_expand" , "dims_listed", "data_vars_unpack", "compute_tsne",  "theme_ggdims", "geom_tsne", "compute_umap", "compute_pca_rows", "aaa_GeomPointFill" )
+)
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
+
+usethis::use_package("ggplot2")
+#> ✔ Setting active project to '/Users/evangelinereynolds/Google
+#> Drive/r_packages/ggdims'
+
+devtools::document()
+#> ℹ Updating ggdims documentation
+#> ℹ Loading ggdims
+#> Warning: ── Conflicts ─────────────────────────────────────────────── ggdims conflicts
+#> ──
+#> ✖ `compute_pca_rows` masks `ggdims::compute_pca_rows()`.
+#> ✖ `compute_tsne` masks `ggdims::compute_tsne()`.
+#> ✖ `compute_tsne_group_label` masks `ggdims::compute_tsne_group_label()`.
+#>   … and more.
+#> ℹ Did you accidentally source a file rather than using `load_all()`?
+#>   Run `rm(list = c("compute_pca_rows", "compute_tsne",
+#>   "compute_tsne_group_label", "compute_umap", "data_vars_unpack",
+#>   "dims_expand", "dims_listed", "geom_pca", "geom_pca0", "geom_tsne",
+#>   "geom_tsne_label", "geom_tsne_label0", "geom_tsne0", "geom_umap0",
+#>   "theme_ggdims", "vars_unpack"))` to remove the conflicts.
+```
+
+``` r
+devtools::check(".")
+devtools::install(".", upgrade = "never")
+```
+
 # Reproduction exercise
 
 Try to reproduce some of observations and figures in the Distill paper:
@@ -791,7 +859,7 @@ pp2 <- ggplot(data = hello_world_of_tsne) +
 #> generated.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-17-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-19-1.png" width="55%" />
 
 ``` r
 
@@ -801,7 +869,7 @@ pp5 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 5"); pp5
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-17-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-19-2.png" width="55%" />
 
 ``` r
 
@@ -811,7 +879,7 @@ pp30 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 30"); pp30
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-17-3.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-19-3.png" width="55%" />
 
 ``` r
 
@@ -841,7 +909,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
 #> Please use `theme()` to construct themes.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-17-4.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-19-4.png" width="55%" />
 
 ``` r
 
@@ -856,7 +924,7 @@ last_plot() &
 #> ! perplexity is too large for the number of samples
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-17-5.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-19-5.png" width="55%" />
 
 ``` r
 
@@ -886,7 +954,7 @@ panel_of_six_tsne_two_cluster &
 #> Please use `theme()` to construct themes.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-18-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-20-1.png" width="55%" />
 
 #### Side note on ggplyr::data_replace X google gemini quick search
 
@@ -914,7 +982,7 @@ panel_of_six_tsne_two_cluster &
 #> Please use `theme()` to construct themes.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-19-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-21-1.png" width="55%" />
 
 ### 4. ‘Random noise doesn’t always look random’
 
@@ -932,7 +1000,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
 #> Please use `theme()` to construct themes.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-20-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-22-1.png" width="55%" />
 
 ------------------------------------------------------------------------
 
@@ -947,7 +1015,7 @@ palmerpenguins::penguins |>
 #> range.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-21-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-23-1.png" width="55%" />
 
 ``` r
 
@@ -955,7 +1023,7 @@ last_plot() +
   aes(fill = species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-21-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-23-2.png" width="55%" />
 
 ``` r
 unvotes::un_votes |> 
@@ -1001,7 +1069,7 @@ library(patchwork)
   plot_annotation(title = "UN General Assembly voting country projections")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-23-1.png" width="100%" />
+<img src="README_files/figure-gfm/unnamed-chunk-25-1.png" width="100%" />
 
 ``` r
 
@@ -1011,41 +1079,3 @@ knitr::include_graphics("hi.png")
 ```
 
 <img src="hi.png" width="100%" />
-
-# Minimal Packaging
-
-``` r
-devtools::create(".")
-```
-
-``` r
-knitrExtra::chunk_to_dir(
-  c( "dims_expand" , "dims_listed"   ,   "data_vars_unpack", "compute_tsne"   ,  "theme_ggdims",     "geom_tsne"       , "compute_umap"     ,"compute_pca_rows" )
-)
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-
-devtools::document()
-#> ℹ Updating ggdims documentation
-#> ℹ Loading ggdims
-#> Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if
-#> `.name_repair` is omitted as of tibble 2.0.0.
-#> ℹ Using compatibility `.name_repair`.
-#> ℹ The deprecated feature was likely used in the ggdims package.
-#>   Please report the issue to the authors.
-#> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
-#> Writing 'NAMESPACE'
-```
-
-``` r
-devtools::check(".")
-devtools::install(".", upgrade = "never")
-```
