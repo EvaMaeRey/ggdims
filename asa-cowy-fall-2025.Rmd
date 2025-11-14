@@ -6,12 +6,12 @@ output:
   xaringan::moon_reader:
     lib_dir: libs
     css: [default, hygge, ninjutsu]
+    seal: false
     nature:
       ratio: 16:10
       highlightStyle: github
       highlightLines: true
       countIncrementalSlides: false
-      seal: false
 ---
 
 
@@ -22,7 +22,7 @@ background-size: cover
 
 # .Large[{ggdims}]
 ## .small[Toward a viz- and code-first hitchhiker’s guide to dimensionality reduction]
-## .small[https://bit.ly/??]
+## .small[github.com/EvaMaeRey/ggdims]
 #### .tiny[Gina (Evangeline) Reynolds | 2025-11-14 | ASA, COWY, Image credit: Ales Krivec, Upsplash]
 
 
@@ -60,6 +60,29 @@ library(tidyverse)
 
 
 ```
+
+
+---
+
+# cliffnotes
+
+--
+
+You couldn't easily `aes(dims = dims(var1:var200, var205))` syntax...
+
+
+```{r, eval = F}
+library(ggplot2)
+
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = 
+        dims(var1:var200, var205) 
+      ) +      
+  geom_dimred_technique()                 
+```
+
+
+... now you can.
 
 ---
 class: inverse, middle, center
@@ -104,7 +127,7 @@ class: inverse
 
 --
 
-## Doesn't lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, T-sne, UMAP)
+## Doesn't lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, t-SNE, UMAP)
 
 
 ???
@@ -123,8 +146,18 @@ Martin Wattenberg 'How to use t-SNE effectively' 2016:
 
 ---
 
+https://distill.pub/2016/misread-tsne/
+
+![](images/clipboard-667229542.png)
+
+---
+
+![](images/clipboard-2214898865.png)
 
 
+---
+
+![](images/clipboard-2170207951.png)
 
 ---
 
@@ -137,18 +170,28 @@ entire field of dimention reduction as I can in the time available."
 
 > * = "not quite true but morally the right thing to do"
 
+---
+
+
+![](images/clipboard-3696481417.png)
+
+---
+
+![](images/clipboard-93834723.png)
+
+
 --
 
-> The similarities are greater than the differences...
+> 'The similarities are greater than the differences' ?...
 
 
 ---
 
-> shouldn't we be able to fly (hitchhike) through trying out some of these techniques?
+> Shouldn't we be able to fly (hitchhike) through trying out some of these techniques?
 
 --
 
-> should we have to learn a different paradigm/syntax for every technique?
+> Should we have to learn a different paradigm/syntax for every technique?
 
 --
 
@@ -162,39 +205,224 @@ entire field of dimention reduction as I can in the time available."
 ```{r scatter, include=F}
 library(ggplot2)
 
-ggplot(cars) + 
-  aes(x = speed,
+# data 
+ggplot(cars) +     
+  # variable mapping
+  aes(x = speed,   
       y = dist) + 
-  geom_point()
+  # layer
+  geom_point()     
 ```
+
+
+
+```{r, eval = F}
+ggplot(cars) + # data
+  aes(????)    # var mapping
+  geom_pca()   # layer
+
+ggplot(cars) + # data
+  aes(????)    # var mapping
+  geom_tsne()  # layer
+
+ggplot(cars) + # data
+  aes(????)    # var mapping
+  geom_umap()  # layer
+```
+
+---
+
+Posit conf Speaker training: July 22
+
+More related:
+
+![](images/clipboard-630705121.png)
+
+---
+
+![](images/clipboard-964179201.png)
+
+"It's easier to type thing which are smaller, but when things are getting bigger and bigger you prefer to click on buttons and work [with a GUI]."
+
+---
+
+![](images/clipboard-2703820773.png)
+
+---
+
+![](images/clipboard-3469228869.png)
+
+---
+
+## JSM Talk, Developments in Statistical Graphics, Tuesday, August 5
+
+![](images/clipboard-2692987354.png)
+
+---
+
+![](images/clipboard-2964959607.png)
+
+<https://phhp.ufl.edu/about/departments/biostatistics/about/faculty/>
+
+---
+
+![](legislative_dim_red.jpg)
 
 
 ---
 
-`r chunk_reveal("dims_listed")`
 
-```{r dims_listed, include = F}
-library(ggdims)
+# `geom_pca_point() `
 
-iris |> 
+
+
+![](images/clipboard-1445857279.png)
+
+---
+
+```{r, eval = F}
+palmerpenguins::penguins %>% 
   ggplot() + 
-  aes(dims = 
-        dims_listed(Sepal.Length, Sepal.Width, 
-                Petal.Length, Petal.Width),
-      fill = Species
-      ) +
-  geom_tsne0()  
+  aes(outcome = species, 
+      a = bill_length_mm, 
+      b = bill_depth_mm, 
+      c = flipper_length_mm) +
+  geom_pca_point()  
 ```
 
 ---
-background-image: url(images/clipboard-1333989283.png)
-background-size: fit
 
-# But inefficient feel.  We really want to have a shortcut to specify a lot of variables (which dimred are good at using)
+![](images/clipboard-2464072259.png)
 
-![](images/clipboard-1333989283.png){width="25%"}
+---
 
 
+```{r, eval = F}
+palmerpenguins::penguins %>% 
+  ggplot() + 
+  aes(outcome = species, 
+      dims = vars(bill_length_mm,  
+                  bill_depth_mm, 
+                  flipper_length_mm)) +
+  geom_pca_point()
+```
+
+---
+
+![](images/clipboard-3430965112.png)
+
+---
+
+
+---
+
+```{r, eval = F}
+library(ggplot2)
+
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = dims(var1:var200, 
+                  var205)) + # or similar
+  geom_reduction_technique()                 # default dim-red to 2D
+
+last_plot() + 
+  aes(color = label)    # indicate category
+```
+
+---
+
+
+
+---
+
+```{r, echo = F, message=F, warning=F}
+library(tidyverse)
+
+unvotes::un_votes |> 
+  arrange(rcid) |>
+  mutate(rcid = paste0("rc",rcid) |> fct_inorder()) |>
+  mutate(num_vote = case_when(vote == "yes" ~ 1,
+                              vote == "abstain" ~ .5,
+                              vote == "no" ~ 0,
+                              TRUE ~ .5 )) |>
+  # filter(rcid %in% 1:30) |>
+  pivot_wider(id_cols = c(country, country_code),
+    names_from = rcid, 
+              values_from = num_vote,
+              values_fill = .5
+            ) |>
+  mutate(continent = country_code |> 
+           countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
+  mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
+un_ga_country_wide_rcid
+
+
+# names(un_ga_country_wide_rcid) |> tail()
+```
+
+```{r, out.width="100%"}
+library(ggdims)
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_pca() + 
+  aes(fill = continent) +
+  labs(title = "PCA") ->
+unga_pca
+```
+
+---
+
+```{r}
+library(ggdims)
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_tsne() + 
+  aes(fill = continent) +
+  labs(title = "PCA") ->
+unga_tsne
+```
+
+---
+
+```{r}
+library(ggdims)
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_tsne() + 
+  aes(fill = continent) +
+  labs(title = "t-SNE") ->
+unga_tsne
+```
+
+---
+
+```{r}
+library(ggdims)
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_umap() + 
+  aes(fill = continent) +
+  labs(title = "UMAP") ->
+unga_umap
+```
+
+---
+
+```{r, fig.width=10, fig.height=4}
+library(patchwork)
+
+unga_pca + unga_tsne + unga_umap + 
+  plot_layout(guides = "collect") + 
+  plot_annotation(title = "UN General Assembly voting country projections")
+
+
+```
+
+
+
+---
+
+
+![](legislative_dim_red.jpg)
 
 
 ---
@@ -311,6 +539,10 @@ original +
 
 ---
 
+![](legislative_dim_red.jpg)
+
+---
+
 r chunk_reveal("pp2")`
 
 ```{r pp2, include= F}
@@ -385,6 +617,7 @@ pp100; pp100
 
 ```{r}
 library(patchwork)
+
 original + pp2 + pp5 + pp30 + pp50 + pp100 &
   theme_ggdims() 
 

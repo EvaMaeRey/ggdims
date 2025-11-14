@@ -1,6 +1,7 @@
 
 - [ggdims Intro Thoughts](#ggdims-intro-thoughts)
 - [Supporting work and discussions](#supporting-work-and-discussions)
+- [](#section)
 - [An implementation](#an-implementation)
   - [`aes(dims = ?)` lets us capture an
     expression…](#aesdims---lets-us-capture-an-expression)
@@ -36,8 +37,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-Go to [talk](./asa-cowy-fall-2025.html)
-([source](asa-cowy-fall-2025.Rmd))
+Go to [talk](https://evamaerey.github.io/ggdims/asa-cowy-fall-2025)
 
 ## ggdims Intro Thoughts
 
@@ -47,7 +47,7 @@ status) are to be communicated via visual channels (x and y axis
 position, color, transparency, etc). However, in ggplot2 these
 specifications are individual-variable-to-individual-visual-channel
 which does not lend itself easily to visualizations in the world of
-dimension reduction (e.g. PCA, tsne, umap). The usual
+dimension reduction (e.g. PCA, t-SNE, umap). The usual
 one-var-to-one-aesthetic requirement means that it may not feel obvious
 how to extend ggplot2 for dimensionality reduction visualization, which
 deals with characterizing *many* variables. So while using ggplot2
@@ -84,15 +84,187 @@ and discussions
 and
 [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
 
+Posit conf Speaker training: July 22
+
 More related:
 
-- <https://distill.pub/2016/misread-tsne/>
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+## 
+
+<https://phhp.ufl.edu/about/departments/biostatistics/about/faculty/>
+
+------------------------------------------------------------------------
+
+![](legislative_dim_red.jpg)
+
+Are there ‘grammar-following’ ggplot2 extensions for these things?
+
+`geom_tsne()`, `geom_pca()`, `geom_umap()`
+
+------------------------------------------------------------------------
+
+``` r
+data_and_vars_plot_specs + geom_pca()
+
+data_and_vars_plot_specs + geom_tsne()
+
+data_and_vars_plot_specs + geom_umap()
+```
+
+------------------------------------------------------------------------
+
+``` r
+library(tidyverse)
+
+ggplot(data = cars) + 
+  aes(x = speed, y = dist) ->
+data_and_vars_plot_specs  
+  
+data_and_vars_plot_specs +
+  geom_point() 
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-4-1.png" width="55%" />
+
+------------------------------------------------------------------------
+
 - McInnes Bluffer’s guide <https://www.youtube.com/watch?v=9iol3Lk6kyU>
-- <https://satijalab.org/seurat/articles/seurat5_sketch_analysis>
+
+![](images/clipboard-3696481417.png)
+
+------------------------------------------------------------------------
+
+`# geom_pca()`
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+``` r
+palmerpenguins::penguins %>% 
+  ggplot() + 
+  aes(outcome = species, 
+      a = bill_length_mm, 
+      b = bill_depth_mm, 
+      c = flipper_length_mm) +
+  geom_pca_point()  
+```
+
+------------------------------------------------------------------------
+
+![](images/clipboard-2464072259.png)
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+``` r
+palmerpenguins::penguins %>% 
+  ggplot() + 
+  aes(outcome = species, 
+      dims = vars(bill_length_mm,  
+                  bill_depth_mm, 
+                  flipper_length_mm)) +
+  geom_pca_point()
+```
+
+------------------------------------------------------------------------
+
+<img src="images/clipboard-1333989283.png" style="width:25.0%" />
+
+------------------------------------------------------------------------
+
+``` r
+library(ggplot2)
+
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = dims(var1:var200, 
+                  var205)) + # or similar
+  geom_reduction_technique()                 # default dim-red to 2D
+
+last_plot() + 
+  aes(color = label)    # indicate category
+```
+
+------------------------------------------------------------------------
+
+    #> [1] "rc9143"    "rc9144"    "rc9145"    "rc9146"    "rc9147"    "continent"
+
+``` r
+library(ggdims)
+un_ga_country_wide_rcid |>
+  ggplot() + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_pca() + 
+  aes(fill = continent) +
+  labs(title = "PCA") ->
+unga_pca
+```
+
+``` r
+library(ggdims)
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_tsne() + 
+  aes(fill = continent) +
+  labs(title = "PCA") ->
+unga_tsne
+```
+
+``` r
+library(ggdims)
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_tsne() + 
+  aes(fill = continent) +
+  labs(title = "t-SNE") ->
+unga_tsne
+```
+
+``` r
+library(ggdims)
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_umap() + 
+  aes(fill = continent) +
+  labs(title = "UMAP") ->
+unga_umap
+```
+
+``` r
+library(patchwork)
+unga_pca + unga_tsne + unga_umap + 
+  plot_layout(guides = "collect") + 
+  plot_annotation(title = "UN General Assembly voting country projections")
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-13-1.png" width="55%" />
+
 - McInnes Learning from Machine Learning
   <https://www.youtube.com/watch?v=6sSOr2Yaq80&t=759s>
+
 - <https://embed.tidymodels.org/>
+
 - <https://vimeo.com/483185503?fl=pl&fe=sh>
+
+- <https://distill.pub/2016/misread-tsne/>
+
+![](images/clipboard-667229542.png)
+
+![](images/clipboard-2170207951.png)
+
+![](images/clipboard-2214898865.png)
+
+![](images/clipboard-3404675014.png)
+
+![](images/clipboard-2436076475.png)
 
 This is in the experimental/proof of concept phase. 🤔🚧
 
@@ -104,7 +276,6 @@ This is in the experimental/proof of concept phase. 🤔🚧
 
 ``` r
 library(tidyverse)
-#> Warning: package 'ggplot2' was built under R version 4.4.1
 
 dims <- function(...){}
 
@@ -157,16 +328,13 @@ iris |>
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-6-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-17-1.png" width="55%" />
 
 ``` r
 
 p <- last_plot()
 
 p$mapping$dims[[2]]  # the unexpanded expression
-#> Warning: Subsetting quosures with `[[` is deprecated as of rlang 0.4.0
-#> Please use `quo_get_expr()` instead.
-#> This warning is displayed once every 8 hours.
 #> dims(Sepal.Length:Petal.Length, Petal.Width)
 
 p$mapping$dims |> 
@@ -175,9 +343,6 @@ p$mapping$dims |>
   stringr::str_extract("\\(.+") |> 
   stringr::str_remove_all("\\(|\\)") -> 
 selected_var_names_expr
-#> Warning: Using `as.character()` on a quosure is deprecated as of rlang 0.3.0. Please use
-#> `as_label()` or `as_name()` instead.
-#> This warning is displayed once every 8 hours.
 
 selected_var_names <- 
   selected_var_names_expr |> 
@@ -276,9 +441,6 @@ p <- iris |>
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width)) + 
   dims_expand()
-#> Warning: Using `as.character()` on a quosure is deprecated as of rlang 0.3.0. Please use
-#> `as_label()` or `as_name()` instead.
-#> This warning is displayed once every 8 hours.
 
 p$mapping
 #> Aesthetic mapping: 
@@ -409,12 +571,6 @@ iris |>
                 Petal.Length, Petal.Width)) |>
   select(dims) |>
   compute_tsne()
-#> Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if
-#> `.name_repair` is omitted as of tibble 2.0.0.
-#> ℹ Using compatibility `.name_repair`.
-#> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 #> # A tibble: 149 × 7
 #>         x     y Sepal.Length Sepal.Width Petal.Length Petal.Width dims      
 #>     <dbl> <dbl>        <dbl>       <dbl>        <dbl>       <dbl> <list[1d]>
@@ -456,7 +612,7 @@ iris |>
   geom_tsne_label0()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-9-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-20-1.png" width="55%" />
 
 ``` r
 
@@ -470,7 +626,7 @@ p +
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-9-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-20-2.png" width="55%" />
 
 ``` r
 #' @export
@@ -514,7 +670,7 @@ iris |>
   geom_tsne()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-10-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-21-1.png" width="55%" />
 
 ``` r
 
@@ -522,7 +678,7 @@ last_plot() +
   aes(fill = Species) 
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-10-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-21-2.png" width="55%" />
 
 ``` r
 
@@ -531,7 +687,7 @@ last_plot() +
   geom_tsne_label()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-10-3.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-21-3.png" width="55%" />
 
 ### Different perplexity
 
@@ -543,7 +699,7 @@ iris |>
   geom_tsne(perplexity = 10)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-11-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-22-1.png" width="55%" />
 
 ## A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
 
@@ -598,12 +754,6 @@ iris |>
                 Petal.Length, Petal.Width)) |>
   select(color = Species, dims) |>
   compute_umap()
-#> Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if
-#> `.name_repair` is omitted as of tibble 2.0.0.
-#> ℹ Using compatibility `.name_repair`.
-#> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 #> # A tibble: 150 × 8
 #>        x     y Sepal.Length Sepal.Width Petal.Length Petal.Width color  dims    
 #>    <dbl> <dbl>        <dbl>       <dbl>        <dbl>       <dbl> <fct>  <list[1>
@@ -626,7 +776,7 @@ iris |>
   geom_umap()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-12-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-23-1.png" width="55%" />
 
 ``` r
 
@@ -634,7 +784,7 @@ last_plot() +
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-12-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-23-2.png" width="55%" />
 
 ## A little PCA using `ordr::ordinate`
 
@@ -716,7 +866,7 @@ iris |>
   geom_pca()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-14-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-25-1.png" width="55%" />
 
 ``` r
 
@@ -724,7 +874,7 @@ last_plot() +
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-14-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-25-2.png" width="55%" />
 
 ``` r
 
@@ -733,7 +883,45 @@ last_plot() +
   aes(y = after_stat(PC3))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-14-3.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-25-3.png" width="55%" />
+
+``` r
+library(ggdims)
+
+iris |> 
+  ggplot() + 
+  aes(dims = dims(Sepal.Length:Petal.Width)) + 
+  geom_pca() + 
+  aes(fill = Species) ->
+iris_pca; iris_pca
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-26-1.png" width="55%" />
+
+``` r
+
+ggplyr::last_plot_wipe() + 
+  geom_tsne() ->
+iris_tsne; iris_tsne
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-26-2.png" width="55%" />
+
+``` r
+
+ggplyr::last_plot_wipe() + 
+  geom_umap() ->
+iris_umap; iris_umap
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-26-3.png" width="55%" />
+
+``` r
+library(patchwork)
+iris_pca + iris_tsne + iris_umap + patchwork::plot_layout(guides = "collect")
+```
+
+<img src="README_files/figure-gfm/unnamed-chunk-27-1.png" width="55%" />
 
 ### w/ penguins
 
@@ -742,21 +930,17 @@ palmerpenguins::penguins |>
   ggplot() +
   aes(dims = dims(bill_length_mm:body_mass_g)) +
   geom_pca()
-#> Warning: Removed 2 rows containing missing values or values outside the scale
-#> range.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-15-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-28-1.png" width="55%" />
 
 ``` r
 
 last_plot() +
   aes(fill = species)
-#> Warning: Removed 2 rows containing missing values or values outside the scale
-#> range.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-15-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-28-2.png" width="55%" />
 
 ------------------------------------------------------------------------
 
@@ -768,35 +952,10 @@ last_plot() +
 knitrExtra::chunk_to_dir(
   c( "dims_expand" , "dims_listed", "data_vars_unpack", "compute_tsne",  "theme_ggdims", "geom_tsne", "compute_umap", "compute_pca_rows", "aaa_GeomPointFill" )
 )
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
-#> It seems you are currently knitting a Rmd/Qmd file. The parsing of the file will be done in a new R session.
 
 usethis::use_package("ggplot2")
-#> ✔ Setting active project to '/Users/evangelinereynolds/Google
-#> Drive/r_packages/ggdims'
 
 devtools::document()
-#> ℹ Updating ggdims documentation
-#> ℹ Loading ggdims
-#> Warning: ── Conflicts ─────────────────────────────────────────────── ggdims conflicts
-#> ──
-#> ✖ `compute_pca_rows` masks `ggdims::compute_pca_rows()`.
-#> ✖ `compute_tsne` masks `ggdims::compute_tsne()`.
-#> ✖ `compute_tsne_group_label` masks `ggdims::compute_tsne_group_label()`.
-#>   … and more.
-#> ℹ Did you accidentally source a file rather than using `load_all()`?
-#>   Run `rm(list = c("compute_pca_rows", "compute_tsne",
-#>   "compute_tsne_group_label", "compute_umap", "data_vars_unpack",
-#>   "dims_expand", "dims_listed", "geom_pca", "geom_pca0", "geom_tsne",
-#>   "geom_tsne_label", "geom_tsne_label0", "geom_tsne0", "geom_umap0",
-#>   "theme_ggdims", "vars_unpack"))` to remove the conflicts.
 ```
 
 ``` r
@@ -848,18 +1007,9 @@ pp2 <- ggplot(data = hello_world_of_tsne) +
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 2) + 
   labs(title = "perplexity = 2"); pp2
-#> Warning: Using `as.character()` on a quosure is deprecated as of rlang 0.3.0. Please use
-#> `as_label()` or `as_name()` instead.
-#> This warning is displayed once every 8 hours.
-#> Warning: The `x` argument of `as_tibble.matrix()` must have unique column names if
-#> `.name_repair` is omitted as of tibble 2.0.0.
-#> ℹ Using compatibility `.name_repair`.
-#> This warning is displayed once every 8 hours.
-#> Call `lifecycle::last_lifecycle_warnings()` to see where this warning was
-#> generated.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-19-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-32-1.png" width="55%" />
 
 ``` r
 
@@ -869,7 +1019,7 @@ pp5 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 5"); pp5
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-19-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-32-2.png" width="55%" />
 
 ``` r
 
@@ -879,7 +1029,7 @@ pp30 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 30"); pp30
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-19-3.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-32-3.png" width="55%" />
 
 ``` r
 
@@ -902,14 +1052,9 @@ pp100 <- ggplot(data = hello_world_of_tsne) +
 library(patchwork)
 original + pp2 + pp5 + pp30 + pp50 + pp100 &
   theme_ggdims() 
-#> Warning: Computation failed in `stat_tsne()`.
-#> Caused by error in `.check_tsne_params()`:
-#> ! perplexity is too large for the number of samples
-#> Warning: annotation$theme is not a valid theme.
-#> Please use `theme()` to construct themes.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-19-4.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-32-4.png" width="55%" />
 
 ``` r
 
@@ -917,14 +1062,9 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
 last_plot() & 
   aes(fill = type) &
   guides(fill = "none")
-#> Warning: Computation failed in `stat_tsne()`.
-#> annotation$theme is not a valid theme.
-#> Please use `theme()` to construct themes.
-#> Caused by error in `.check_tsne_params()`:
-#> ! perplexity is too large for the number of samples
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-19-5.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-32-5.png" width="55%" />
 
 ``` r
 
@@ -947,14 +1087,9 @@ big_and_small_cluster <- data.frame(dim1 = c(rnorm(100, -.5, sd = .1),
 
 panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(big_and_small_cluster)
-#> Warning: Computation failed in `stat_tsne()`.
-#> Caused by error in `.check_tsne_params()`:
-#> ! perplexity is too large for the number of samples
-#> Warning: annotation$theme is not a valid theme.
-#> Please use `theme()` to construct themes.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-20-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-33-1.png" width="55%" />
 
 #### Side note on ggplyr::data_replace X google gemini quick search
 
@@ -978,11 +1113,9 @@ two_close_and_one_far <- data.frame(dim1 =
 
 panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(two_close_and_one_far)
-#> Warning: annotation$theme is not a valid theme.
-#> Please use `theme()` to construct themes.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-21-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-34-1.png" width="55%" />
 
 ### 4. ‘Random noise doesn’t always look random’
 
@@ -996,11 +1129,9 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
   ggplyr::data_replace(random_noise) &
   aes(fill = I("darkblue")) &
   theme_ggdims()
-#> Warning: annotation$theme is not a valid theme.
-#> Please use `theme()` to construct themes.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-22-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-35-1.png" width="55%" />
 
 ------------------------------------------------------------------------
 
@@ -1011,11 +1142,9 @@ palmerpenguins::penguins |>
   ggplot() + 
   aes(dims = dims(bill_length_mm:body_mass_g)) + 
   geom_umap() 
-#> Warning: Removed 7 rows containing missing values or values outside the scale
-#> range.
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-23-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-36-1.png" width="55%" />
 
 ``` r
 
@@ -1023,7 +1152,7 @@ last_plot() +
   aes(fill = species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-23-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-36-2.png" width="55%" />
 
 ``` r
 unvotes::un_votes |> 
@@ -1043,11 +1172,6 @@ unvotes::un_votes |>
            countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
   mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
 un_ga_country_wide_rcid
-#> Warning: There was 1 warning in `mutate()`.
-#> ℹ In argument: `continent = countrycode::countrycode(country_code, origin =
-#>   "iso2c", destination = "continent")`.
-#> Caused by warning:
-#> ! Some values were not matched unambiguously: CS, DD, YD, YU
 
 
 names(un_ga_country_wide_rcid) |> tail()
@@ -1069,7 +1193,7 @@ library(patchwork)
   plot_annotation(title = "UN General Assembly voting country projections")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-25-1.png" width="100%" />
+<img src="README_files/figure-gfm/unnamed-chunk-38-1.png" width="100%" />
 
 ``` r
 

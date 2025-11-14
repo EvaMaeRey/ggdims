@@ -11,19 +11,6 @@
   </head>
   <body>
     <textarea id="source">
-class: center, middle, inverse, title-slide
-
-.title[
-# {ggdims}
-]
-.subtitle[
-## Toward a viz- and code-first hitchhiker’s guide to dimensionality reduction
-]
-.author[
-### Gina (Evangeline) Reynolds, ASA CO-WY Chapter meeting November 14, 2025
-]
-
----
 
 
 
@@ -34,7 +21,7 @@ background-size: cover
 
 # .Large[{ggdims}]
 ## .small[Toward a viz- and code-first hitchhiker’s guide to dimensionality reduction]
-## .small[https://bit.ly/??]
+## .small[github.com/EvaMaeRey/ggdims]
 #### .tiny[Gina (Evangeline) Reynolds | 2025-11-14 | ASA, COWY, Image credit: Ales Krivec, Upsplash]
 
 
@@ -66,6 +53,30 @@ background-size: cover
 
 
 &lt;/style&gt;
+
+
+---
+
+# cliffnotes
+
+--
+
+You couldn't easily `aes(dims = dims(var1:var200, var205))` syntax...
+
+
+
+``` r
+library(ggplot2)
+
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = 
+        dims(var1:var200, var205) 
+      ) +      
+  geom_dimred_technique()                 
+```
+
+
+... now you can.
 
 ---
 class: inverse, middle, center
@@ -110,7 +121,7 @@ class: inverse
 
 --
 
-## Doesn't lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, T-sne, UMAP)
+## Doesn't lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, t-SNE, UMAP)
 
 
 ???
@@ -129,8 +140,18 @@ Martin Wattenberg 'How to use t-SNE effectively' 2016:
 
 ---
 
+https://distill.pub/2016/misread-tsne/
+
+![](images/clipboard-667229542.png)
+
+---
+
+![](images/clipboard-2214898865.png)
 
 
+---
+
+![](images/clipboard-2170207951.png)
 
 ---
 
@@ -143,18 +164,28 @@ entire field of dimention reduction as I can in the time available."
 
 &gt; * = "not quite true but morally the right thing to do"
 
+---
+
+
+![](images/clipboard-3696481417.png)
+
+---
+
+![](images/clipboard-93834723.png)
+
+
 --
 
-&gt; The similarities are greater than the differences...
+&gt; 'The similarities are greater than the differences' ?...
 
 
 ---
 
-&gt; shouldn't we be able to fly (hitchhike) through trying out some of these techniques?
+&gt; Shouldn't we be able to fly (hitchhike) through trying out some of these techniques?
 
 --
 
-&gt; should we have to learn a different paradigm/syntax for every technique?
+&gt; Should we have to learn a different paradigm/syntax for every technique?
 
 --
 
@@ -186,6 +217,7 @@ count: false
 ``` r
 library(ggplot2)
 
+# data
 ggplot(cars)
 ```
 ]
@@ -203,7 +235,9 @@ count: false
 ``` r
 library(ggplot2)
 
+# data
 ggplot(cars) +
+# variable mapping
   aes(x = speed,
       y = dist)
 ```
@@ -222,9 +256,12 @@ count: false
 ``` r
 library(ggplot2)
 
+# data
 ggplot(cars) +
+# variable mapping
   aes(x = speed,
       y = dist) +
+# layer
   geom_point()
 ```
 ]
@@ -265,297 +302,200 @@ ggplot(cars) +
 
 
 
----
 
-count: false
- 
-
-.panel1-dims_listed-auto[
 
 ``` r
-*library(ggdims)
-```
-]
- 
-.panel2-dims_listed-auto[
+ggplot(cars) + # data
+  aes(????)    # var mapping
+  geom_pca()   # layer
 
-]
+ggplot(cars) + # data
+  aes(????)    # var mapping
+  geom_tsne()  # layer
+
+ggplot(cars) + # data
+  aes(????)    # var mapping
+  geom_umap()  # layer
+```
 
 ---
-count: false
- 
 
-.panel1-dims_listed-auto[
+Posit conf Speaker training: July 22
+
+More related:
+
+![](images/clipboard-630705121.png)
+
+---
+
+![](images/clipboard-964179201.png)
+
+"It's easier to type thing which are smaller, but when things are getting bigger and bigger you prefer to click on buttons and work [with a GUI]."
+
+---
+
+![](images/clipboard-2703820773.png)
+
+---
+
+![](images/clipboard-3469228869.png)
+
+---
+
+## JSM Talk, Developments in Statistical Graphics, Tuesday, August 5
+
+![](images/clipboard-2692987354.png)
+
+---
+
+![](images/clipboard-2964959607.png)
+
+&lt;https://phhp.ufl.edu/about/departments/biostatistics/about/faculty/&gt;
+
+---
+
+![](legislative_dim_red.jpg)
+
+
+---
+
+
+# `geom_pca_point() `
+
+
+
+![](images/clipboard-1445857279.png)
+
+---
+
 
 ``` r
-library(ggdims)
-
-iris
+palmerpenguins::penguins %&gt;% 
+  ggplot() + 
+  aes(outcome = species, 
+      a = bill_length_mm, 
+      b = bill_depth_mm, 
+      c = flipper_length_mm) +
+  geom_pca_point()  
 ```
-]
- 
-.panel2-dims_listed-auto[
-
-```
-    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
-1            5.1         3.5          1.4         0.2     setosa
-2            4.9         3.0          1.4         0.2     setosa
-3            4.7         3.2          1.3         0.2     setosa
-4            4.6         3.1          1.5         0.2     setosa
-5            5.0         3.6          1.4         0.2     setosa
-6            5.4         3.9          1.7         0.4     setosa
-7            4.6         3.4          1.4         0.3     setosa
-8            5.0         3.4          1.5         0.2     setosa
-9            4.4         2.9          1.4         0.2     setosa
-10           4.9         3.1          1.5         0.1     setosa
-11           5.4         3.7          1.5         0.2     setosa
-12           4.8         3.4          1.6         0.2     setosa
-13           4.8         3.0          1.4         0.1     setosa
-14           4.3         3.0          1.1         0.1     setosa
-15           5.8         4.0          1.2         0.2     setosa
-16           5.7         4.4          1.5         0.4     setosa
-17           5.4         3.9          1.3         0.4     setosa
-18           5.1         3.5          1.4         0.3     setosa
-19           5.7         3.8          1.7         0.3     setosa
-20           5.1         3.8          1.5         0.3     setosa
-21           5.4         3.4          1.7         0.2     setosa
-22           5.1         3.7          1.5         0.4     setosa
-23           4.6         3.6          1.0         0.2     setosa
-24           5.1         3.3          1.7         0.5     setosa
-25           4.8         3.4          1.9         0.2     setosa
-26           5.0         3.0          1.6         0.2     setosa
-27           5.0         3.4          1.6         0.4     setosa
-28           5.2         3.5          1.5         0.2     setosa
-29           5.2         3.4          1.4         0.2     setosa
-30           4.7         3.2          1.6         0.2     setosa
-31           4.8         3.1          1.6         0.2     setosa
-32           5.4         3.4          1.5         0.4     setosa
-33           5.2         4.1          1.5         0.1     setosa
-34           5.5         4.2          1.4         0.2     setosa
-35           4.9         3.1          1.5         0.2     setosa
-36           5.0         3.2          1.2         0.2     setosa
-37           5.5         3.5          1.3         0.2     setosa
-38           4.9         3.6          1.4         0.1     setosa
-39           4.4         3.0          1.3         0.2     setosa
-40           5.1         3.4          1.5         0.2     setosa
-41           5.0         3.5          1.3         0.3     setosa
-42           4.5         2.3          1.3         0.3     setosa
-43           4.4         3.2          1.3         0.2     setosa
-44           5.0         3.5          1.6         0.6     setosa
-45           5.1         3.8          1.9         0.4     setosa
-46           4.8         3.0          1.4         0.3     setosa
-47           5.1         3.8          1.6         0.2     setosa
-48           4.6         3.2          1.4         0.2     setosa
-49           5.3         3.7          1.5         0.2     setosa
-50           5.0         3.3          1.4         0.2     setosa
-51           7.0         3.2          4.7         1.4 versicolor
-52           6.4         3.2          4.5         1.5 versicolor
-53           6.9         3.1          4.9         1.5 versicolor
-54           5.5         2.3          4.0         1.3 versicolor
-55           6.5         2.8          4.6         1.5 versicolor
-56           5.7         2.8          4.5         1.3 versicolor
-57           6.3         3.3          4.7         1.6 versicolor
-58           4.9         2.4          3.3         1.0 versicolor
-59           6.6         2.9          4.6         1.3 versicolor
-60           5.2         2.7          3.9         1.4 versicolor
-61           5.0         2.0          3.5         1.0 versicolor
-62           5.9         3.0          4.2         1.5 versicolor
-63           6.0         2.2          4.0         1.0 versicolor
-64           6.1         2.9          4.7         1.4 versicolor
-65           5.6         2.9          3.6         1.3 versicolor
-66           6.7         3.1          4.4         1.4 versicolor
-67           5.6         3.0          4.5         1.5 versicolor
-68           5.8         2.7          4.1         1.0 versicolor
-69           6.2         2.2          4.5         1.5 versicolor
-70           5.6         2.5          3.9         1.1 versicolor
-71           5.9         3.2          4.8         1.8 versicolor
-72           6.1         2.8          4.0         1.3 versicolor
-73           6.3         2.5          4.9         1.5 versicolor
-74           6.1         2.8          4.7         1.2 versicolor
-75           6.4         2.9          4.3         1.3 versicolor
-76           6.6         3.0          4.4         1.4 versicolor
-77           6.8         2.8          4.8         1.4 versicolor
-78           6.7         3.0          5.0         1.7 versicolor
-79           6.0         2.9          4.5         1.5 versicolor
-80           5.7         2.6          3.5         1.0 versicolor
-81           5.5         2.4          3.8         1.1 versicolor
-82           5.5         2.4          3.7         1.0 versicolor
-83           5.8         2.7          3.9         1.2 versicolor
-84           6.0         2.7          5.1         1.6 versicolor
-85           5.4         3.0          4.5         1.5 versicolor
-86           6.0         3.4          4.5         1.6 versicolor
-87           6.7         3.1          4.7         1.5 versicolor
-88           6.3         2.3          4.4         1.3 versicolor
-89           5.6         3.0          4.1         1.3 versicolor
-90           5.5         2.5          4.0         1.3 versicolor
-91           5.5         2.6          4.4         1.2 versicolor
-92           6.1         3.0          4.6         1.4 versicolor
-93           5.8         2.6          4.0         1.2 versicolor
-94           5.0         2.3          3.3         1.0 versicolor
-95           5.6         2.7          4.2         1.3 versicolor
-96           5.7         3.0          4.2         1.2 versicolor
-97           5.7         2.9          4.2         1.3 versicolor
-98           6.2         2.9          4.3         1.3 versicolor
-99           5.1         2.5          3.0         1.1 versicolor
-100          5.7         2.8          4.1         1.3 versicolor
-101          6.3         3.3          6.0         2.5  virginica
-102          5.8         2.7          5.1         1.9  virginica
-103          7.1         3.0          5.9         2.1  virginica
-104          6.3         2.9          5.6         1.8  virginica
-105          6.5         3.0          5.8         2.2  virginica
-106          7.6         3.0          6.6         2.1  virginica
-107          4.9         2.5          4.5         1.7  virginica
-108          7.3         2.9          6.3         1.8  virginica
-109          6.7         2.5          5.8         1.8  virginica
-110          7.2         3.6          6.1         2.5  virginica
-111          6.5         3.2          5.1         2.0  virginica
-112          6.4         2.7          5.3         1.9  virginica
-113          6.8         3.0          5.5         2.1  virginica
-114          5.7         2.5          5.0         2.0  virginica
-115          5.8         2.8          5.1         2.4  virginica
-116          6.4         3.2          5.3         2.3  virginica
-117          6.5         3.0          5.5         1.8  virginica
-118          7.7         3.8          6.7         2.2  virginica
-119          7.7         2.6          6.9         2.3  virginica
-120          6.0         2.2          5.0         1.5  virginica
-121          6.9         3.2          5.7         2.3  virginica
-122          5.6         2.8          4.9         2.0  virginica
-123          7.7         2.8          6.7         2.0  virginica
-124          6.3         2.7          4.9         1.8  virginica
-125          6.7         3.3          5.7         2.1  virginica
-126          7.2         3.2          6.0         1.8  virginica
-127          6.2         2.8          4.8         1.8  virginica
-128          6.1         3.0          4.9         1.8  virginica
-129          6.4         2.8          5.6         2.1  virginica
-130          7.2         3.0          5.8         1.6  virginica
-131          7.4         2.8          6.1         1.9  virginica
-132          7.9         3.8          6.4         2.0  virginica
-133          6.4         2.8          5.6         2.2  virginica
-134          6.3         2.8          5.1         1.5  virginica
-135          6.1         2.6          5.6         1.4  virginica
-136          7.7         3.0          6.1         2.3  virginica
-137          6.3         3.4          5.6         2.4  virginica
-138          6.4         3.1          5.5         1.8  virginica
-139          6.0         3.0          4.8         1.8  virginica
-140          6.9         3.1          5.4         2.1  virginica
-141          6.7         3.1          5.6         2.4  virginica
-142          6.9         3.1          5.1         2.3  virginica
-143          5.8         2.7          5.1         1.9  virginica
-144          6.8         3.2          5.9         2.3  virginica
-145          6.7         3.3          5.7         2.5  virginica
-146          6.7         3.0          5.2         2.3  virginica
-147          6.3         2.5          5.0         1.9  virginica
-148          6.5         3.0          5.2         2.0  virginica
-149          6.2         3.4          5.4         2.3  virginica
-150          5.9         3.0          5.1         1.8  virginica
-```
-]
 
 ---
-count: false
- 
 
-.panel1-dims_listed-auto[
+![](images/clipboard-2464072259.png)
+
+---
+
+
+
+``` r
+palmerpenguins::penguins %&gt;% 
+  ggplot() + 
+  aes(outcome = species, 
+      dims = vars(bill_length_mm,  
+                  bill_depth_mm, 
+                  flipper_length_mm)) +
+  geom_pca_point()
+```
+
+---
+
+![](images/clipboard-3430965112.png)
+
+---
+
+
+---
+
+
+``` r
+library(ggplot2)
+
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = dims(var1:var200, 
+                  var205)) + # or similar
+  geom_reduction_technique()                 # default dim-red to 2D
+
+last_plot() + 
+  aes(color = label)    # indicate category
+```
+
+---
+
+
+
+---
+
+
+
 
 ``` r
 library(ggdims)
-
-iris |&gt;
-  ggplot()
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_pca() + 
+  aes(fill = continent) +
+  labs(title = "PCA") -&gt;
+unga_pca
 ```
-]
- 
-.panel2-dims_listed-auto[
-![](asa-cowy-fall-2025_files/figure-html/dims_listed_auto_03_output-1.png)&lt;!-- --&gt;
-]
 
 ---
-count: false
- 
 
-.panel1-dims_listed-auto[
 
 ``` r
 library(ggdims)
-
-iris |&gt;
-  ggplot() +
-  aes(dims =
-        dims_listed(Sepal.Length, Sepal.Width,
-                Petal.Length, Petal.Width),
-      fill = Species
-      )
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_tsne() + 
+  aes(fill = continent) +
+  labs(title = "PCA") -&gt;
+unga_tsne
 ```
-]
- 
-.panel2-dims_listed-auto[
-![](asa-cowy-fall-2025_files/figure-html/dims_listed_auto_04_output-1.png)&lt;!-- --&gt;
-]
 
 ---
-count: false
- 
 
-.panel1-dims_listed-auto[
 
 ``` r
 library(ggdims)
-
-iris |&gt;
-  ggplot() +
-  aes(dims =
-        dims_listed(Sepal.Length, Sepal.Width,
-                Petal.Length, Petal.Width),
-      fill = Species
-      ) +
-  geom_tsne0()
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_tsne() + 
+  aes(fill = continent) +
+  labs(title = "t-SNE") -&gt;
+unga_tsne
 ```
-]
- 
-.panel2-dims_listed-auto[
-![](asa-cowy-fall-2025_files/figure-html/dims_listed_auto_05_output-1.png)&lt;!-- --&gt;
-]
 
-&lt;style&gt;
-.panel1-dims_listed-auto {
-  color: black;
-  width: 38.6060606060606%;
-  hight: 32%;
-  float: left;
-  padding-left: 1%;
-  font-size: 80%
-}
-.panel2-dims_listed-auto {
-  color: black;
-  width: 59.3939393939394%;
-  hight: 32%;
-  float: left;
-  padding-left: 1%;
-  font-size: 80%
-}
-.panel3-dims_listed-auto {
-  color: black;
-  width: NA%;
-  hight: 33%;
-  float: left;
-  padding-left: 1%;
-  font-size: 80%
-}
-&lt;/style&gt;
+---
 
 
+``` r
+library(ggdims)
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_umap() + 
+  aes(fill = continent) +
+  labs(title = "UMAP") -&gt;
+unga_umap
+```
+
+---
+
+
+``` r
+library(patchwork)
+
+unga_pca + unga_tsne + unga_umap + 
+  plot_layout(guides = "collect") + 
+  plot_annotation(title = "UN General Assembly voting country projections")
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
 
 
 
 ---
-background-image: url(images/clipboard-1333989283.png)
-background-size: fit
-
-# But inefficient feel.  We really want to have a shortcut to specify a lot of variables (which dimred are good at using)
-
-![](images/clipboard-1333989283.png){width="25%"}
 
 
+![](legislative_dim_red.jpg)
 
 
 ---
@@ -826,18 +766,18 @@ count: false
 .panel1-umap-2[
 
 ``` r
-library(ggdims)
 iris |&gt;
   ggplot() +
   aes(dims =
         dims(Sepal.Length:Petal.Width),
       fill = Species) +
-  geom_umap()
+  geom_umap() -&gt;
+umap
 ```
 ]
  
 .panel2-umap-2[
-![](asa-cowy-fall-2025_files/figure-html/umap_2_01_output-1.png)&lt;!-- --&gt;
+
 ]
 
 ---
@@ -847,18 +787,18 @@ count: false
 .panel1-umap-2[
 
 ``` r
-library(ggdims)
 iris |&gt;
   ggplot() +
   aes(dims =
         dims(Sepal.Length:Petal.Width),
       fill = Species) +
-  geom_umap()
+  geom_umap() -&gt;
+umap
 ```
 ]
  
 .panel2-umap-2[
-![](asa-cowy-fall-2025_files/figure-html/umap_2_02_output-1.png)&lt;!-- --&gt;
+
 ]
 
 &lt;style&gt;
@@ -983,7 +923,7 @@ iris |&gt;
   geom_pca()
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -993,7 +933,11 @@ iris |&gt;
 [1] 202   3
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+---
+
+![](legislative_dim_red.jpg)
 
 ---
 
@@ -1032,11 +976,12 @@ r chunk_reveal("pp100", break_type = 1)`
 
 ``` r
 library(patchwork)
+
 original + pp2 + pp5 + pp30 + pp50 + pp100 &amp;
   theme_ggdims() 
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
 
 ``` r
 # with group id
@@ -1045,7 +990,7 @@ last_plot() &amp;
   guides(fill = "none")
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-6-2.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-17-2.png)&lt;!-- --&gt;
 
 
 
@@ -1154,8 +1099,7 @@ code.r.hljs.remark-code:hover{
   "ratio": "16:10",
   "highlightStyle": "github",
   "highlightLines": true,
-  "countIncrementalSlides": false,
-  "seal": false
+  "countIncrementalSlides": false
 });
 if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   window.dispatchEvent(new Event('resize'));

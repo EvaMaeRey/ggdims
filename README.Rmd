@@ -12,8 +12,10 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   out.width = "55%",
-  cache = T
-  # fig.show = "hold"
+  cache = T,
+  # fig.show = "hold",
+  warning = F,
+  message = F
 )
 ```
 
@@ -26,12 +28,11 @@ knitr::opts_chunk$set(echo = TRUE)
 options(tidyverse.quiet = TRUE)
 ```
 
-Go to [talk](./asa-cowy-fall-2025.html) ([source](asa-cowy-fall-2025.Rmd))
-
+Go to [talk](https://evamaerey.github.io/ggdims/asa-cowy-fall-2025)
 
 ## ggdims Intro Thoughts
 
-ggplot2 lets you intuitively translate variables to visual representation. You specify how variables (e.g. sex, age, employment status) are to be communicated via visual channels (x and y axis position, color, transparency, etc). However, in ggplot2 these specifications are individual-variable-to-individual-visual-channel which does not lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, tsne, umap). The usual one-var-to-one-aesthetic requirement means that it may not feel obvious how to extend ggplot2 for dimensionality reduction visualization, which deals with characterizing *many* variables. So while using ggplot2 under-the-hood is common in the dim-red space, it feels like there may be less consistency across dim-red APIs. For users of these APIs, getting quickly acquainted with techniques (students) or doing comparative work (practitioners) may be more challenging than it needs to be. The {ggdims} package explores a new `dims()` and `dims_expand()` utility that could help with greater consistency across dim-red APIs, with standard ggplots, and within the ggplot2 extension ecosystem.
+ggplot2 lets you intuitively translate variables to visual representation. You specify how variables (e.g. sex, age, employment status) are to be communicated via visual channels (x and y axis position, color, transparency, etc). However, in ggplot2 these specifications are individual-variable-to-individual-visual-channel which does not lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, t-SNE, umap). The usual one-var-to-one-aesthetic requirement means that it may not feel obvious how to extend ggplot2 for dimensionality reduction visualization, which deals with characterizing *many* variables. So while using ggplot2 under-the-hood is common in the dim-red space, it feels like there may be less consistency across dim-red APIs. For users of these APIs, getting quickly acquainted with techniques (students) or doing comparative work (practitioners) may be more challenging than it needs to be. The {ggdims} package explores a new `dims()` and `dims_expand()` utility that could help with greater consistency across dim-red APIs, with standard ggplots, and within the ggplot2 extension ecosystem.
 
 ggdims proposes the following API:
 
@@ -46,20 +47,211 @@ last_plot() +
   aes(color = label)    # indicate category
 ```
 
-
-
 ## Supporting work and discussions
 
 Here, doing some further thinking about a dimensionality reduction framework for ggplot2. Based on some previous work: [2025-07-18](https://evamaerey.github.io/mytidytuesday/2025-07-18-seurat_tsne_plot/seurat_tsne_plot.html), [2025-08-19](https://evamaerey.github.io/mytidytuesday/2025-08-19-umap/umap.html), [2025-10-11](https://evamaerey.github.io/mytidytuesday/2025-10-11-ggdims/ggdims.html) and discussions [ggplot-extension-club/discussions/117](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/117#discussioncomment-14565426) and [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
 
+Posit conf Speaker training: July 22
+
 More related:
 
--   <https://distill.pub/2016/misread-tsne/>
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+## 
+
+<https://phhp.ufl.edu/about/departments/biostatistics/about/faculty/>
+
+------------------------------------------------------------------------
+
+![](legislative_dim_red.jpg)
+
+Are there 'grammar-following' ggplot2 extensions for these things?
+
+`geom_tsne()`, `geom_pca()`, `geom_umap()`
+
+------------------------------------------------------------------------
+
+```{r, eval = F}
+data_and_vars_plot_specs + geom_pca()
+
+data_and_vars_plot_specs + geom_tsne()
+
+data_and_vars_plot_specs + geom_umap()
+```
+
+------------------------------------------------------------------------
+
+```{r, warning=F, message=F}
+library(tidyverse)
+
+ggplot(data = cars) + 
+  aes(x = speed, y = dist) ->
+data_and_vars_plot_specs  
+  
+data_and_vars_plot_specs +
+  geom_point() 
+```
+
+------------------------------------------------------------------------
+
 -   McInnes Bluffer's guide <https://www.youtube.com/watch?v=9iol3Lk6kyU>
--   <https://satijalab.org/seurat/articles/seurat5_sketch_analysis>
+
+![](images/clipboard-3696481417.png)
+
+------------------------------------------------------------------------
+
+`# geom_pca()`
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+```{r, eval = F}
+palmerpenguins::penguins %>% 
+  ggplot() + 
+  aes(outcome = species, 
+      a = bill_length_mm, 
+      b = bill_depth_mm, 
+      c = flipper_length_mm) +
+  geom_pca_point()  
+```
+
+------------------------------------------------------------------------
+
+![](images/clipboard-2464072259.png)
+
+------------------------------------------------------------------------
+
+------------------------------------------------------------------------
+
+```{r, eval = F}
+palmerpenguins::penguins %>% 
+  ggplot() + 
+  aes(outcome = species, 
+      dims = vars(bill_length_mm,  
+                  bill_depth_mm, 
+                  flipper_length_mm)) +
+  geom_pca_point()
+```
+
+------------------------------------------------------------------------
+
+![](images/clipboard-1333989283.png){width="25%"}
+
+------------------------------------------------------------------------
+
+```{r, eval = F}
+library(ggplot2)
+
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = dims(var1:var200, 
+                  var205)) + # or similar
+  geom_reduction_technique()                 # default dim-red to 2D
+
+last_plot() + 
+  aes(color = label)    # indicate category
+```
+
+------------------------------------------------------------------------
+
+```{r, echo = F, message=F, warning=F}
+library(tidyverse)
+
+unvotes::un_votes |> 
+  arrange(rcid) |>
+  mutate(rcid = paste0("rc",rcid) |> fct_inorder()) |>
+  mutate(num_vote = case_when(vote == "yes" ~ 1,
+                              vote == "abstain" ~ .5,
+                              vote == "no" ~ 0,
+                              TRUE ~ .5 )) |>
+  # filter(rcid %in% 1:30) |>
+  pivot_wider(id_cols = c(country, country_code),
+    names_from = rcid, 
+              values_from = num_vote,
+              values_fill = .5
+            ) |>
+  mutate(continent = country_code |> 
+           countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
+  mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
+un_ga_country_wide_rcid
+
+
+names(un_ga_country_wide_rcid) |> tail()
+```
+
+```{r, out.width="100%"}
+library(ggdims)
+un_ga_country_wide_rcid |>
+  ggplot() + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_pca() + 
+  aes(fill = continent) +
+  labs(title = "PCA") ->
+unga_pca
+```
+
+```{r}
+library(ggdims)
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_tsne() + 
+  aes(fill = continent) +
+  labs(title = "PCA") ->
+unga_tsne
+```
+
+```{r}
+library(ggdims)
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_tsne() + 
+  aes(fill = continent) +
+  labs(title = "t-SNE") ->
+unga_tsne
+```
+
+```{r}
+library(ggdims)
+ggplot(un_ga_country_wide_rcid) + 
+  aes(dims = dims(rc3:rc9147)) +
+  geom_umap() + 
+  aes(fill = continent) +
+  labs(title = "UMAP") ->
+unga_umap
+```
+
+```{r, fig.width=10, fig.height=4}
+library(patchwork)
+unga_pca + unga_tsne + unga_umap + 
+  plot_layout(guides = "collect") + 
+  plot_annotation(title = "UN General Assembly voting country projections")
+
+
+```
+
 -   McInnes Learning from Machine Learning <https://www.youtube.com/watch?v=6sSOr2Yaq80&t=759s>
+
 -   <https://embed.tidymodels.org/>
+
 -   <https://vimeo.com/483185503?fl=pl&fe=sh>
+
+-   <https://distill.pub/2016/misread-tsne/>
+
+![](images/clipboard-667229542.png)
+
+![](images/clipboard-2170207951.png)
+
+![](images/clipboard-2214898865.png)
+
+![](images/clipboard-3404675014.png)
+
+![](images/clipboard-2436076475.png)
 
 This is in the experimental/proof of concept phase. 🤔🚧
 
@@ -289,7 +481,6 @@ GeomPointFill <- ggproto("GeomPointFill",
                                           alpha = .7,
                                           fill = from_theme(ink))))
 ```
-
 
 ```{r compute_tsne}
 # compute_tsne allows individually listed variables that are all of the same type
@@ -553,7 +744,6 @@ geom_pca <- function(...){
 }
 ```
 
-
 ```{r}
 
 iris |> 
@@ -581,6 +771,30 @@ last_plot() +
   aes(y = after_stat(PC3))
 ```
 
+```{r}
+library(ggdims)
+
+iris |> 
+  ggplot() + 
+  aes(dims = dims(Sepal.Length:Petal.Width)) + 
+  geom_pca() + 
+  aes(fill = Species) ->
+iris_pca; iris_pca
+
+ggplyr::last_plot_wipe() + 
+  geom_tsne() ->
+iris_tsne; iris_tsne
+
+ggplyr::last_plot_wipe() + 
+  geom_umap() ->
+iris_umap; iris_umap
+```
+
+```{r, fig.width = 10, fig.height=4}
+library(patchwork)
+iris_pca + iris_tsne + iris_umap + patchwork::plot_layout(guides = "collect")
+```
+
 ### w/ penguins
 
 ```{r}
@@ -595,7 +809,6 @@ last_plot() +
 ```
 
 ------------------------------------------------------------------------
-
 
 # Minimal Packaging
 
@@ -615,9 +828,6 @@ devtools::document()
 devtools::check(".")
 devtools::install(".", upgrade = "never")
 ```
-
-
-
 
 # Reproduction exercise
 
@@ -815,5 +1025,3 @@ library(patchwork)
 ggsave("hi.png", width = 12, height = 4)
 knitr::include_graphics("hi.png")
 ```
-
-
