@@ -57,51 +57,82 @@ background-size: cover
 
 ---
 
-# cliffnotes
+### cliffnotes for talk
+
+---
+
+This pattern for ggplot2 extension ...
 
 --
-
-You couldn't easily `aes(dims = dims(var1:var200, var205))` syntax...
-
 
 
 ``` r
 library(ggplot2)
 
 ggplot(data = my_high_dimensional_data) + 
-  aes(dims = 
-        dims(var1:var200, var205) 
-      ) +      
-  geom_dimred_technique()                 
+  aes(dims = dims(var1:var200, var205)) +      
+  geom_dim_red_technique()  # geom_pca(), geom_tsne            
 ```
 
+--
 
-... now you can.
+... isn't a pattern ...
+
+--
+
+And maybe it should be. 
+
+
+---
+
+`aes(dims = dims(var1:var200, var205))`
+
+
+![](images/clipboard-3430965112.png)
+
+
 
 ---
 class: inverse, middle, center
 
-# ggplot2 lets you intuitively translate variables to visual representation.
-
-
-
----
-
-`aes(x &lt;- age)`
-
-`aes(color &lt;- sex)`
-
-`aes(linetype &lt;- employment status)`
-
-
----
-class: inverse, middle
-
-# You specify how variables (e.g. sex, age, employment status) ...
+{ggdims} explores viz- and code- first dimensionality reduction 
 
 --
 
-# ... are to be communicated via visual channels (x position, y position, color, transparency, etc). 
+- A 3-week-old github repo/package 
+
+--
+
+Rest of talk: how we got here (a longer time coming)
+
+
+---
+class: inverse, middle, center
+
+# ggplot2 (2007) lets you intuitively translate variables to visual representation.
+
+---
+
+`gplot(my_data) +`
+
+
+`aes(x &lt;- age) + `
+
+`aes(color &lt;- sex) +`
+
+`aes(linetype &lt;- employment status) +`
+
+`geom_point()`
+
+
+&lt;!-- --- --&gt;
+&lt;!-- class: inverse, middle --&gt;
+
+&lt;!-- # You specify how variables (e.g. sex, age, employment status) ... --&gt;
+
+&lt;!-- -- --&gt;
+
+&lt;!-- # ... are to be communicated via visual channels (x position, y position, color, transparency, etc).  --&gt;
 
 
 ---
@@ -117,7 +148,7 @@ to- individual-visual-channel mapping
 ---
 class: inverse
 
-# The problem with 1-to-1:
+# A problem with 1-to-1:
 
 --
 
@@ -127,6 +158,38 @@ class: inverse
 ???
 
 ## However, in ggplot2 these specifications are individual-variable-to-individual-visual-channel which does not lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, T-sne, UMAP). 
+
+
+---
+
+
+``` r
+library(ggplot2)
+
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = dims(var1:var200, var205)) +   # &lt;&lt;   
+  geom_dimred_technique()  # e.g. geom_pca(), geom_tsne(), geom_umap()             
+```
+
+
+---
+
+&gt; "You really should 'algorithm' first, and then use the results in a data-viz."
+
+--
+
+(algorithm used as a verb here)
+
+---
+
+# 2016
+https://distill.pub/2016/misread-tsne/
+
+![](images/clipboard-667229542.png)
+
+---
+
+![](images/clipboard-2214898865.png)
 
 ---
 
@@ -138,34 +201,23 @@ Martin Wattenberg 'How to use t-SNE effectively' 2016:
 
 &gt; Further paraphrase: Jump right in. Do some dimensionality reduction. Visualize. 
 
----
-
-https://distill.pub/2016/misread-tsne/
-
-![](images/clipboard-667229542.png)
-
----
-
-![](images/clipboard-2214898865.png)
 
 
 ---
+
 
 ![](images/clipboard-2170207951.png)
 
 ---
 
-Leland McInnes "Bluffer's Guide
-
-&gt; "I'm gonna try and give as much of a whirlwind tour of the 
-entire field of dimention reduction as I can in the time available." 
-
-&gt; "There are only two dimention reduction techniques.*"
-
-&gt; * = "not quite true but morally the right thing to do"
+&gt; "Wattenberg is wrong - not rigorous, not a mathematician"
 
 ---
 
+Leland McInnes "Bluffer's Guide"
+
+&gt; "I'm gonna try and give as much of a whirlwind tour of the 
+entire field of dimention reduction as I can in the time available." 
 
 ![](images/clipboard-3696481417.png)
 
@@ -181,7 +233,7 @@ entire field of dimention reduction as I can in the time available."
 
 ---
 
-&gt; Shouldn't we be able to fly (hitchhike) through trying out some of these techniques?
+&gt; Shouldn't we be able to visually fly (hitchhike) through trying out some of these techniques?
 
 --
 
@@ -301,13 +353,13 @@ ggplot(cars) +
 
 
 
-
+---
 
 
 ``` r
 ggplot(cars) + # data
   aes(????)    # var mapping
-  geom_pca()   # layer
+  geom_pca()   # layer - options inside parentheses
 
 ggplot(cars) + # data
   aes(????)    # var mapping
@@ -320,17 +372,11 @@ ggplot(cars) + # data
 
 ---
 
-Posit conf Speaker training: July 22
+# Online Posit Conf speaker training, July 22, 2025: "Give a Ted Talk"
 
-More related:
-
-![](images/clipboard-630705121.png)
-
----
+Sathiya Manivannan, Center for Cardiovascular and Pulminary Research
 
 ![](images/clipboard-964179201.png)
-
-"It's easier to type thing which are smaller, but when things are getting bigger and bigger you prefer to click on buttons and work [with a GUI]."
 
 ---
 
@@ -338,11 +384,19 @@ More related:
 
 ---
 
+&gt; "It's easier to type thing which are smaller, but when things are getting bigger and bigger you prefer to click on buttons and work [with a GUI]." (made a shiny wrapper for {seurat})
+
+--
+
+Question the premise: Maybe there isn't a good ggplot2 extension to handle this?
+
+---
+
 ![](images/clipboard-3469228869.png)
 
 ---
 
-## JSM Talk, Developments in Statistical Graphics, Tuesday, August 5
+## Nashville JSM Talk, "Developments in Statistical Graphics" panel, Tuesday, August 5
 
 ![](images/clipboard-2692987354.png)
 
@@ -352,16 +406,34 @@ More related:
 
 &lt;https://phhp.ufl.edu/about/departments/biostatistics/about/faculty/&gt;
 
+
+
+
 ---
 
 ![](legislative_dim_red.jpg)
 
-
 ---
 
 
-# `geom_pca_point() `
+``` r
+ggplot(voting_data) + # data
+  aes(????)    # var mapping
+  geom_pca()   # layer - options inside
 
+ggplot(voting_data) + # data
+  aes(????)    # var mapping
+  geom_tsne()  # layer
+
+ggplot(voting_data) + # data
+  aes(????)    # var mapping
+  geom_umap()  # layer
+```
+
+
+---
+
+### June-Sept 2024... `geom_pca_point()`
 
 
 ![](images/clipboard-1445857279.png)
@@ -373,9 +445,9 @@ More related:
 palmerpenguins::penguins %&gt;% 
   ggplot() + 
   aes(outcome = species, 
-      a = bill_length_mm, 
-      b = bill_depth_mm, 
-      c = flipper_length_mm) +
+      pred1 = bill_length_mm, 
+      pred2 = bill_depth_mm, 
+      pred3 = flipper_length_mm) +
   geom_pca_point()  
 ```
 
@@ -399,9 +471,24 @@ palmerpenguins::penguins %&gt;%
 
 ---
 
-![](images/clipboard-3430965112.png)
+tsne, umpa - big data (lots of variables)
+
+&gt; "It's easier to type thing which are smaller, but when things are getting bigger and bigger you prefer to click on buttons and work [with a GUI]."
+
+--
+
+`aes(dims = vars(var1, var2, var3, var4, var5, var6)`
+
+--
+
+`aes(dims = dims(var1:var6))`
+
 
 ---
+
+
+![](images/clipboard-3430965112.png)
+
 
 
 ---
@@ -411,28 +498,62 @@ palmerpenguins::penguins %&gt;%
 library(ggplot2)
 
 ggplot(data = my_high_dimensional_data) + 
-  aes(dims = dims(var1:var200, 
-                  var205)) + # or similar
-  geom_reduction_technique()                 # default dim-red to 2D
-
-last_plot() + 
-  aes(color = label)    # indicate category
+  aes(dims = dims(var1:var200, var205)) + # or similar
+  geom_reduction_technique() 
 ```
 
 ---
 
+### utilities
+
+
+``` r
+ggdims::dims_listed()
+ggdims::data_vars_unpack()
+ggdims::dims_expand()  #&lt;&lt; expand var1:var20
+```
+
+--
+
+### for defining compute w/ var1 &amp; var20 shortcut syntax and those in-between
+
+
+``` r
+ggdims::compute_pca()
+ggdims::compute_tsne()
+ggdims::compute_umap()
+```
+
+---
+
+### user-facing functions
+
+
+``` r
+ggdims::geom_pca()
+ggdims::geom_tsne()
+ggdims::geom_umap()
+```
+
+---
+
+# Does it work? 
 
 
 ---
 
 
+
+
+
+# concise, consistent, 'graphical poems'
 
 
 ``` r
 library(ggdims)
 ggplot(un_ga_country_wide_rcid) + 
-  aes(dims = dims(rc3:rc9147)) +
-  geom_pca() + 
+* aes(dims = dims(rc3:rc9147)) +
+* geom_pca() +
   aes(fill = continent) +
   labs(title = "PCA") -&gt;
 unga_pca
@@ -440,25 +561,14 @@ unga_pca
 
 ---
 
-
-``` r
-library(ggdims)
-ggplot(un_ga_country_wide_rcid) + 
-  aes(dims = dims(rc3:rc9147)) +
-  geom_tsne() + 
-  aes(fill = continent) +
-  labs(title = "PCA") -&gt;
-unga_tsne
-```
-
----
+# concise, consistent, 'graphical poems'
 
 
 ``` r
 library(ggdims)
 ggplot(un_ga_country_wide_rcid) + 
-  aes(dims = dims(rc3:rc9147)) +
-  geom_tsne() + 
+* aes(dims = dims(rc3:rc9147)) +
+* geom_tsne() +
   aes(fill = continent) +
   labs(title = "t-SNE") -&gt;
 unga_tsne
@@ -466,16 +576,20 @@ unga_tsne
 
 ---
 
+# concise, consistent, 'graphical poems'
+
 
 ``` r
 library(ggdims)
 ggplot(un_ga_country_wide_rcid) + 
-  aes(dims = dims(rc3:rc9147)) +
-  geom_umap() + 
+* aes(dims = dims(rc3:rc9147)) +
+* geom_umap() +
   aes(fill = continent) +
   labs(title = "UMAP") -&gt;
 unga_umap
 ```
+
+
 
 ---
 
@@ -485,10 +599,10 @@ library(patchwork)
 
 unga_pca + unga_tsne + unga_umap + 
   plot_layout(guides = "collect") + 
-  plot_annotation(title = "UN General Assembly voting country projections")
+  plot_annotation(title = "UN General Assembly voting projections")
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
 
 
 
@@ -497,176 +611,247 @@ unga_pca + unga_tsne + unga_umap +
 
 ![](legislative_dim_red.jpg)
 
+---
+
+## Across-methods fly-over (pca, tsne, umap)
+
+--
+
+## Within-method fly-over? (tsne specifications, data)
+
+---
+
+![](images/clipboard-667229542.png)
 
 ---
 
 
+![](images/clipboard-3992794559.png)
 
+
+---
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+
+
+---
 
 count: false
  
 
-.panel1-tsne-auto[
+.panel1-pp2-auto[
 
 ``` r
-*iris
+*hello_world_of_tsne
 ```
 ]
  
-.panel2-tsne-auto[
+.panel2-pp2-auto[
 
 ```
-    Sepal.Length Sepal.Width Petal.Length Petal.Width    Species
-1            5.1         3.5          1.4         0.2     setosa
-2            4.9         3.0          1.4         0.2     setosa
-3            4.7         3.2          1.3         0.2     setosa
-4            4.6         3.1          1.5         0.2     setosa
-5            5.0         3.6          1.4         0.2     setosa
-6            5.4         3.9          1.7         0.4     setosa
-7            4.6         3.4          1.4         0.3     setosa
-8            5.0         3.4          1.5         0.2     setosa
-9            4.4         2.9          1.4         0.2     setosa
-10           4.9         3.1          1.5         0.1     setosa
-11           5.4         3.7          1.5         0.2     setosa
-12           4.8         3.4          1.6         0.2     setosa
-13           4.8         3.0          1.4         0.1     setosa
-14           4.3         3.0          1.1         0.1     setosa
-15           5.8         4.0          1.2         0.2     setosa
-16           5.7         4.4          1.5         0.4     setosa
-17           5.4         3.9          1.3         0.4     setosa
-18           5.1         3.5          1.4         0.3     setosa
-19           5.7         3.8          1.7         0.3     setosa
-20           5.1         3.8          1.5         0.3     setosa
-21           5.4         3.4          1.7         0.2     setosa
-22           5.1         3.7          1.5         0.4     setosa
-23           4.6         3.6          1.0         0.2     setosa
-24           5.1         3.3          1.7         0.5     setosa
-25           4.8         3.4          1.9         0.2     setosa
-26           5.0         3.0          1.6         0.2     setosa
-27           5.0         3.4          1.6         0.4     setosa
-28           5.2         3.5          1.5         0.2     setosa
-29           5.2         3.4          1.4         0.2     setosa
-30           4.7         3.2          1.6         0.2     setosa
-31           4.8         3.1          1.6         0.2     setosa
-32           5.4         3.4          1.5         0.4     setosa
-33           5.2         4.1          1.5         0.1     setosa
-34           5.5         4.2          1.4         0.2     setosa
-35           4.9         3.1          1.5         0.2     setosa
-36           5.0         3.2          1.2         0.2     setosa
-37           5.5         3.5          1.3         0.2     setosa
-38           4.9         3.6          1.4         0.1     setosa
-39           4.4         3.0          1.3         0.2     setosa
-40           5.1         3.4          1.5         0.2     setosa
-41           5.0         3.5          1.3         0.3     setosa
-42           4.5         2.3          1.3         0.3     setosa
-43           4.4         3.2          1.3         0.2     setosa
-44           5.0         3.5          1.6         0.6     setosa
-45           5.1         3.8          1.9         0.4     setosa
-46           4.8         3.0          1.4         0.3     setosa
-47           5.1         3.8          1.6         0.2     setosa
-48           4.6         3.2          1.4         0.2     setosa
-49           5.3         3.7          1.5         0.2     setosa
-50           5.0         3.3          1.4         0.2     setosa
-51           7.0         3.2          4.7         1.4 versicolor
-52           6.4         3.2          4.5         1.5 versicolor
-53           6.9         3.1          4.9         1.5 versicolor
-54           5.5         2.3          4.0         1.3 versicolor
-55           6.5         2.8          4.6         1.5 versicolor
-56           5.7         2.8          4.5         1.3 versicolor
-57           6.3         3.3          4.7         1.6 versicolor
-58           4.9         2.4          3.3         1.0 versicolor
-59           6.6         2.9          4.6         1.3 versicolor
-60           5.2         2.7          3.9         1.4 versicolor
-61           5.0         2.0          3.5         1.0 versicolor
-62           5.9         3.0          4.2         1.5 versicolor
-63           6.0         2.2          4.0         1.0 versicolor
-64           6.1         2.9          4.7         1.4 versicolor
-65           5.6         2.9          3.6         1.3 versicolor
-66           6.7         3.1          4.4         1.4 versicolor
-67           5.6         3.0          4.5         1.5 versicolor
-68           5.8         2.7          4.1         1.0 versicolor
-69           6.2         2.2          4.5         1.5 versicolor
-70           5.6         2.5          3.9         1.1 versicolor
-71           5.9         3.2          4.8         1.8 versicolor
-72           6.1         2.8          4.0         1.3 versicolor
-73           6.3         2.5          4.9         1.5 versicolor
-74           6.1         2.8          4.7         1.2 versicolor
-75           6.4         2.9          4.3         1.3 versicolor
-76           6.6         3.0          4.4         1.4 versicolor
-77           6.8         2.8          4.8         1.4 versicolor
-78           6.7         3.0          5.0         1.7 versicolor
-79           6.0         2.9          4.5         1.5 versicolor
-80           5.7         2.6          3.5         1.0 versicolor
-81           5.5         2.4          3.8         1.1 versicolor
-82           5.5         2.4          3.7         1.0 versicolor
-83           5.8         2.7          3.9         1.2 versicolor
-84           6.0         2.7          5.1         1.6 versicolor
-85           5.4         3.0          4.5         1.5 versicolor
-86           6.0         3.4          4.5         1.6 versicolor
-87           6.7         3.1          4.7         1.5 versicolor
-88           6.3         2.3          4.4         1.3 versicolor
-89           5.6         3.0          4.1         1.3 versicolor
-90           5.5         2.5          4.0         1.3 versicolor
-91           5.5         2.6          4.4         1.2 versicolor
-92           6.1         3.0          4.6         1.4 versicolor
-93           5.8         2.6          4.0         1.2 versicolor
-94           5.0         2.3          3.3         1.0 versicolor
-95           5.6         2.7          4.2         1.3 versicolor
-96           5.7         3.0          4.2         1.2 versicolor
-97           5.7         2.9          4.2         1.3 versicolor
-98           6.2         2.9          4.3         1.3 versicolor
-99           5.1         2.5          3.0         1.1 versicolor
-100          5.7         2.8          4.1         1.3 versicolor
-101          6.3         3.3          6.0         2.5  virginica
-102          5.8         2.7          5.1         1.9  virginica
-103          7.1         3.0          5.9         2.1  virginica
-104          6.3         2.9          5.6         1.8  virginica
-105          6.5         3.0          5.8         2.2  virginica
-106          7.6         3.0          6.6         2.1  virginica
-107          4.9         2.5          4.5         1.7  virginica
-108          7.3         2.9          6.3         1.8  virginica
-109          6.7         2.5          5.8         1.8  virginica
-110          7.2         3.6          6.1         2.5  virginica
-111          6.5         3.2          5.1         2.0  virginica
-112          6.4         2.7          5.3         1.9  virginica
-113          6.8         3.0          5.5         2.1  virginica
-114          5.7         2.5          5.0         2.0  virginica
-115          5.8         2.8          5.1         2.4  virginica
-116          6.4         3.2          5.3         2.3  virginica
-117          6.5         3.0          5.5         1.8  virginica
-118          7.7         3.8          6.7         2.2  virginica
-119          7.7         2.6          6.9         2.3  virginica
-120          6.0         2.2          5.0         1.5  virginica
-121          6.9         3.2          5.7         2.3  virginica
-122          5.6         2.8          4.9         2.0  virginica
-123          7.7         2.8          6.7         2.0  virginica
-124          6.3         2.7          4.9         1.8  virginica
-125          6.7         3.3          5.7         2.1  virginica
-126          7.2         3.2          6.0         1.8  virginica
-127          6.2         2.8          4.8         1.8  virginica
-128          6.1         3.0          4.9         1.8  virginica
-129          6.4         2.8          5.6         2.1  virginica
-130          7.2         3.0          5.8         1.6  virginica
-131          7.4         2.8          6.1         1.9  virginica
-132          7.9         3.8          6.4         2.0  virginica
-133          6.4         2.8          5.6         2.2  virginica
-134          6.3         2.8          5.1         1.5  virginica
-135          6.1         2.6          5.6         1.4  virginica
-136          7.7         3.0          6.1         2.3  virginica
-137          6.3         3.4          5.6         2.4  virginica
-138          6.4         3.1          5.5         1.8  virginica
-139          6.0         3.0          4.8         1.8  virginica
-140          6.9         3.1          5.4         2.1  virginica
-141          6.7         3.1          5.6         2.4  virginica
-142          6.9         3.1          5.1         2.3  virginica
-143          5.8         2.7          5.1         1.9  virginica
-144          6.8         3.2          5.9         2.3  virginica
-145          6.7         3.3          5.7         2.5  virginica
-146          6.7         3.0          5.2         2.3  virginica
-147          6.3         2.5          5.0         1.9  virginica
-148          6.5         3.0          5.2         2.0  virginica
-149          6.2         3.4          5.4         2.3  virginica
-150          5.9         3.0          5.1         1.8  virginica
+          dim1          dim2 type
+1   -0.4520367  0.0058172367    A
+2   -0.4993365  0.0252566478    A
+3   -0.5291291  0.0610447916    A
+4   -0.4750068 -0.0063136640    A
+5   -0.5137264  0.1273757685    A
+6   -0.5965400 -0.0656354711    A
+7   -0.5274751  0.0022600169    A
+8   -0.6393028 -0.0060978021    A
+9   -0.5290687 -0.0370174973    A
+10  -0.5650865  0.0781574830    A
+11  -0.3231209  0.0585823898    A
+12  -0.5066650 -0.0492384037    A
+13  -0.4623469 -0.1419387968    A
+14  -0.6354499 -0.1127064839    A
+15  -0.7108506  0.0550754599    A
+16  -0.5201720 -0.1722183023    A
+17  -0.4160399 -0.0583696046    A
+18  -0.4137262 -0.0035830001    A
+19  -0.4710442 -0.0335469850    A
+20  -0.6234966 -0.0191650262    A
+21  -0.6605154 -0.0251224100    A
+22  -0.3709784 -0.0510687144    A
+23  -0.5346120 -0.0769601553    A
+24  -0.5228641  0.0072346468    A
+25  -0.3447001  0.1456260497    A
+26  -0.5990761 -0.0739645180    A
+27  -0.6369443 -0.1057905931    A
+28  -0.3632513  0.1760295136    A
+29  -0.5448686  0.0123876504    A
+30  -0.5443222 -0.0311453124    A
+31  -0.3549683  0.1458379157    A
+32  -0.5267711  0.0352224933    A
+33  -0.4113566  0.1724493141    A
+34  -0.6101315  0.0571656585    A
+35  -0.4909550 -0.1651228361    A
+36  -0.4540140  0.0707704738    A
+37  -0.6830553 -0.0588953342    A
+38  -0.5152755  0.0404170376    A
+39  -0.5290097 -0.0051768046    A
+40  -0.5205562 -0.0861727353    A
+41  -0.5601720 -0.1225499550    A
+42  -0.4014522  0.0059772368    A
+43  -0.5508640  0.0447502204    A
+44  -0.5023871 -0.0397439444    A
+45  -0.3981803 -0.0536662281    A
+46  -0.5745393  0.0349569760    A
+47  -0.5159672  0.1010110889    A
+48  -0.3281323  0.1866079057    A
+49  -0.3913553 -0.0923754061    A
+50  -0.4928330  0.0010151776    A
+51  -0.7670062 -0.1108204906    A
+52  -0.2888034  0.0501030971    A
+53  -0.4387688  0.0893305472    A
+54  -0.5131741  0.0788510975    A
+55  -0.6414791 -0.1194303817    A
+56  -0.5935968  0.0904925830    A
+57  -0.4974829 -0.0196315676    A
+58  -0.5503983  0.0068472645    A
+59  -0.5289102 -0.1038272417    A
+60  -0.4983602  0.1904144039    A
+61  -0.5572448 -0.0359310447    A
+62  -0.5757613 -0.1697721526    A
+63  -0.3717224 -0.1299946552    A
+64  -0.3519310 -0.1156296172    A
+65  -0.5972488 -0.0693891761    A
+66  -0.3380723  0.0077683484    A
+67  -0.5583401  0.0867361697    A
+68  -0.6991327 -0.0035459136    A
+69  -0.4876158 -0.0457818299    A
+70  -0.4701239 -0.0199735642    A
+71  -0.4780791  0.1037128277    A
+72  -0.6492391 -0.0749865690    A
+73  -0.4656566  0.0041950432    A
+74  -0.5785328 -0.1366561207    A
+75  -0.5864728  0.1385739002    A
+76  -0.5504966  0.0361719595    A
+77  -0.4124992 -0.0307965098    A
+78  -0.3834848 -0.0971123480    A
+79  -0.6090875 -0.0347031459    A
+80  -0.5721960  0.0050986840    A
+81  -0.5535039 -0.0479754992    A
+82  -0.5980293  0.0273634484    A
+83  -0.4776927  0.1635816203    A
+84  -0.4864485 -0.0051542915    A
+85  -0.3577536 -0.0252363859    A
+86  -0.4105757  0.0519050091    A
+87  -0.3317230  0.0412396420    A
+88  -0.2868784 -0.0320471408    A
+89  -0.5297266 -0.0454466074    A
+90  -0.6594663  0.0544286173    A
+91  -0.5344796  0.2062836473    A
+92  -0.5120953 -0.1505241910    A
+93  -0.3817345  0.0783379974    A
+94  -0.4174778  0.0793442739    A
+95  -0.4874198 -0.0724763016    A
+96  -0.4718218  0.1340788664    A
+97  -0.5624778  0.0178310340    A
+98  -0.5226245 -0.1446210895    A
+99  -0.4337062  0.0652315880    A
+100 -0.4777246 -0.0915864500    A
+101 -0.5102718 -0.1118426739    A
+102  0.4004854 -0.1763170393    B
+103  0.5036164  0.1883929811    B
+104  0.5726161  0.0565758962    B
+105  0.5570631  0.2097211710    B
+106  0.5257708 -0.2262402437    B
+107  0.4369252  0.0246336586    B
+108  0.4827516  0.0360814830    B
+109  0.4052311 -0.0108010415    B
+110  0.3968748  0.1504363720    B
+111  0.5999593 -0.0343745316    B
+112  0.6167937 -0.2358476543    B
+113  0.5926709  0.1205952483    B
+114  0.4572384  0.3033020743    B
+115  0.5269420 -0.2171621444    B
+116  0.6315349  0.0525232781    B
+117  0.4033375 -0.0435441491    B
+118  0.4975679  0.1338965609    B
+119  0.5646551  0.1011873921    B
+120  0.6518042  0.0804319791    B
+121  0.3891546  0.0271452193    B
+122  0.4625713 -0.0743561360    B
+123  0.4272597 -0.0308566696    B
+124  0.4350989  0.0154620284    B
+125  0.4564893 -0.1126261501    B
+126  0.5081370 -0.0702429485    B
+127  0.4234433 -0.0649205359    B
+128  0.3071433  0.1323673348    B
+129  0.5460152  0.0613673503    B
+130  0.5416152 -0.1342704868    B
+131  0.3334123 -0.2048487075    B
+132  0.4867834 -0.1267820037    B
+133  0.4840960  0.1599582464    B
+134  0.5679914  0.0895341475    B
+135  0.5220893  0.1695146684    B
+136  0.5944587  0.0260052913    B
+137  0.5252627 -0.0445018427    B
+138  0.6197933  0.1767405029    B
+139  0.4433809  0.1209497977    B
+140  0.3910459 -0.0755449270    B
+141  0.3135397  0.0349915519    B
+142  0.4095435 -0.1777078592    B
+143  0.5425748 -0.0685065865    B
+144  0.4743921  0.0483038948    B
+145  0.4686062 -0.0001466367    B
+146  0.3629466 -0.0307379042    B
+147  0.5171284  0.2915467536    B
+148  0.4674759  0.0891140729    B
+149  0.6509928  0.0951547142    B
+150  0.3799022 -0.1789289627    B
+151  0.5519134 -0.1378853248    B
+152  0.5067871  0.1386343300    B
+153  0.3549466  0.0299271377    B
+154  0.3686323  0.1022992306    B
+155  0.3646647  0.0567563729    B
+156  0.4153529  0.0113360369    B
+157  0.6006252 -0.2523221300    B
+158  0.4263655 -0.0154817249    B
+159  0.7322124 -0.0047839797    B
+160  0.4991713 -0.2077001942    B
+161  0.3864329 -0.0015092053    B
+162  0.4226255  0.0194963476    B
+163  0.4442466 -0.1022966573    B
+164  0.5733162 -0.0479564355    B
+165  0.4596318  0.0138798534    B
+166  0.7611229 -0.0632910133    B
+167  0.5078787 -0.2001031841    B
+168  0.2910697  0.1361176738    B
+169  0.3857933  0.0559565169    B
+170  0.6018198  0.1007814509    B
+171  0.4848970  0.1023086978    B
+172  0.6193884 -0.0684396960    B
+173  0.3961042  0.2233612896    B
+174  0.3496056  0.1011487378    B
+175  0.4984689 -0.0394416312    B
+176  0.4896977  0.0621888093    B
+177  0.5188751  0.1401228720    B
+178  0.6859993  0.0287602188    B
+179  0.4338971  0.0603913171    B
+180  0.3330344  0.0234412025    B
+181  0.6634559 -0.0860450105    B
+182  0.5834890  0.1450219234    B
+183  0.5297658 -0.0683528489    B
+184  0.5075004 -0.0410591138    B
+185  0.6284248 -0.1267914565    B
+186  0.4284600  0.0623724574    B
+187  0.4632988  0.0416338690    B
+188  0.5863754  0.0249005929    B
+189  0.4074706 -0.0186185906    B
+190  0.5221318  0.0766800958    B
+191  0.2921612 -0.1144087071    B
+192  0.6375304  0.0827120274    B
+193  0.5148065  0.0066520480    B
+194  0.3226550  0.0620391745    B
+195  0.3778488 -0.1857848991    B
+196  0.6792985  0.0312111293    B
+197  0.3576872  0.1725128677    B
+198  0.6145902  0.1140768184    B
+199  0.4793113 -0.0123233302    B
+200  0.3754156  0.0376551266    B
+201  0.6271117 -0.0525913731    B
+202  0.5129670 -0.0065518493    B
 ```
 ]
 
@@ -674,61 +859,115 @@ count: false
 count: false
  
 
-.panel1-tsne-auto[
+.panel1-pp2-auto[
 
 ``` r
-iris |&gt;
+hello_world_of_tsne |&gt;
   ggplot()
 ```
 ]
  
-.panel2-tsne-auto[
-![](asa-cowy-fall-2025_files/figure-html/tsne_auto_02_output-1.png)&lt;!-- --&gt;
+.panel2-pp2-auto[
+![](asa-cowy-fall-2025_files/figure-html/pp2_auto_02_output-1.png)&lt;!-- --&gt;
 ]
 
 ---
 count: false
  
 
-.panel1-tsne-auto[
+.panel1-pp2-auto[
 
 ``` r
-iris |&gt;
+hello_world_of_tsne |&gt;
   ggplot() +
-  aes(dims =
-        dims(Sepal.Length:Petal.Width),
-      fill = Species
-      )
+  aes(dims = dims(dim1:dim2))
 ```
 ]
  
-.panel2-tsne-auto[
-![](asa-cowy-fall-2025_files/figure-html/tsne_auto_03_output-1.png)&lt;!-- --&gt;
+.panel2-pp2-auto[
+![](asa-cowy-fall-2025_files/figure-html/pp2_auto_03_output-1.png)&lt;!-- --&gt;
 ]
 
 ---
 count: false
  
 
-.panel1-tsne-auto[
+.panel1-pp2-auto[
 
 ``` r
-iris |&gt;
+hello_world_of_tsne |&gt;
   ggplot() +
-  aes(dims =
-        dims(Sepal.Length:Petal.Width),
-      fill = Species
-      ) +
-  geom_tsne()
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 2)
 ```
 ]
  
-.panel2-tsne-auto[
-![](asa-cowy-fall-2025_files/figure-html/tsne_auto_04_output-1.png)&lt;!-- --&gt;
+.panel2-pp2-auto[
+![](asa-cowy-fall-2025_files/figure-html/pp2_auto_04_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp2-auto[
+
+``` r
+hello_world_of_tsne |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 2) +
+  labs(title = "perplexity = 2")
+```
+]
+ 
+.panel2-pp2-auto[
+![](asa-cowy-fall-2025_files/figure-html/pp2_auto_05_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp2-auto[
+
+``` r
+hello_world_of_tsne |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 2) +
+  labs(title = "perplexity = 2") +
+  aes(fill = type)
+```
+]
+ 
+.panel2-pp2-auto[
+![](asa-cowy-fall-2025_files/figure-html/pp2_auto_06_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp2-auto[
+
+``` r
+hello_world_of_tsne |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 2) +
+  labs(title = "perplexity = 2") +
+  aes(fill = type) -&gt;
+pp2; pp2
+```
+]
+ 
+.panel2-pp2-auto[
+![](asa-cowy-fall-2025_files/figure-html/pp2_auto_07_output-1.png)&lt;!-- --&gt;
 ]
 
 &lt;style&gt;
-.panel1-tsne-auto {
+.panel1-pp2-auto {
   color: black;
   width: 38.6060606060606%;
   hight: 32%;
@@ -736,7 +975,7 @@ iris |&gt;
   padding-left: 1%;
   font-size: 80%
 }
-.panel2-tsne-auto {
+.panel2-pp2-auto {
   color: black;
   width: 59.3939393939394%;
   hight: 32%;
@@ -744,7 +983,7 @@ iris |&gt;
   padding-left: 1%;
   font-size: 80%
 }
-.panel3-tsne-auto {
+.panel3-pp2-auto {
   color: black;
   width: NA%;
   hight: 33%;
@@ -763,46 +1002,46 @@ iris |&gt;
 count: false
  
 
-.panel1-umap-2[
+.panel1-pp5-2[
 
 ``` r
-iris |&gt;
+hello_world_of_tsne |&gt;
   ggplot() +
-  aes(dims =
-        dims(Sepal.Length:Petal.Width),
-      fill = Species) +
-  geom_umap() -&gt;
-umap
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 5) +
+  labs(title = "perplexity = 5") +
+  aes(fill = type) -&gt;
+pp5; pp5
 ```
 ]
  
-.panel2-umap-2[
-
+.panel2-pp5-2[
+![](asa-cowy-fall-2025_files/figure-html/pp5_2_01_output-1.png)&lt;!-- --&gt;
 ]
 
 ---
 count: false
  
 
-.panel1-umap-2[
+.panel1-pp5-2[
 
 ``` r
-iris |&gt;
+hello_world_of_tsne |&gt;
   ggplot() +
-  aes(dims =
-        dims(Sepal.Length:Petal.Width),
-      fill = Species) +
-  geom_umap() -&gt;
-umap
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 5) +
+  labs(title = "perplexity = 5") +
+  aes(fill = type) -&gt;
+pp5; pp5
 ```
 ]
  
-.panel2-umap-2[
-
+.panel2-pp5-2[
+![](asa-cowy-fall-2025_files/figure-html/pp5_2_02_output-1.png)&lt;!-- --&gt;
 ]
 
 &lt;style&gt;
-.panel1-umap-2 {
+.panel1-pp5-2 {
   color: black;
   width: 38.6060606060606%;
   hight: 32%;
@@ -810,7 +1049,7 @@ umap
   padding-left: 1%;
   font-size: 80%
 }
-.panel2-umap-2 {
+.panel2-pp5-2 {
   color: black;
   width: 59.3939393939394%;
   hight: 32%;
@@ -818,7 +1057,81 @@ umap
   padding-left: 1%;
   font-size: 80%
 }
-.panel3-umap-2 {
+.panel3-pp5-2 {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+
+count: false
+ 
+
+.panel1-pp30-2[
+
+``` r
+hello_world_of_tsne |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 30) +
+  labs(title = "perplexity = 30") +
+  aes(fill = type) -&gt;
+pp30; pp30
+```
+]
+ 
+.panel2-pp30-2[
+![](asa-cowy-fall-2025_files/figure-html/pp30_2_01_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp30-2[
+
+``` r
+hello_world_of_tsne |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 30) +
+  labs(title = "perplexity = 30") +
+  aes(fill = type) -&gt;
+pp30; pp30
+```
+]
+ 
+.panel2-pp30-2[
+![](asa-cowy-fall-2025_files/figure-html/pp30_2_02_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-pp30-2 {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-pp30-2 {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-pp30-2 {
   color: black;
   width: NA%;
   hight: 33%;
@@ -838,46 +1151,46 @@ umap
 count: false
  
 
-.panel1-pca-2[
+.panel1-pp50-2[
 
 ``` r
-library(ggdims)
-iris |&gt;
+hello_world_of_tsne |&gt;
   ggplot() +
-  aes(dims =
-        dims(Sepal.Length:Petal.Width),
-      fill = Species) +
-  geom_pca()
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 50) +
+  labs(title = "perplexity = 50") +
+  aes(fill = type) -&gt;
+pp50; pp50
 ```
 ]
  
-.panel2-pca-2[
-![](asa-cowy-fall-2025_files/figure-html/pca_2_01_output-1.png)&lt;!-- --&gt;
+.panel2-pp50-2[
+![](asa-cowy-fall-2025_files/figure-html/pp50_2_01_output-1.png)&lt;!-- --&gt;
 ]
 
 ---
 count: false
  
 
-.panel1-pca-2[
+.panel1-pp50-2[
 
 ``` r
-library(ggdims)
-iris |&gt;
+hello_world_of_tsne |&gt;
   ggplot() +
-  aes(dims =
-        dims(Sepal.Length:Petal.Width),
-      fill = Species) +
-  geom_pca()
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 50) +
+  labs(title = "perplexity = 50") +
+  aes(fill = type) -&gt;
+pp50; pp50
 ```
 ]
  
-.panel2-pca-2[
-![](asa-cowy-fall-2025_files/figure-html/pca_2_02_output-1.png)&lt;!-- --&gt;
+.panel2-pp50-2[
+![](asa-cowy-fall-2025_files/figure-html/pp50_2_02_output-1.png)&lt;!-- --&gt;
 ]
 
 &lt;style&gt;
-.panel1-pca-2 {
+.panel1-pp50-2 {
   color: black;
   width: 38.6060606060606%;
   hight: 32%;
@@ -885,7 +1198,7 @@ iris |&gt;
   padding-left: 1%;
   font-size: 80%
 }
-.panel2-pca-2 {
+.panel2-pp50-2 {
   color: black;
   width: 59.3939393939394%;
   hight: 32%;
@@ -893,7 +1206,7 @@ iris |&gt;
   padding-left: 1%;
   font-size: 80%
 }
-.panel3-pca-2 {
+.panel3-pp50-2 {
   color: black;
   width: NA%;
   hight: 33%;
@@ -908,66 +1221,77 @@ iris |&gt;
 
 
 
-
-
 ---
 
+count: false
+ 
 
+.panel1-pp100-2[
 
 ``` r
-library(ggdims)
-iris |&gt;
-  ggplot() + 
-  aes(dims = dims(Sepal.Length:Petal.Width), 
-      fill = Species) + 
-  geom_pca()
+hello_world_of_tsne |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 100) +
+  labs(title = "perplexity = 100") +
+  aes(fill = type) -&gt;
+pp100; pp100
 ```
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
-
+]
+ 
+.panel2-pp100-2[
+![](asa-cowy-fall-2025_files/figure-html/pp100_2_01_output-1.png)&lt;!-- --&gt;
+]
 
 ---
+count: false
+ 
 
+.panel1-pp100-2[
 
+``` r
+hello_world_of_tsne |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 100) +
+  labs(title = "perplexity = 100") +
+  aes(fill = type) -&gt;
+pp100; pp100
 ```
-[1] 202   3
-```
+]
+ 
+.panel2-pp100-2[
+![](asa-cowy-fall-2025_files/figure-html/pp100_2_02_output-1.png)&lt;!-- --&gt;
+]
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
-
----
-
-![](legislative_dim_red.jpg)
-
----
-
-r chunk_reveal("pp2")`
-
-
-
----
-
-r chunk_reveal("pp5", break_type = 1)`
-
-
-
----
-
-r chunk_reveal("pp30", break_type = 2)`
-
-
-
-
----
-
-r chunk_reveal("pp50", break_type = 1)`
+&lt;style&gt;
+.panel1-pp100-2 {
+  color: black;
+  width: 38.6060606060606%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-pp100-2 {
+  color: black;
+  width: 59.3939393939394%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-pp100-2 {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
 
 
-
-
----
-
-r chunk_reveal("pp100", break_type = 1)`
 
 
 
@@ -978,94 +1302,34 @@ r chunk_reveal("pp100", break_type = 1)`
 library(patchwork)
 
 original + pp2 + pp5 + pp30 + pp50 + pp100 &amp;
-  theme_ggdims() 
+  theme_ggdims() + 
+  plot_layout(guides = "collect")
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
-
-``` r
-# with group id
-last_plot() &amp; 
-  aes(fill = type) &amp;
-  guides(fill = "none")
-```
-
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-17-2.png)&lt;!-- --&gt;
-
-
-
-
----
-
-# details...
-
-
----
-class: inverse, middle, center
-
-The usual one-var-to-one-aesthetic requirement means that it may not feel obvious how to extend ggplot2 for dimensionality reduction visualization, which deals with characterizing *many* variables. 
-
-So while using ggplot2 under-the-hood is common in the dim-red space, it feels like there may be less consistency across dim-red APIs.  
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
 
 
 ---
 
 
-At the same time, these techniques are all in the same space, 
 
-- Florida talk
+![](images/clipboard-2639177458.png)
 
-- McInnes Bluffer’s guide https://www.youtube.com/watch?v=9iol3Lk6kyU
-
-
----
-
-So why shouldn't we be able to 'talk' about them in the same way - even when it comes to encoding the plot.
-
----
-
-ggpca, tsne
-
----
-
-# And what if we could do this in the grammar of graphics ggplot2 paradigm?  
-
-https://satijalab.org/seurat/articles/seurat5_sketch_analysis
-
-"People like to click buttons"
-
-"People like to use ggplot2" (like to build up plots incrementally using intuitive syntax)
 
 ---
 
 
 ``` r
-library(ggplot2)
+two_close_and_one_far &lt;- 
+  data.frame(dim1 = c(rnorm(150, -.75, .05), rnorm(150, -.35, .05), rnorm(150, .75, .05)),
+             dim2 = rnorm(450, sd = .05),
+             type = c(rep("A", 150), rep("B", 150), rep("C", 150)))
 
-ggplot(data = my_high_dimensional_data) + 
-  aes(dims = 
-        dims(var1:var200, var205)
-      ) +      
-  geom_dimred_technique()                 
+last_plot() &amp; # contains all six of the 'hello world of tsne' specifications
+  ggplyr::data_replace(two_close_and_one_far) # change data
 ```
 
-
-
-
----
-
-
-For users of these APIs, getting quickly acquainted with techniques (students) or doing comparative work (practitioners) may be more challenging than it needs to be. The {ggdims} package explores a new `dims()` and `dims_expand()` utility that could help with greater consistency across dim-red APIs, with standard ggplots, and within the ggplot2 extension ecosystem.
-
-
-
-
-
-
-
----
-
-
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
 
 
 

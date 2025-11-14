@@ -64,50 +64,81 @@ library(tidyverse)
 
 ---
 
-# cliffnotes
+### cliffnotes for talk
+
+---
+
+This pattern for ggplot2 extension ...
 
 --
-
-You couldn't easily `aes(dims = dims(var1:var200, var205))` syntax...
-
 
 ```{r, eval = F}
 library(ggplot2)
 
 ggplot(data = my_high_dimensional_data) + 
-  aes(dims = 
-        dims(var1:var200, var205) 
-      ) +      
-  geom_dimred_technique()                 
+  aes(dims = dims(var1:var200, var205)) +      
+  geom_dim_red_technique()  # geom_pca(), geom_tsne            
 ```
 
+--
 
-... now you can.
+... isn't a pattern ...
+
+--
+
+And maybe it should be. 
+
+
+---
+
+`aes(dims = dims(var1:var200, var205))`
+
+
+![](images/clipboard-3430965112.png)
+
+
 
 ---
 class: inverse, middle, center
 
-# ggplot2 lets you intuitively translate variables to visual representation.
-
-
-
----
-
-`aes(x <- age)`
-
-`aes(color <- sex)`
-
-`aes(linetype <- employment status)`
-
-
----
-class: inverse, middle
-
-# You specify how variables (e.g. sex, age, employment status) ...
+{ggdims} explores viz- and code- first dimensionality reduction 
 
 --
 
-# ... are to be communicated via visual channels (x position, y position, color, transparency, etc). 
+- A 3-week-old github repo/package 
+
+--
+
+Rest of talk: how we got here (a longer time coming)
+
+
+---
+class: inverse, middle, center
+
+# ggplot2 (2007) lets you intuitively translate variables to visual representation.
+
+---
+
+`gplot(my_data) +`
+
+
+`aes(x <- age) + `
+
+`aes(color <- sex) +`
+
+`aes(linetype <- employment status) +`
+
+`geom_point()`
+
+
+<!-- --- -->
+<!-- class: inverse, middle -->
+
+<!-- # You specify how variables (e.g. sex, age, employment status) ... -->
+
+<!-- -- -->
+
+<!-- # ... are to be communicated via visual channels (x position, y position, color, transparency, etc).  -->
 
 
 ---
@@ -123,7 +154,7 @@ to- individual-visual-channel mapping
 ---
 class: inverse
 
-# The problem with 1-to-1:
+# A problem with 1-to-1:
 
 --
 
@@ -133,6 +164,37 @@ class: inverse
 ???
 
 ## However, in ggplot2 these specifications are individual-variable-to-individual-visual-channel which does not lend itself easily to visualizations in the world of dimension reduction (e.g. PCA, T-sne, UMAP). 
+
+
+---
+
+```{r, eval = F}
+library(ggplot2)
+
+ggplot(data = my_high_dimensional_data) + 
+  aes(dims = dims(var1:var200, var205)) +   # <<   
+  geom_dimred_technique()  # e.g. geom_pca(), geom_tsne(), geom_umap()             
+```
+
+
+---
+
+> "You really should 'algorithm' first, and then use the results in a data-viz."
+
+--
+
+(algorithm used as a verb here)
+
+---
+
+# 2016
+https://distill.pub/2016/misread-tsne/
+
+![](images/clipboard-667229542.png)
+
+---
+
+![](images/clipboard-2214898865.png)
 
 ---
 
@@ -144,34 +206,23 @@ Martin Wattenberg 'How to use t-SNE effectively' 2016:
 
 > Further paraphrase: Jump right in. Do some dimensionality reduction. Visualize. 
 
----
-
-https://distill.pub/2016/misread-tsne/
-
-![](images/clipboard-667229542.png)
-
----
-
-![](images/clipboard-2214898865.png)
 
 
 ---
+
 
 ![](images/clipboard-2170207951.png)
 
 ---
 
-Leland McInnes "Bluffer's Guide
-
-> "I'm gonna try and give as much of a whirlwind tour of the 
-entire field of dimention reduction as I can in the time available." 
-
-> "There are only two dimention reduction techniques.*"
-
-> * = "not quite true but morally the right thing to do"
+> "Wattenberg is wrong - not rigorous, not a mathematician"
 
 ---
 
+Leland McInnes "Bluffer's Guide"
+
+> "I'm gonna try and give as much of a whirlwind tour of the 
+entire field of dimention reduction as I can in the time available." 
 
 ![](images/clipboard-3696481417.png)
 
@@ -187,7 +238,7 @@ entire field of dimention reduction as I can in the time available."
 
 ---
 
-> Shouldn't we be able to fly (hitchhike) through trying out some of these techniques?
+> Shouldn't we be able to visually fly (hitchhike) through trying out some of these techniques?
 
 --
 
@@ -214,12 +265,12 @@ ggplot(cars) +
   geom_point()     
 ```
 
-
+---
 
 ```{r, eval = F}
 ggplot(cars) + # data
   aes(????)    # var mapping
-  geom_pca()   # layer
+  geom_pca()   # layer - options inside parentheses
 
 ggplot(cars) + # data
   aes(????)    # var mapping
@@ -232,17 +283,11 @@ ggplot(cars) + # data
 
 ---
 
-Posit conf Speaker training: July 22
+# Online Posit Conf speaker training, July 22, 2025: "Give a Ted Talk"
 
-More related:
-
-![](images/clipboard-630705121.png)
-
----
+Sathiya Manivannan, Center for Cardiovascular and Pulminary Research
 
 ![](images/clipboard-964179201.png)
-
-"It's easier to type thing which are smaller, but when things are getting bigger and bigger you prefer to click on buttons and work [with a GUI]."
 
 ---
 
@@ -250,11 +295,19 @@ More related:
 
 ---
 
+> "It's easier to type thing which are smaller, but when things are getting bigger and bigger you prefer to click on buttons and work [with a GUI]." (made a shiny wrapper for {seurat})
+
+--
+
+Question the premise: Maybe there isn't a good ggplot2 extension to handle this?
+
+---
+
 ![](images/clipboard-3469228869.png)
 
 ---
 
-## JSM Talk, Developments in Statistical Graphics, Tuesday, August 5
+## Nashville JSM Talk, "Developments in Statistical Graphics" panel, Tuesday, August 5
 
 ![](images/clipboard-2692987354.png)
 
@@ -264,16 +317,33 @@ More related:
 
 <https://phhp.ufl.edu/about/departments/biostatistics/about/faculty/>
 
+
+
+
 ---
 
 ![](legislative_dim_red.jpg)
 
+---
+
+```{r, eval = F}
+ggplot(voting_data) + # data
+  aes(????)    # var mapping
+  geom_pca()   # layer - options inside
+
+ggplot(voting_data) + # data
+  aes(????)    # var mapping
+  geom_tsne()  # layer
+
+ggplot(voting_data) + # data
+  aes(????)    # var mapping
+  geom_umap()  # layer
+```
+
 
 ---
 
-
-# `geom_pca_point() `
-
+### June-Sept 2024... `geom_pca_point()`
 
 
 ![](images/clipboard-1445857279.png)
@@ -284,9 +354,9 @@ More related:
 palmerpenguins::penguins %>% 
   ggplot() + 
   aes(outcome = species, 
-      a = bill_length_mm, 
-      b = bill_depth_mm, 
-      c = flipper_length_mm) +
+      pred1 = bill_length_mm, 
+      pred2 = bill_depth_mm, 
+      pred3 = flipper_length_mm) +
   geom_pca_point()  
 ```
 
@@ -309,9 +379,24 @@ palmerpenguins::penguins %>%
 
 ---
 
-![](images/clipboard-3430965112.png)
+tsne, umpa - big data (lots of variables)
+
+> "It's easier to type thing which are smaller, but when things are getting bigger and bigger you prefer to click on buttons and work [with a GUI]."
+
+--
+
+`aes(dims = vars(var1, var2, var3, var4, var5, var6)`
+
+--
+
+`aes(dims = dims(var1:var6))`
+
 
 ---
+
+
+![](images/clipboard-3430965112.png)
+
 
 
 ---
@@ -320,16 +405,43 @@ palmerpenguins::penguins %>%
 library(ggplot2)
 
 ggplot(data = my_high_dimensional_data) + 
-  aes(dims = dims(var1:var200, 
-                  var205)) + # or similar
-  geom_reduction_technique()                 # default dim-red to 2D
-
-last_plot() + 
-  aes(color = label)    # indicate category
+  aes(dims = dims(var1:var200, var205)) + # or similar
+  geom_reduction_technique() 
 ```
 
 ---
 
+### utilities
+
+```{r, eval = F}
+ggdims::dims_listed()
+ggdims::data_vars_unpack()
+ggdims::dims_expand()  #<< expand var1:var20
+```
+
+--
+
+### for defining compute w/ var1 & var20 shortcut syntax and those in-between
+
+```{r, eval = F}
+ggdims::compute_pca()
+ggdims::compute_tsne()
+ggdims::compute_umap()
+```
+
+---
+
+### user-facing functions
+
+```{r eval = F}
+ggdims::geom_pca()
+ggdims::geom_tsne()
+ggdims::geom_umap()
+```
+
+---
+
+# Does it work? 
 
 
 ---
@@ -359,11 +471,15 @@ un_ga_country_wide_rcid
 # names(un_ga_country_wide_rcid) |> tail()
 ```
 
+
+
+# concise, consistent, 'graphical poems'
+
 ```{r, out.width="100%"}
 library(ggdims)
 ggplot(un_ga_country_wide_rcid) + 
-  aes(dims = dims(rc3:rc9147)) +
-  geom_pca() + 
+  aes(dims = dims(rc3:rc9147)) + #<<
+  geom_pca() + #<<
   aes(fill = continent) +
   labs(title = "PCA") ->
 unga_pca
@@ -371,23 +487,13 @@ unga_pca
 
 ---
 
-```{r}
-library(ggdims)
-ggplot(un_ga_country_wide_rcid) + 
-  aes(dims = dims(rc3:rc9147)) +
-  geom_tsne() + 
-  aes(fill = continent) +
-  labs(title = "PCA") ->
-unga_tsne
-```
-
----
+# concise, consistent, 'graphical poems'
 
 ```{r}
 library(ggdims)
 ggplot(un_ga_country_wide_rcid) + 
-  aes(dims = dims(rc3:rc9147)) +
-  geom_tsne() + 
+  aes(dims = dims(rc3:rc9147)) + #<<
+  geom_tsne() + #<<
   aes(fill = continent) +
   labs(title = "t-SNE") ->
 unga_tsne
@@ -395,15 +501,19 @@ unga_tsne
 
 ---
 
+# concise, consistent, 'graphical poems'
+
 ```{r}
 library(ggdims)
 ggplot(un_ga_country_wide_rcid) + 
-  aes(dims = dims(rc3:rc9147)) +
-  geom_umap() + 
+  aes(dims = dims(rc3:rc9147)) + #<<
+  geom_umap() + #<<
   aes(fill = continent) +
   labs(title = "UMAP") ->
 unga_umap
 ```
+
+
 
 ---
 
@@ -412,8 +522,7 @@ library(patchwork)
 
 unga_pca + unga_tsne + unga_umap + 
   plot_layout(guides = "collect") + 
-  plot_annotation(title = "UN General Assembly voting country projections")
-
+  plot_annotation(title = "UN General Assembly voting projections")
 
 ```
 
@@ -424,92 +533,29 @@ unga_pca + unga_tsne + unga_umap +
 
 ![](legislative_dim_red.jpg)
 
+---
+
+## Across-methods fly-over (pca, tsne, umap)
+
+--
+
+## Within-method fly-over? (tsne specifications, data)
+
+---
+
+![](images/clipboard-667229542.png)
 
 ---
 
 
-```{r, echo = F}
-unvotes::un_votes |> 
-  arrange(rcid) |>
-  mutate(rcid = paste0("rc",rcid) |> fct_inorder()) |>
-  mutate(num_vote = case_when(vote == "yes" ~ 1,
-                              vote == "abstain" ~ .5,
-                              vote == "no" ~ 0,
-                              TRUE ~ .5 )) |>
-  # filter(rcid %in% 1:30) |>
-  pivot_wider(id_cols = c(country, country_code),
-    names_from = rcid, 
-              values_from = num_vote,
-              values_fill = .5
-            ) |>
-  mutate(continent = country_code |> 
-           countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
-  mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
-unga_votes
-
-
-```
-
-`r chunk_reveal("tsne")`
-
-```{r tsne, include = F}
-iris |> 
-  ggplot() + 
-  aes(dims = 
-        dims(Sepal.Length:Petal.Width),
-      fill = Species
-      ) + 
-  geom_tsne()
-```
-
----
-
-`r chunk_reveal("umap", break_type = 2)`
-
-
-```{r umap, include = F}
-iris |>
-  ggplot() + 
-  aes(dims = 
-        dims(Sepal.Length:Petal.Width), 
-      fill = Species) + 
-  geom_umap() ->
-umap
-```
-
----
-
-`r chunk_reveal("pca", break_type = 2)`
-
-
-```{r pca, include=F}
-library(ggdims)
-iris |>
-  ggplot() + 
-  aes(dims = 
-        dims(Sepal.Length:Petal.Width), 
-      fill = Species) + 
-  geom_pca() 
-```
-
-
-
----
-
-
-```{r}
-library(ggdims)
-iris |>
-  ggplot() + 
-  aes(dims = dims(Sepal.Length:Petal.Width), 
-      fill = Species) + 
-  geom_pca()
-```
+![](images/clipboard-3992794559.png)
 
 
 ---
 
 ```{r, echo = F}
+library(tidyverse)
+library(ggdims)
 hello_world_of_tsne <- data.frame(dim1 = 
                                     rnorm(101, mean = -.5,
                                           sd = .1) |>
@@ -519,8 +565,6 @@ hello_world_of_tsne <- data.frame(dim1 =
                                   dim2 = rnorm(202, sd = .1),
                                   type = c(rep("A", 101), rep("B", 101)))
 
-dim(hello_world_of_tsne)
-
 original <- hello_world_of_tsne |>
   ggplot() + 
   aes(x = dim1, 
@@ -529,21 +573,19 @@ original <- hello_world_of_tsne |>
              alpha = .7, 
              aes(size = from_theme(pointsize * 1.5))) + 
   labs(title = "Original") + 
-  aes(fill = I("black")) + 
-  coord_equal(xlim = c(-1,1), ylim = c(-1,1))
+  aes(fill = type) + 
+  coord_equal(xlim = c(-1,1), ylim = c(-1,1)) 
+  
 
 original + 
   labs(title = "Hello World of t-SNE")
 
 ```
 
----
-
-![](legislative_dim_red.jpg)
 
 ---
 
-r chunk_reveal("pp2")`
+`r chunk_reveal("pp2")`
 
 ```{r pp2, include= F}
 hello_world_of_tsne |>
@@ -557,7 +599,7 @@ pp2; pp2
 
 ---
 
-r chunk_reveal("pp5", break_type = 1)`
+`r chunk_reveal("pp5", break_type = 2)`
 
 ```{r pp5, include=F}
 hello_world_of_tsne |>
@@ -571,7 +613,7 @@ pp5; pp5
 
 ---
 
-r chunk_reveal("pp30", break_type = 2)`
+`r chunk_reveal("pp30", break_type = 2)`
 
 ```{r pp30, include=F}
 hello_world_of_tsne |>
@@ -586,7 +628,7 @@ pp30; pp30
 
 ---
 
-r chunk_reveal("pp50", break_type = 1)`
+`r chunk_reveal("pp50", break_type = 2)`
 
 ```{r pp50, include=F}
 hello_world_of_tsne |>
@@ -601,7 +643,7 @@ pp50; pp50
 
 ---
 
-r chunk_reveal("pp100", break_type = 1)`
+`r chunk_reveal("pp100", break_type = 2)`
 
 ```{r pp100, include=F}
 hello_world_of_tsne |>
@@ -615,93 +657,35 @@ pp100; pp100
 
 ---
 
-```{r}
+```{r , fig.height=3}
 library(patchwork)
 
 original + pp2 + pp5 + pp30 + pp50 + pp100 &
-  theme_ggdims() 
-
-# with group id
-last_plot() & 
-  aes(fill = type) &
-  guides(fill = "none")
+  theme_ggdims() + 
+  plot_layout(guides = "collect")
 
 
 ```
 
 
+---
+
+
+
+![](images/clipboard-2639177458.png)
 
 
 ---
 
-# details...
+```{r, fig.height=3}
+two_close_and_one_far <- 
+  data.frame(dim1 = c(rnorm(150, -.75, .05), rnorm(150, -.35, .05), rnorm(150, .75, .05)),
+             dim2 = rnorm(450, sd = .05),
+             type = c(rep("A", 150), rep("B", 150), rep("C", 150)))
 
-
----
-class: inverse, middle, center
-
-The usual one-var-to-one-aesthetic requirement means that it may not feel obvious how to extend ggplot2 for dimensionality reduction visualization, which deals with characterizing *many* variables. 
-
-So while using ggplot2 under-the-hood is common in the dim-red space, it feels like there may be less consistency across dim-red APIs.  
-
-
----
-
-
-At the same time, these techniques are all in the same space, 
-
-- Florida talk
-
-- McInnes Bluffer’s guide https://www.youtube.com/watch?v=9iol3Lk6kyU
-
-
----
-
-So why shouldn't we be able to 'talk' about them in the same way - even when it comes to encoding the plot.
-
----
-
-ggpca, tsne
-
----
-
-# And what if we could do this in the grammar of graphics ggplot2 paradigm?  
-
-https://satijalab.org/seurat/articles/seurat5_sketch_analysis
-
-"People like to click buttons"
-
-"People like to use ggplot2" (like to build up plots incrementally using intuitive syntax)
-
----
-
-```{r, eval = F}
-library(ggplot2)
-
-ggplot(data = my_high_dimensional_data) + 
-  aes(dims = 
-        dims(var1:var200, var205)
-      ) +      
-  geom_dimred_technique()                 
+last_plot() & # contains all six of the 'hello world of tsne' specifications
+  ggplyr::data_replace(two_close_and_one_far) # change data
 ```
-
-
-
-
----
-
-
-For users of these APIs, getting quickly acquainted with techniques (students) or doing comparative work (practitioners) may be more challenging than it needs to be. The {ggdims} package explores a new `dims()` and `dims_expand()` utility that could help with greater consistency across dim-red APIs, with standard ggplots, and within the ggplot2 extension ecosystem.
-
-
-
-
-
-
-
----
-
-
 
 
 
