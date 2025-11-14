@@ -687,6 +687,38 @@ last_plot() & # contains all six of the 'hello world of tsne' specifications
   ggplyr::data_replace(two_close_and_one_far) # change data
 ```
 
+---
+
+# Is this the right implementation?  
+
+--
+
+Maybe not
+
+--
+
+# Are there some known fragilities
+
+--
+
+Yes
+
+--
+
+# Are you the right person to be writing things like `geom_umap`
+
+--
+
+Maybe not..
+
+---
+class: inverse, middle, center
+
+
+Thank you!
+
+---
+
 
 
 ```{css, eval = TRUE, echo = FALSE}
