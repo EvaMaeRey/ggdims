@@ -51,41 +51,7 @@ last_plot() +
 
 Here, doing some further thinking about a dimensionality reduction framework for ggplot2. Based on some previous work: [2025-07-18](https://evamaerey.github.io/mytidytuesday/2025-07-18-seurat_tsne_plot/seurat_tsne_plot.html), [2025-08-19](https://evamaerey.github.io/mytidytuesday/2025-08-19-umap/umap.html), [2025-10-11](https://evamaerey.github.io/mytidytuesday/2025-10-11-ggdims/ggdims.html) and discussions [ggplot-extension-club/discussions/117](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/117#discussioncomment-14565426) and [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
 
-Posit conf Speaker training: July 22
 
-More related:
-
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-## 
-
-<https://phhp.ufl.edu/about/departments/biostatistics/about/faculty/>
-
-------------------------------------------------------------------------
-
-![](legislative_dim_red.jpg)
-
-Are there 'grammar-following' ggplot2 extensions for these things?
-
-`geom_tsne()`, `geom_pca()`, `geom_umap()`
-
-------------------------------------------------------------------------
-
-```{r, eval = F}
-data_and_vars_plot_specs + geom_pca()
-
-data_and_vars_plot_specs + geom_tsne()
-
-data_and_vars_plot_specs + geom_umap()
-```
-
-------------------------------------------------------------------------
 
 ```{r, warning=F, message=F}
 library(tidyverse)
@@ -98,19 +64,9 @@ data_and_vars_plot_specs +
   geom_point() 
 ```
 
-------------------------------------------------------------------------
-
--   McInnes Bluffer's guide <https://www.youtube.com/watch?v=9iol3Lk6kyU>
-
-![](images/clipboard-3696481417.png)
-
-------------------------------------------------------------------------
 
 `# geom_pca()`
 
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
 
 ```{r, eval = F}
 palmerpenguins::penguins %>% 
@@ -122,13 +78,6 @@ palmerpenguins::penguins %>%
   geom_pca_point()  
 ```
 
-------------------------------------------------------------------------
-
-![](images/clipboard-2464072259.png)
-
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
 
 ```{r, eval = F}
 palmerpenguins::penguins %>% 
@@ -140,11 +89,7 @@ palmerpenguins::penguins %>%
   geom_pca_point()
 ```
 
-------------------------------------------------------------------------
 
-![](images/clipboard-1333989283.png){width="25%"}
-
-------------------------------------------------------------------------
 
 ```{r, eval = F}
 library(ggplot2)
@@ -158,7 +103,6 @@ last_plot() +
   aes(color = label)    # indicate category
 ```
 
-------------------------------------------------------------------------
 
 ```{r, echo = F, message=F, warning=F}
 library(tidyverse)
@@ -187,6 +131,9 @@ names(un_ga_country_wide_rcid) |> tail()
 
 ```{r, out.width="100%"}
 library(ggdims)
+
+un_ga_country_wide_rcid[1:5, 1:5]
+
 un_ga_country_wide_rcid |>
   ggplot() + 
   aes(dims = dims(rc3:rc9147)) +
@@ -235,23 +182,8 @@ unga_pca + unga_tsne + unga_umap +
 
 ```
 
--   McInnes Learning from Machine Learning <https://www.youtube.com/watch?v=6sSOr2Yaq80&t=759s>
 
--   <https://embed.tidymodels.org/>
-
--   <https://vimeo.com/483185503?fl=pl&fe=sh>
-
--   <https://distill.pub/2016/misread-tsne/>
-
-![](images/clipboard-667229542.png)
-
-![](images/clipboard-2170207951.png)
-
-![](images/clipboard-2214898865.png)
-
-![](images/clipboard-3404675014.png)
-
-![](images/clipboard-2436076475.png)
+---
 
 This is in the experimental/proof of concept phase. 🤔🚧
 
@@ -808,7 +740,6 @@ last_plot() +
 
 ```
 
-------------------------------------------------------------------------
 
 # Minimal Packaging
 
@@ -841,9 +772,9 @@ knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
 
 ### 1. 'Those hyperparameters really matter'
 
-Let's try to reproduce the following with our `geom_tsne()`:
+![](images/clipboard-3992794559.png){width="900"}
 
-![](images/clipboard-2588034840.png)
+Let's try to reproduce the following with our `geom_tsne()`:
 
 ```{r}
 hello_world_of_tsne <- data.frame(dim1 = 
@@ -937,7 +868,7 @@ panel_of_six_tsne_two_cluster &
 
 Now let's look at these three clusters, where one cluster is far out:
 
-![](images/clipboard-2639177458.png)
+![](images/clipboard-2639177458.png){width="900"}
 
 ```{r}
 two_close_and_one_far <- data.frame(dim1 = 
@@ -1013,7 +944,10 @@ dims_specs <-
   ggplot() + 
   aes(dims = dims(rc3:rc9147), 
       fill = continent)
+```
 
+
+```{r, width = 12, height = 4}
 library(patchwork)
 (dims_specs + geom_pca() + labs(title = "PCA")) + 
   (dims_specs + geom_tsne() + labs(title = "Tsne")) +  
@@ -1021,7 +955,4 @@ library(patchwork)
   patchwork::plot_layout(guides = "collect") + 
   plot_annotation(title = "UN General Assembly voting country projections")
 
-
-ggsave("hi.png", width = 12, height = 4)
-knitr::include_graphics("hi.png")
 ```

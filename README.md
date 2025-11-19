@@ -1,7 +1,6 @@
 
 - [ggdims Intro Thoughts](#ggdims-intro-thoughts)
 - [Supporting work and discussions](#supporting-work-and-discussions)
-- [](#section)
 - [An implementation](#an-implementation)
   - [`aes(dims = ?)` lets us capture an
     expression…](#aesdims---lets-us-capture-an-expression)
@@ -84,42 +83,6 @@ and discussions
 and
 [ggplot-extension-club/discussions/18](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-13850709)
 
-Posit conf Speaker training: July 22
-
-More related:
-
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
-## 
-
-<https://phhp.ufl.edu/about/departments/biostatistics/about/faculty/>
-
-------------------------------------------------------------------------
-
-![](legislative_dim_red.jpg)
-
-Are there ‘grammar-following’ ggplot2 extensions for these things?
-
-`geom_tsne()`, `geom_pca()`, `geom_umap()`
-
-------------------------------------------------------------------------
-
-``` r
-data_and_vars_plot_specs + geom_pca()
-
-data_and_vars_plot_specs + geom_tsne()
-
-data_and_vars_plot_specs + geom_umap()
-```
-
-------------------------------------------------------------------------
-
 ``` r
 library(tidyverse)
 
@@ -131,21 +94,9 @@ data_and_vars_plot_specs +
   geom_point() 
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-4-1.png" width="55%" />
-
-------------------------------------------------------------------------
-
-- McInnes Bluffer’s guide <https://www.youtube.com/watch?v=9iol3Lk6kyU>
-
-![](images/clipboard-3696481417.png)
-
-------------------------------------------------------------------------
+<img src="README_files/figure-gfm/unnamed-chunk-3-1.png" width="55%" />
 
 `# geom_pca()`
-
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
 
 ``` r
 palmerpenguins::penguins %>% 
@@ -157,14 +108,6 @@ palmerpenguins::penguins %>%
   geom_pca_point()  
 ```
 
-------------------------------------------------------------------------
-
-![](images/clipboard-2464072259.png)
-
-------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-
 ``` r
 palmerpenguins::penguins %>% 
   ggplot() + 
@@ -174,12 +117,6 @@ palmerpenguins::penguins %>%
                   flipper_length_mm)) +
   geom_pca_point()
 ```
-
-------------------------------------------------------------------------
-
-<img src="images/clipboard-1333989283.png" style="width:25.0%" />
-
-------------------------------------------------------------------------
 
 ``` r
 library(ggplot2)
@@ -193,12 +130,21 @@ last_plot() +
   aes(color = label)    # indicate category
 ```
 
-------------------------------------------------------------------------
-
     #> [1] "rc9143"    "rc9144"    "rc9145"    "rc9146"    "rc9147"    "continent"
 
 ``` r
 library(ggdims)
+
+un_ga_country_wide_rcid[1:5, 1:5]
+#> # A tibble: 5 × 5
+#>   country            country_code   rc3   rc4   rc5
+#>   <chr>              <chr>        <dbl> <dbl> <dbl>
+#> 1 United States      US               1     0     0
+#> 2 Canada             CA               0     0     0
+#> 3 Cuba               CU               1     0     1
+#> 4 Haiti              HT               1     0     0
+#> 5 Dominican Republic DO               1     0     0
+
 un_ga_country_wide_rcid |>
   ggplot() + 
   aes(dims = dims(rc3:rc9147)) +
@@ -245,26 +191,9 @@ unga_pca + unga_tsne + unga_umap +
   plot_annotation(title = "UN General Assembly voting country projections")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-13-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-12-1.png" width="55%" />
 
-- McInnes Learning from Machine Learning
-  <https://www.youtube.com/watch?v=6sSOr2Yaq80&t=759s>
-
-- <https://embed.tidymodels.org/>
-
-- <https://vimeo.com/483185503?fl=pl&fe=sh>
-
-- <https://distill.pub/2016/misread-tsne/>
-
-![](images/clipboard-667229542.png)
-
-![](images/clipboard-2170207951.png)
-
-![](images/clipboard-2214898865.png)
-
-![](images/clipboard-3404675014.png)
-
-![](images/clipboard-2436076475.png)
+------------------------------------------------------------------------
 
 This is in the experimental/proof of concept phase. 🤔🚧
 
@@ -328,7 +257,7 @@ iris |>
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-17-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-16-1.png" width="55%" />
 
 ``` r
 
@@ -612,7 +541,7 @@ iris |>
   geom_tsne_label0()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-20-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-19-1.png" width="55%" />
 
 ``` r
 
@@ -626,7 +555,7 @@ p +
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-20-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-19-2.png" width="55%" />
 
 ``` r
 #' @export
@@ -670,7 +599,7 @@ iris |>
   geom_tsne()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-21-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-20-1.png" width="55%" />
 
 ``` r
 
@@ -678,7 +607,7 @@ last_plot() +
   aes(fill = Species) 
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-21-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-20-2.png" width="55%" />
 
 ``` r
 
@@ -687,7 +616,7 @@ last_plot() +
   geom_tsne_label()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-21-3.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-20-3.png" width="55%" />
 
 ### Different perplexity
 
@@ -699,7 +628,7 @@ iris |>
   geom_tsne(perplexity = 10)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-22-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-21-1.png" width="55%" />
 
 ## A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
 
@@ -776,7 +705,7 @@ iris |>
   geom_umap()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-23-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-22-1.png" width="55%" />
 
 ``` r
 
@@ -784,7 +713,7 @@ last_plot() +
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-23-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-22-2.png" width="55%" />
 
 ## A little PCA using `ordr::ordinate`
 
@@ -866,7 +795,7 @@ iris |>
   geom_pca()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-25-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-24-1.png" width="55%" />
 
 ``` r
 
@@ -874,7 +803,7 @@ last_plot() +
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-25-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-24-2.png" width="55%" />
 
 ``` r
 
@@ -883,7 +812,7 @@ last_plot() +
   aes(y = after_stat(PC3))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-25-3.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-24-3.png" width="55%" />
 
 ``` r
 library(ggdims)
@@ -896,7 +825,7 @@ iris |>
 iris_pca; iris_pca
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-26-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-25-1.png" width="55%" />
 
 ``` r
 
@@ -905,7 +834,7 @@ ggplyr::last_plot_wipe() +
 iris_tsne; iris_tsne
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-26-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-25-2.png" width="55%" />
 
 ``` r
 
@@ -914,14 +843,14 @@ ggplyr::last_plot_wipe() +
 iris_umap; iris_umap
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-26-3.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-25-3.png" width="55%" />
 
 ``` r
 library(patchwork)
 iris_pca + iris_tsne + iris_umap + patchwork::plot_layout(guides = "collect")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-27-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-26-1.png" width="55%" />
 
 ### w/ penguins
 
@@ -932,7 +861,7 @@ palmerpenguins::penguins |>
   geom_pca()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-28-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-27-1.png" width="55%" />
 
 ``` r
 
@@ -940,9 +869,7 @@ last_plot() +
   aes(fill = species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-28-2.png" width="55%" />
-
-------------------------------------------------------------------------
+<img src="README_files/figure-gfm/unnamed-chunk-27-2.png" width="55%" />
 
 # Minimal Packaging
 
@@ -975,9 +902,9 @@ knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
 
 ### 1. ‘Those hyperparameters really matter’
 
-Let’s try to reproduce the following with our `geom_tsne()`:
+<img src="images/clipboard-3992794559.png" width="900" />
 
-![](images/clipboard-2588034840.png)
+Let’s try to reproduce the following with our `geom_tsne()`:
 
 ``` r
 hello_world_of_tsne <- data.frame(dim1 = 
@@ -1009,7 +936,7 @@ pp2 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 2"); pp2
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-32-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-31-1.png" width="55%" />
 
 ``` r
 
@@ -1019,7 +946,7 @@ pp5 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 5"); pp5
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-32-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-31-2.png" width="55%" />
 
 ``` r
 
@@ -1029,7 +956,7 @@ pp30 <- ggplot(data = hello_world_of_tsne) +
   labs(title = "perplexity = 30"); pp30
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-32-3.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-31-3.png" width="55%" />
 
 ``` r
 
@@ -1054,7 +981,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
   theme_ggdims() 
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-32-4.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-31-4.png" width="55%" />
 
 ``` r
 
@@ -1064,7 +991,7 @@ last_plot() &
   guides(fill = "none")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-32-5.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-31-5.png" width="55%" />
 
 ``` r
 
@@ -1089,7 +1016,7 @@ panel_of_six_tsne_two_cluster &
   ggplyr::data_replace(big_and_small_cluster)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-33-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-32-1.png" width="55%" />
 
 #### Side note on ggplyr::data_replace X google gemini quick search
 
@@ -1099,7 +1026,7 @@ panel_of_six_tsne_two_cluster &
 
 Now let’s look at these three clusters, where one cluster is far out:
 
-![](images/clipboard-2639177458.png)
+<img src="images/clipboard-2639177458.png" width="900" />
 
 ``` r
 two_close_and_one_far <- data.frame(dim1 = 
@@ -1115,7 +1042,7 @@ panel_of_six_tsne_two_cluster &
   ggplyr::data_replace(two_close_and_one_far)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-34-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-33-1.png" width="55%" />
 
 ### 4. ‘Random noise doesn’t always look random’
 
@@ -1131,7 +1058,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
   theme_ggdims()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-35-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-34-1.png" width="55%" />
 
 ------------------------------------------------------------------------
 
@@ -1144,7 +1071,7 @@ palmerpenguins::penguins |>
   geom_umap() 
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-36-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-35-1.png" width="55%" />
 
 ``` r
 
@@ -1152,7 +1079,7 @@ last_plot() +
   aes(fill = species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-36-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-35-2.png" width="55%" />
 
 ``` r
 unvotes::un_votes |> 
@@ -1184,7 +1111,9 @@ dims_specs <-
   ggplot() + 
   aes(dims = dims(rc3:rc9147), 
       fill = continent)
+```
 
+``` r
 library(patchwork)
 (dims_specs + geom_pca() + labs(title = "PCA")) + 
   (dims_specs + geom_tsne() + labs(title = "Tsne")) +  
@@ -1193,13 +1122,4 @@ library(patchwork)
   plot_annotation(title = "UN General Assembly voting country projections")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-38-1.png" width="100%" />
-
-``` r
-
-
-ggsave("hi.png", width = 12, height = 4)
-knitr::include_graphics("hi.png")
-```
-
-<img src="hi.png" width="100%" />
+<img src="README_files/figure-gfm/unnamed-chunk-38-1.png" width="55%" />
