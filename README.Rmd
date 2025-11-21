@@ -65,44 +65,7 @@ data_and_vars_plot_specs +
 ```
 
 
-`# geom_pca()`
-
-
-```{r, eval = F}
-palmerpenguins::penguins %>% 
-  ggplot() + 
-  aes(outcome = species, 
-      a = bill_length_mm, 
-      b = bill_depth_mm, 
-      c = flipper_length_mm) +
-  geom_pca_point()  
-```
-
-
-```{r, eval = F}
-palmerpenguins::penguins %>% 
-  ggplot() + 
-  aes(outcome = species, 
-      dims = vars(bill_length_mm,  
-                  bill_depth_mm, 
-                  flipper_length_mm)) +
-  geom_pca_point()
-```
-
-
-
-```{r, eval = F}
-library(ggplot2)
-
-ggplot(data = my_high_dimensional_data) + 
-  aes(dims = dims(var1:var200, 
-                  var205)) + # or similar
-  geom_reduction_technique()                 # default dim-red to 2D
-
-last_plot() + 
-  aes(color = label)    # indicate category
-```
-
+# examples... 
 
 ```{r, echo = F, message=F, warning=F}
 library(tidyverse)
@@ -134,43 +97,30 @@ library(ggdims)
 
 un_ga_country_wide_rcid[1:5, 1:5]
 
-un_ga_country_wide_rcid |>
+unga_pca <- un_ga_country_wide_rcid |>
   ggplot() + 
   aes(dims = dims(rc3:rc9147)) +
   geom_pca() + 
   aes(fill = continent) +
-  labs(title = "PCA") ->
-unga_pca
+  labs(title = "PCA")
+
 ```
 
 ```{r}
-library(ggdims)
-ggplot(un_ga_country_wide_rcid) + 
+unga_tsne <- ggplot(un_ga_country_wide_rcid) + 
   aes(dims = dims(rc3:rc9147)) +
   geom_tsne() + 
   aes(fill = continent) +
-  labs(title = "PCA") ->
-unga_tsne
+  labs(title = "t-SNE")
 ```
 
 ```{r}
-library(ggdims)
-ggplot(un_ga_country_wide_rcid) + 
-  aes(dims = dims(rc3:rc9147)) +
-  geom_tsne() + 
-  aes(fill = continent) +
-  labs(title = "t-SNE") ->
-unga_tsne
-```
-
-```{r}
-library(ggdims)
-ggplot(un_ga_country_wide_rcid) + 
+unga_umap <- 
+  ggplot(un_ga_country_wide_rcid) + 
   aes(dims = dims(rc3:rc9147)) +
   geom_umap() + 
   aes(fill = continent) +
-  labs(title = "UMAP") ->
-unga_umap
+  labs(title = "UMAP")
 ```
 
 ```{r, fig.width=10, fig.height=4}
@@ -178,8 +128,6 @@ library(patchwork)
 unga_pca + unga_tsne + unga_umap + 
   plot_layout(guides = "collect") + 
   plot_annotation(title = "UN General Assembly voting country projections")
-
-
 ```
 
 
