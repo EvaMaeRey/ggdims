@@ -392,6 +392,18 @@ GeomPointFill <- ggproto("GeomPointFill",
 ```
 
 ``` r
+tsne_layout_2d <- function(data, perplexity){
+  
+  data |> 
+    as.matrix() |>
+    Rtsne::Rtsne(perplexity = perplexity) |>
+    _$Y |>
+    as_tibble() |>
+    rename(x = V1, y = V2)
+  
+}
+
+
 # compute_tsne allows individually listed variables that are all of the same type
 #' @export
 compute_tsne <- function(data, scales, perplexity = 20){
@@ -407,14 +419,11 @@ clean_data <- data_for_reduction |>
   remove_missing()
 
 set.seed(1345)
+
 clean_data |>
   _[names(data_for_reduction)] |>
-  as.matrix() |>
-  Rtsne::Rtsne(perplexity = perplexity) |>
-  _$Y |>
-  as_tibble() |>
- rename(x = V1, y = V2) |>
- bind_cols(clean_data)
+  tsne_layout_2d(perplexity = perplexity)  |>
+  bind_cols(clean_data)
 
 }
 
@@ -558,6 +567,7 @@ iris |>
 
 ``` r
 
+
 last_plot() + 
   aes(fill = Species) 
 ```
@@ -590,6 +600,19 @@ iris |>
 <details>
 
 ``` r
+umap_layout_2d <- function(data, n_components = 2, random_state = 15){
+  
+  data |> 
+  umap::umap(n_components = n_components, 
+             random_state = random_state)  |>
+  _$layout |>
+  as_tibble() |>
+ rename(x = V1, y = V2) 
+  
+  
+}
+
+
 #' @export
 compute_umap <- function(data, scales, n_components = 2, random_state = 15){
   
@@ -601,12 +624,8 @@ clean_data <- data_for_reduction |>
 
 set.seed(1345)
 clean_data |>
-  _[names(data_for_reduction)] |>
-  umap::umap(n_components = n_components, 
-             random_state = random_state)  |>
-  _$layout |>
-  as_tibble() |>
- rename(x = V1, y = V2) |>
+ _[names(data_for_reduction)] |>
+ umap_layout_2d(n_components, random_state) |>
  bind_cols(clean_data)
 
 }
@@ -675,6 +694,15 @@ last_plot() +
 <details>
 
 ``` r
+pca_layout <- function(data){
+  
+  data |>
+  ordr::ordinate(model = ~ prcomp(., scale. = TRUE)) |> 
+  _[[5]] |> 
+  as_tibble()
+  
+}
+
 #' @export
 compute_pca_rows <- function(data, scales){
   
@@ -685,13 +713,10 @@ clean_data <- data_for_reduction |>
   remove_missing()
 
 set.seed(1345)
-reduced <- clean_data |>
-  _[names(data_for_reduction)] |>
-  ordr::ordinate(model = ~ prcomp(., scale. = TRUE)) |> 
-  _[[5]] |> 
-  as_tibble()
 
-reduced |>
+clean_data |>
+  _[names(data_for_reduction)] |>
+  pca_layout() |>
  bind_cols(clean_data)
 
 }
@@ -859,10 +884,8 @@ knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
 
 <img src="images/clipboard-3992794559.png" width="900" />
 
-Let’s try to reproduce the following with our `geom_tsne()`:
-
 ``` r
-hello_world_of_tsne <- data.frame(dim1 = 
+two_clusters <- data.frame(dim1 = 
                                     rnorm(101, mean = -.5,
                                           sd = .1) |>
                                     c(rnorm(101, mean = .5,
@@ -871,10 +894,35 @@ hello_world_of_tsne <- data.frame(dim1 =
                                   dim2 = rnorm(202, sd = .1),
                                   type = c(rep("A", 101), rep("B", 101)))
 
-dim(hello_world_of_tsne)
+
+big_and_small_cluster <- data.frame(dim1 = c(rnorm(100, -.5, sd = .1),
+                                             rnorm(100, .7, sd = .03)),
+                                  dim2 = c(rnorm(100, sd = .1), 
+                                           rnorm(100, sd = .03)),
+                                  type = c(rep("A", 100), rep("B", 100)))
+
+
+two_close_and_one_far <- data.frame(dim1 = 
+                                    c(rnorm(150, -.75, .05), 
+                                      rnorm(150, -.35, .05),
+                                      rnorm(150, .75, .05)),
+                                    dim2 = rnorm(450, sd = .05),
+                                    type = c(rep("A", 150), 
+                                           rep("B", 150),
+                                           rep("C", 150)))
+
+random_noise <- data.frame(dim1 = rnorm(500, sd = .3),
+                           dim2 = rnorm(500, sd = .3),
+                           type = "A")
+```
+
+Let’s try to reproduce the following with our `geom_tsne()`:
+
+``` r
+dim(two_clusters)
 #> [1] 202   3
 
-original <- hello_world_of_tsne |>
+original <- two_clusters |>
   ggplot() + 
   aes(x = dim1, 
       y = dim2) + 
@@ -885,37 +933,37 @@ original <- hello_world_of_tsne |>
   aes(fill = I("black")) + 
   coord_equal(xlim = c(-1,1), ylim = c(-1,1))
 
-pp2 <- ggplot(data = hello_world_of_tsne) + 
+pp2 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 2) + 
   labs(title = "perplexity = 2"); pp2
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-27-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-28-1.png" width="55%" />
 
 ``` r
 
-pp5 <- ggplot(data = hello_world_of_tsne) + 
+pp5 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 5) + 
   labs(title = "perplexity = 5"); pp5
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-27-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-28-2.png" width="55%" />
 
 ``` r
 
-pp30 <- ggplot(data = hello_world_of_tsne) + 
+pp30 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 30) + 
   labs(title = "perplexity = 30"); pp30
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-27-3.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-28-3.png" width="55%" />
 
 ``` r
 
-pp50 <- ggplot(data = hello_world_of_tsne) + 
+pp50 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 50) + 
   labs(title = "perplexity = 50")
@@ -925,7 +973,7 @@ layer_data() |> dims()
 #> NULL
 
 
-pp100 <- ggplot(data = hello_world_of_tsne) + 
+pp100 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 100) + 
   labs(title = "perplexity = 100")
@@ -936,7 +984,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
   theme_ggdims() 
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-27-4.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-28-4.png" width="55%" />
 
 ``` r
 
@@ -946,7 +994,7 @@ last_plot() &
   guides(fill = "none")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-27-5.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-28-5.png" width="55%" />
 
 ``` r
 
@@ -960,18 +1008,11 @@ Let’s try to reproduce this (we’ll shortcut but switching out the data
 across plot specifications): ![](images/clipboard-4082290261.png)
 
 ``` r
-big_and_small_cluster <- data.frame(dim1 = c(rnorm(100, -.5, sd = .1),
-                                             rnorm(100, .7, sd = .03)),
-                                  dim2 = c(rnorm(100, sd = .1), 
-                                           rnorm(100, sd = .03)),
-                                  type = c(rep("A", 100), rep("B", 100)))
-
-
 panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(big_and_small_cluster)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-28-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-29-1.png" width="55%" />
 
 #### Side note on ggplyr::data_replace X google gemini quick search
 
@@ -984,36 +1025,27 @@ Now let’s look at these three clusters, where one cluster is far out:
 <img src="images/clipboard-2639177458.png" width="900" />
 
 ``` r
-two_close_and_one_far <- data.frame(dim1 = 
-                                    c(rnorm(150, -.75, .05), 
-                                      rnorm(150, -.35, .05),
-                                      rnorm(150, .75, .05)),
-                                    dim2 = rnorm(450, sd = .05),
-                                    type = c(rep("A", 150), 
-                                           rep("B", 150),
-                                           rep("C", 150)))
+
 
 panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(two_close_and_one_far)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-29-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-30-1.png" width="55%" />
 
 ### 4. ‘Random noise doesn’t always look random’
 
 ![](images/clipboard-109741735.png)
 
 ``` r
-random_noise <- data.frame(dim1 = rnorm(500, sd = .3),
-                           dim2 = rnorm(500, sd = .3))
 
-original + pp2 + pp5 + pp30 + pp50 + pp100 & 
+
+panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(random_noise) &
-  aes(fill = I("darkblue")) &
-  theme_ggdims()
+  aes(fill = I("midnightblue"))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-30-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-31-1.png" width="55%" />
 
 ------------------------------------------------------------------------
 
@@ -1026,7 +1058,7 @@ palmerpenguins::penguins |>
   geom_umap() 
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-31-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-32-1.png" width="55%" />
 
 ``` r
 
@@ -1034,7 +1066,7 @@ last_plot() +
   aes(fill = species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-31-2.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-32-2.png" width="55%" />
 
 ``` r
 unvotes::un_votes |> 
@@ -1077,4 +1109,4 @@ library(patchwork)
   plot_annotation(title = "UN General Assembly voting country projections")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-34-1.png" width="55%" />
+<img src="README_files/figure-gfm/unnamed-chunk-35-1.png" width="55%" />

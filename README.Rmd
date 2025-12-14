@@ -13,7 +13,6 @@ knitr::opts_chunk$set(
   comment = "#>",
   out.width = "55%",
   cache = T,
-  # fig.show = "hold",
   warning = F,
   message = F
 )
@@ -363,6 +362,18 @@ GeomPointFill <- ggproto("GeomPointFill",
 ```
 
 ```{r compute_tsne}
+tsne_layout_2d <- function(data, perplexity){
+  
+  data |> 
+    as.matrix() |>
+    Rtsne::Rtsne(perplexity = perplexity) |>
+    _$Y |>
+    as_tibble() |>
+    rename(x = V1, y = V2)
+  
+}
+
+
 # compute_tsne allows individually listed variables that are all of the same type
 #' @export
 compute_tsne <- function(data, scales, perplexity = 20){
@@ -378,14 +389,11 @@ clean_data <- data_for_reduction |>
   remove_missing()
 
 set.seed(1345)
+
 clean_data |>
   _[names(data_for_reduction)] |>
-  as.matrix() |>
-  Rtsne::Rtsne(perplexity = perplexity) |>
-  _$Y |>
-  as_tibble() |>
- rename(x = V1, y = V2) |>
- bind_cols(clean_data)
+  tsne_layout_2d(perplexity = perplexity)  |>
+  bind_cols(clean_data)
 
 }
 
@@ -495,6 +503,7 @@ iris |>
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width)) +
   geom_tsne()
 
+
 last_plot() + 
   aes(fill = Species) 
 
@@ -518,6 +527,19 @@ iris |>
 <details>
 
 ```{r compute_umap}
+umap_layout_2d <- function(data, n_components = 2, random_state = 15){
+  
+  data |> 
+  umap::umap(n_components = n_components, 
+             random_state = random_state)  |>
+  _$layout |>
+  as_tibble() |>
+ rename(x = V1, y = V2) 
+  
+  
+}
+
+
 #' @export
 compute_umap <- function(data, scales, n_components = 2, random_state = 15){
   
@@ -529,12 +551,8 @@ clean_data <- data_for_reduction |>
 
 set.seed(1345)
 clean_data |>
-  _[names(data_for_reduction)] |>
-  umap::umap(n_components = n_components, 
-             random_state = random_state)  |>
-  _$layout |>
-  as_tibble() |>
- rename(x = V1, y = V2) |>
+ _[names(data_for_reduction)] |>
+ umap_layout_2d(n_components, random_state) |>
  bind_cols(clean_data)
 
 }
@@ -583,6 +601,15 @@ last_plot() +
 <details>
 
 ```{r compute_pca_rows}
+pca_layout <- function(data){
+  
+  data |>
+  ordr::ordinate(model = ~ prcomp(., scale. = TRUE)) |> 
+  _[[5]] |> 
+  as_tibble()
+  
+}
+
 #' @export
 compute_pca_rows <- function(data, scales){
   
@@ -593,13 +620,10 @@ clean_data <- data_for_reduction |>
   remove_missing()
 
 set.seed(1345)
-reduced <- clean_data |>
-  _[names(data_for_reduction)] |>
-  ordr::ordinate(model = ~ prcomp(., scale. = TRUE)) |> 
-  _[[5]] |> 
-  as_tibble()
 
-reduced |>
+clean_data |>
+  _[names(data_for_reduction)] |>
+  pca_layout() |>
  bind_cols(clean_data)
 
 }
@@ -722,10 +746,8 @@ knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
 
 ![](images/clipboard-3992794559.png){width="900"}
 
-Let's try to reproduce the following with our `geom_tsne()`:
-
 ```{r}
-hello_world_of_tsne <- data.frame(dim1 = 
+two_clusters <- data.frame(dim1 = 
                                     rnorm(101, mean = -.5,
                                           sd = .1) |>
                                     c(rnorm(101, mean = .5,
@@ -734,9 +756,36 @@ hello_world_of_tsne <- data.frame(dim1 =
                                   dim2 = rnorm(202, sd = .1),
                                   type = c(rep("A", 101), rep("B", 101)))
 
-dim(hello_world_of_tsne)
 
-original <- hello_world_of_tsne |>
+big_and_small_cluster <- data.frame(dim1 = c(rnorm(100, -.5, sd = .1),
+                                             rnorm(100, .7, sd = .03)),
+                                  dim2 = c(rnorm(100, sd = .1), 
+                                           rnorm(100, sd = .03)),
+                                  type = c(rep("A", 100), rep("B", 100)))
+
+
+two_close_and_one_far <- data.frame(dim1 = 
+                                    c(rnorm(150, -.75, .05), 
+                                      rnorm(150, -.35, .05),
+                                      rnorm(150, .75, .05)),
+                                    dim2 = rnorm(450, sd = .05),
+                                    type = c(rep("A", 150), 
+                                           rep("B", 150),
+                                           rep("C", 150)))
+
+random_noise <- data.frame(dim1 = rnorm(500, sd = .3),
+                           dim2 = rnorm(500, sd = .3),
+                           type = "A")
+
+```
+
+
+Let's try to reproduce the following with our `geom_tsne()`:
+
+```{r}
+dim(two_clusters)
+
+original <- two_clusters |>
   ggplot() + 
   aes(x = dim1, 
       y = dim2) + 
@@ -747,22 +796,22 @@ original <- hello_world_of_tsne |>
   aes(fill = I("black")) + 
   coord_equal(xlim = c(-1,1), ylim = c(-1,1))
 
-pp2 <- ggplot(data = hello_world_of_tsne) + 
+pp2 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 2) + 
   labs(title = "perplexity = 2"); pp2
 
-pp5 <- ggplot(data = hello_world_of_tsne) + 
+pp5 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 5) + 
   labs(title = "perplexity = 5"); pp5
 
-pp30 <- ggplot(data = hello_world_of_tsne) + 
+pp30 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 30) + 
   labs(title = "perplexity = 30"); pp30
 
-pp50 <- ggplot(data = hello_world_of_tsne) + 
+pp50 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 50) + 
   labs(title = "perplexity = 50")
@@ -771,7 +820,7 @@ pp50 <- ggplot(data = hello_world_of_tsne) +
 layer_data() |> dims()
 
 
-pp100 <- ggplot(data = hello_world_of_tsne) + 
+pp100 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 100) + 
   labs(title = "perplexity = 100")
@@ -796,13 +845,6 @@ panel_of_six_tsne_two_cluster <- last_plot()
 Let's try to reproduce this (we'll shortcut but switching out the data across plot specifications): ![](images/clipboard-4082290261.png)
 
 ```{r}
-big_and_small_cluster <- data.frame(dim1 = c(rnorm(100, -.5, sd = .1),
-                                             rnorm(100, .7, sd = .03)),
-                                  dim2 = c(rnorm(100, sd = .1), 
-                                           rnorm(100, sd = .03)),
-                                  type = c(rep("A", 100), rep("B", 100)))
-
-
 panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(big_and_small_cluster)
 
@@ -819,14 +861,7 @@ Now let's look at these three clusters, where one cluster is far out:
 ![](images/clipboard-2639177458.png){width="900"}
 
 ```{r}
-two_close_and_one_far <- data.frame(dim1 = 
-                                    c(rnorm(150, -.75, .05), 
-                                      rnorm(150, -.35, .05),
-                                      rnorm(150, .75, .05)),
-                                    dim2 = rnorm(450, sd = .05),
-                                    type = c(rep("A", 150), 
-                                           rep("B", 150),
-                                           rep("C", 150)))
+
 
 panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(two_close_and_one_far)
@@ -838,14 +873,11 @@ panel_of_six_tsne_two_cluster &
 ![](images/clipboard-109741735.png)
 
 ```{r}
-random_noise <- data.frame(dim1 = rnorm(500, sd = .3),
-                           dim2 = rnorm(500, sd = .3))
 
-original + pp2 + pp5 + pp30 + pp50 + pp100 & 
+
+panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(random_noise) &
-  aes(fill = I("darkblue")) &
-  theme_ggdims()
-
+  aes(fill = I("midnightblue"))
 
 ```
 
