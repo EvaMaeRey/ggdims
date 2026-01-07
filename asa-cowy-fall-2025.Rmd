@@ -82,11 +82,15 @@ ggplot(data = my_high_dimensional_data) +
 
 --
 
-... isn't a pattern ...
+... isn't a pattern* ...
 
 --
 
 And maybe it should be. 
+
+--
+
+* or is it and I don't know that?
 
 
 ---
@@ -122,11 +126,11 @@ class: inverse, middle, center
 `gplot(my_data) +`
 
 
-`aes(x <- age) + `
+`aes(x = age) + `
 
-`aes(color <- sex) +`
+`aes(color = sex) +`
 
-`aes(linetype <- employment status) +`
+`aes(linetype = employment status) +`
 
 `geom_point()`
 
@@ -283,7 +287,7 @@ ggplot(cars) + # data
 
 ---
 
-# Online Posit Conf speaker training, July 22, 2025: "Give a Ted Talk"
+# Online Posit Conf speaker training, July 22, 2025: "Give a Ted Talk like Sathiya"
 
 Sathiya Manivannan, Center for Cardiovascular and Pulminary Research
 
@@ -465,10 +469,7 @@ unvotes::un_votes |>
   mutate(continent = country_code |> 
            countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
   mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
-un_ga_country_wide_rcid
-
-
-# names(un_ga_country_wide_rcid) |> tail()
+unga_rcid_wide
 ```
 
 
@@ -477,7 +478,7 @@ un_ga_country_wide_rcid
 
 ```{r, out.width="100%"}
 library(ggdims)
-ggplot(un_ga_country_wide_rcid) + 
+ggplot(unga_rcid_wide) + 
   aes(dims = dims(rc3:rc9147)) + #<<
   geom_pca() + #<<
   aes(fill = continent) +
@@ -491,7 +492,7 @@ unga_pca
 
 ```{r}
 library(ggdims)
-ggplot(un_ga_country_wide_rcid) + 
+ggplot(unga_rcid_wide) + 
   aes(dims = dims(rc3:rc9147)) + #<<
   geom_tsne() + #<<
   aes(fill = continent) +
@@ -505,7 +506,7 @@ unga_tsne
 
 ```{r}
 library(ggdims)
-ggplot(un_ga_country_wide_rcid) + 
+ggplot(unga_rcid_wide) + 
   aes(dims = dims(rc3:rc9147)) + #<<
   geom_umap() + #<<
   aes(fill = continent) +
@@ -556,16 +557,8 @@ unga_pca + unga_tsne + unga_umap +
 ```{r, echo = F}
 library(tidyverse)
 library(ggdims)
-hello_world_of_tsne <- data.frame(dim1 = 
-                                    rnorm(101, mean = -.5,
-                                          sd = .1) |>
-                                    c(rnorm(101, mean = .5,
-                                            sd = .1)),
-                                   
-                                  dim2 = rnorm(202, sd = .1),
-                                  type = c(rep("A", 101), rep("B", 101)))
 
-original <- hello_world_of_tsne |>
+original <- two_clusters |>
   ggplot() + 
   aes(x = dim1, 
       y = dim2) + 
@@ -588,7 +581,7 @@ original +
 `r chunk_reveal("pp2")`
 
 ```{r pp2, include= F}
-hello_world_of_tsne |>
+two_clusters |>
   ggplot() + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 2) + 
@@ -602,7 +595,7 @@ pp2; pp2
 `r chunk_reveal("pp5", break_type = 2)`
 
 ```{r pp5, include=F}
-hello_world_of_tsne |>
+two_clusters |>
   ggplot() + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 5) + 
@@ -616,7 +609,7 @@ pp5; pp5
 `r chunk_reveal("pp30", break_type = 2)`
 
 ```{r pp30, include=F}
-hello_world_of_tsne |>
+two_clusters |>
   ggplot() + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 30) + 
@@ -631,7 +624,7 @@ pp30; pp30
 `r chunk_reveal("pp50", break_type = 2)`
 
 ```{r pp50, include=F}
-hello_world_of_tsne |>
+two_clusters |>
   ggplot() + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 50) + 
@@ -646,7 +639,7 @@ pp50; pp50
 `r chunk_reveal("pp100", break_type = 2)`
 
 ```{r pp100, include=F}
-hello_world_of_tsne |>
+two_clusters |>
   ggplot() + 
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 100) + 
@@ -662,7 +655,8 @@ library(patchwork)
 
 original + pp2 + pp5 + pp30 + pp50 + pp100 &
   theme_ggdims() + 
-  plot_layout(guides = "collect")
+  plot_layout(guides = "collect") ->
+two_clusters_5tsne
 
 
 ```
@@ -678,14 +672,26 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
 ---
 
 ```{r, fig.height=3}
-two_close_and_one_far <- 
-  data.frame(dim1 = c(rnorm(150, -.75, .05), rnorm(150, -.35, .05), rnorm(150, .75, .05)),
-             dim2 = rnorm(450, sd = .05),
-             type = c(rep("A", 150), rep("B", 150), rep("C", 150)))
-
-last_plot() & # contains all six of the 'hello world of tsne' specifications
+two_clusters_5tsne & # contains all six of the 'hello world of tsne' specifications
   ggplyr::data_replace(two_close_and_one_far) # change data
 ```
+
+
+---
+
+```{r, fig.height=3}
+two_clusters_5tsne & #contains all six of the 'hello world of tsne' specifications
+  ggplyr::data_replace(big_and_small_cluster) # change data
+```
+
+---
+
+```{r, fig.height=3}
+two_clusters_5tsne  & # contains all six of the 'hello world of tsne' specifications
+  ggplyr::data_replace(random_noise) & # change data
+  aes(fill = I("navy"))
+```
+
 
 ---
 
@@ -719,6 +725,22 @@ Thank you!
 
 ---
 
+# To Do
+
+## `aes(dims = dims())` and `unpack()` implementation
+
+- geom_umap(aes(dims = dims(var1:var10)))
+
+- ggpcp's approach (Heike)?
+- ggswim approach (Teun and Rich, via June)?
+- ggincerta (Maggie and Emi)?
+
+## on the dimred technical side
+
+- layer_pca/layer_tsne/layer_umap requirements (Cory, Joyce, tsne authors, Leland McInnes)
+- borrow internals with tidymodels for consistency? (tidymodels team...)
+
+---
 
 
 ```{css, eval = TRUE, echo = FALSE}

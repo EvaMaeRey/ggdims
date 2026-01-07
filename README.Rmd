@@ -12,7 +12,7 @@ knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
   out.width = "55%",
-  cache = T,
+  cache = F,
   warning = F,
   message = F
 )
@@ -85,18 +85,18 @@ unvotes::un_votes |>
   mutate(continent = country_code |> 
            countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
   mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
-un_ga_country_wide_rcid
+unga_rcid_wide
 
 
-names(un_ga_country_wide_rcid) |> tail()
+names(unga_rcid_wide) |> tail()
 ```
 
 ```{r, out.width="100%"}
 library(ggdims)
 
-un_ga_country_wide_rcid[1:5, 1:5]
+unga_rcid_wide[1:5, 1:5]
 
-unga_pca <- un_ga_country_wide_rcid |>
+unga_pca <- unga_rcid_wide |>
   ggplot() + 
   aes(dims = dims(rc3:rc9147)) +
   geom_pca() + 
@@ -106,7 +106,7 @@ unga_pca <- un_ga_country_wide_rcid |>
 ```
 
 ```{r}
-unga_tsne <- ggplot(un_ga_country_wide_rcid) + 
+unga_tsne <- ggplot(unga_rcid_wide) + 
   aes(dims = dims(rc3:rc9147)) +
   geom_tsne() + 
   aes(fill = continent) +
@@ -115,7 +115,7 @@ unga_tsne <- ggplot(un_ga_country_wide_rcid) +
 
 ```{r}
 unga_umap <- 
-  ggplot(un_ga_country_wide_rcid) + 
+  ggplot(unga_rcid_wide) + 
   aes(dims = dims(rc3:rc9147)) +
   geom_umap() + 
   aes(fill = continent) +
@@ -187,6 +187,7 @@ library(tidyverse)
 iris |> 
   ggplot() + 
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width))
+
 
 p <- last_plot()
 
@@ -298,6 +299,7 @@ p <- iris |>
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width)) + 
   dims_expand()
 
+
 p$mapping
 ```
 
@@ -378,22 +380,24 @@ tsne_layout_2d <- function(data, perplexity){
 #' @export
 compute_tsne <- function(data, scales, perplexity = 20){
   
-data_for_reduction <- data_vars_unpack(data)
+  features <- data_vars_unpack(data)
+  non_feature_data <- data |> dplyr::select(-dims)
 
-dups <- data_for_reduction |>
-   duplicated()
+  # allowable for dimred
+  ind_not_dup <- !duplicated(features)
+  ind_no_missing <- complete.cases(features)
+  
+  ind_allowed <- ind_not_dup & ind_no_missing
 
-clean_data <- data_for_reduction |>
-    bind_cols(data) |>
-     _[!dups,] |> 
-  remove_missing()
-
-set.seed(1345)
-
-clean_data |>
-  _[names(data_for_reduction)] |>
-  tsne_layout_2d(perplexity = perplexity)  |>
-  bind_cols(clean_data)
+  # clean_data <- 
+ 
+  set.seed(1345)
+  features |>
+    _[ind_allowed, ] |>
+    tsne_layout_2d(perplexity = perplexity)  |>
+    bind_cols(non_feature_data |>
+                bind_cols(features) |>
+                _[ind_allowed, ])
 
 }
 
@@ -543,15 +547,15 @@ umap_layout_2d <- function(data, n_components = 2, random_state = 15){
 #' @export
 compute_umap <- function(data, scales, n_components = 2, random_state = 15){
   
-data_for_reduction <- data_vars_unpack(data)
+features <- data_vars_unpack(data)
 
-clean_data <- data_for_reduction |>
+clean_data <- features |>
   bind_cols(data) |>
   remove_missing()
 
 set.seed(1345)
 clean_data |>
- _[names(data_for_reduction)] |>
+ _[names(features)] |>
  umap_layout_2d(n_components, random_state) |>
  bind_cols(clean_data)
 
@@ -610,6 +614,7 @@ pca_layout <- function(data){
   
 }
 
+
 #' @export
 compute_pca_rows <- function(data, scales){
   
@@ -653,7 +658,7 @@ geom_pca <- function(...){
 iris |> 
   mutate(dims = 
         dims_listed(Sepal.Length, Sepal.Width, 
-                Petal.Length, Petal.Width)) |>
+                    Petal.Length, Petal.Width)) |>
   select(color = Species, dims) |>
   compute_pca_rows() 
 
@@ -715,6 +720,7 @@ last_plot() +
 
 # Minimal Packaging
 
+
 ```{r}
 # knitrExtra::chunk_names_get()
 
@@ -746,7 +752,7 @@ knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
 
 ![](images/clipboard-3992794559.png){width="900"}
 
-```{r}
+```{r data-prep}
 two_clusters <- data.frame(dim1 = 
                                     rnorm(101, mean = -.5,
                                           sd = .1) |>
@@ -779,6 +785,13 @@ random_noise <- data.frame(dim1 = rnorm(500, sd = .3),
 
 ```
 
+
+```{r}
+usethis::use_data(two_clusters, overwrite = T)
+usethis::use_data(big_and_small_cluster, overwrite = T)
+usethis::use_data(two_close_and_one_far, overwrite = T)
+usethis::use_data(random_noise, overwrite = T)
+```
 
 Let's try to reproduce the following with our `geom_tsne()`:
 
@@ -815,10 +828,6 @@ pp50 <- ggplot(data = two_clusters) +
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 50) + 
   labs(title = "perplexity = 50")
-
-
-layer_data() |> dims()
-
 
 pp100 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
@@ -912,15 +921,21 @@ unvotes::un_votes |>
   mutate(continent = country_code |> 
            countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
   mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
-un_ga_country_wide_rcid
+unga_rcid_wide
 
 
-names(un_ga_country_wide_rcid) |> tail()
+names(unga_rcid_wide) |> tail()
 ```
+
+```{r}
+# maybe too big?
+# usethis::use_data(unga_rcid_wide, overwrite = T)
+```
+
 
 ```{r, out.width="100%"}
 dims_specs <- 
-  un_ga_country_wide_rcid |>
+  unga_rcid_wide |>
   ggplot() + 
   aes(dims = dims(rc3:rc9147), 
       fill = continent)

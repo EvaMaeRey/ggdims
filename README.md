@@ -34,7 +34,9 @@
     random’](#4-random-noise-doesnt-always-look-random)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
+
 <!-- badges: start -->
+
 <!-- badges: end -->
 
 Go to [talk](https://evamaerey.github.io/ggdims/asa-cowy-fall-2025)
@@ -104,7 +106,7 @@ data_and_vars_plot_specs +
 ``` r
 library(ggdims)
 
-un_ga_country_wide_rcid[1:5, 1:5]
+unga_rcid_wide[1:5, 1:5]
 #> # A tibble: 5 × 5
 #>   country            country_code   rc3   rc4   rc5
 #>   <chr>              <chr>        <dbl> <dbl> <dbl>
@@ -114,7 +116,7 @@ un_ga_country_wide_rcid[1:5, 1:5]
 #> 4 Haiti              HT               1     0     0
 #> 5 Dominican Republic DO               1     0     0
 
-unga_pca <- un_ga_country_wide_rcid |>
+unga_pca <- unga_rcid_wide |>
   ggplot() + 
   aes(dims = dims(rc3:rc9147)) +
   geom_pca() + 
@@ -123,7 +125,7 @@ unga_pca <- un_ga_country_wide_rcid |>
 ```
 
 ``` r
-unga_tsne <- ggplot(un_ga_country_wide_rcid) + 
+unga_tsne <- ggplot(unga_rcid_wide) + 
   aes(dims = dims(rc3:rc9147)) +
   geom_tsne() + 
   aes(fill = continent) +
@@ -132,7 +134,7 @@ unga_tsne <- ggplot(un_ga_country_wide_rcid) +
 
 ``` r
 unga_umap <- 
-  ggplot(un_ga_country_wide_rcid) + 
+  ggplot(unga_rcid_wide) + 
   aes(dims = dims(rc3:rc9147)) +
   geom_umap() + 
   aes(fill = continent) +
@@ -215,6 +217,7 @@ iris |>
 <img src="README_files/figure-gfm/unnamed-chunk-12-1.png" width="55%" />
 
 ``` r
+
 
 p <- last_plot()
 
@@ -326,6 +329,7 @@ p <- iris |>
   aes(dims = dims(Sepal.Length:Petal.Length, Petal.Width)) + 
   dims_expand()
 
+
 p$mapping
 #> Aesthetic mapping: 
 #> * `dims` -> `dims_listed(Sepal.Length, Sepal.Width, Petal.Length, Petal.Width)`
@@ -408,22 +412,24 @@ tsne_layout_2d <- function(data, perplexity){
 #' @export
 compute_tsne <- function(data, scales, perplexity = 20){
   
-data_for_reduction <- data_vars_unpack(data)
+  features <- data_vars_unpack(data)
+  non_feature_data <- data |> dplyr::select(-dims)
 
-dups <- data_for_reduction |>
-   duplicated()
+  # allowable for dimred
+  ind_not_dup <- !duplicated(features)
+  ind_no_missing <- complete.cases(features)
+  
+  ind_allowed <- ind_not_dup & ind_no_missing
 
-clean_data <- data_for_reduction |>
-    bind_cols(data) |>
-     _[!dups,] |> 
-  remove_missing()
-
-set.seed(1345)
-
-clean_data |>
-  _[names(data_for_reduction)] |>
-  tsne_layout_2d(perplexity = perplexity)  |>
-  bind_cols(clean_data)
+  # clean_data <- 
+ 
+  set.seed(1345)
+  features |>
+    _[ind_allowed, ] |>
+    tsne_layout_2d(perplexity = perplexity)  |>
+    bind_cols(non_feature_data |>
+                bind_cols(features) |>
+                _[ind_allowed, ])
 
 }
 
@@ -464,19 +470,19 @@ iris |>
                 Petal.Length, Petal.Width)) |>
   select(dims) |>
   compute_tsne()
-#> # A tibble: 149 × 7
-#>         x     y Sepal.Length Sepal.Width Petal.Length Petal.Width dims      
-#>     <dbl> <dbl>        <dbl>       <dbl>        <dbl>       <dbl> <list[1d]>
-#>  1 -10.3  -19.3          5.1         3.5          1.4         0.2 <dbl [4]> 
-#>  2 -11.2  -15.4          4.9         3            1.4         0.2 <dbl [4]> 
-#>  3  -9.61 -14.7          4.7         3.2          1.3         0.2 <dbl [4]> 
-#>  4 -10.1  -14.5          4.6         3.1          1.5         0.2 <dbl [4]> 
-#>  5  -9.57 -19.5          5           3.6          1.4         0.2 <dbl [4]> 
-#>  6  -9.59 -22.1          5.4         3.9          1.7         0.4 <dbl [4]> 
-#>  7  -8.80 -14.9          4.6         3.4          1.4         0.3 <dbl [4]> 
-#>  8  -9.98 -18.2          5           3.4          1.5         0.2 <dbl [4]> 
-#>  9 -10.4  -13.4          4.4         2.9          1.4         0.2 <dbl [4]> 
-#> 10 -10.8  -15.9          4.9         3.1          1.5         0.1 <dbl [4]> 
+#> # A tibble: 149 × 6
+#>        x     y Sepal.Length Sepal.Width Petal.Length Petal.Width
+#>    <dbl> <dbl>        <dbl>       <dbl>        <dbl>       <dbl>
+#>  1 -7.69 -22.0          5.1         3.5          1.4         0.2
+#>  2 -6.19 -17.9          4.9         3            1.4         0.2
+#>  3 -7.82 -17.5          4.7         3.2          1.3         0.2
+#>  4 -7.40 -17.2          4.6         3.1          1.5         0.2
+#>  5 -8.37 -22.0          5           3.6          1.4         0.2
+#>  6 -8.07 -24.8          5.4         3.9          1.7         0.4
+#>  7 -8.66 -17.7          4.6         3.4          1.4         0.3
+#>  8 -7.43 -20.9          5           3.4          1.5         0.2
+#>  9 -7.35 -16.1          4.4         2.9          1.4         0.2
+#> 10 -6.52 -18.4          4.9         3.1          1.5         0.1
 #> # ℹ 139 more rows
 
 iris |> 
@@ -485,11 +491,11 @@ iris |>
   select(dims, label = Species) |>
   compute_tsne_group_label()
 #> # A tibble: 3 × 3
-#>   label           x      y
-#>   <fct>       <dbl>  <dbl>
-#> 1 setosa     -9.98  -18.2 
-#> 2 versicolor  0.857  13.1 
-#> 3 virginica   9.31    5.22
+#>   label          x      y
+#>   <fct>      <dbl>  <dbl>
+#> 1 setosa     -7.45 -20.9 
+#> 2 versicolor  2.48  15.8 
+#> 3 virginica   5.07   5.17
 ```
 
 ``` r
@@ -616,15 +622,15 @@ umap_layout_2d <- function(data, n_components = 2, random_state = 15){
 #' @export
 compute_umap <- function(data, scales, n_components = 2, random_state = 15){
   
-data_for_reduction <- data_vars_unpack(data)
+features <- data_vars_unpack(data)
 
-clean_data <- data_for_reduction |>
+clean_data <- features |>
   bind_cols(data) |>
   remove_missing()
 
 set.seed(1345)
 clean_data |>
- _[names(data_for_reduction)] |>
+ _[names(features)] |>
  umap_layout_2d(n_components, random_state) |>
  bind_cols(clean_data)
 
@@ -660,16 +666,16 @@ iris |>
 #> # A tibble: 150 × 8
 #>        x     y Sepal.Length Sepal.Width Petal.Length Petal.Width color  dims    
 #>    <dbl> <dbl>        <dbl>       <dbl>        <dbl>       <dbl> <fct>  <list[1>
-#>  1  15.7 -4.39          5.1         3.5          1.4         0.2 setosa <dbl[…]>
-#>  2  13.7 -4.54          4.9         3            1.4         0.2 setosa <dbl[…]>
-#>  3  14.1 -5.12          4.7         3.2          1.3         0.2 setosa <dbl[…]>
-#>  4  13.8 -5.22          4.6         3.1          1.5         0.2 setosa <dbl[…]>
-#>  5  15.4 -4.27          5           3.6          1.4         0.2 setosa <dbl[…]>
-#>  6  15.9 -3.28          5.4         3.9          1.7         0.4 setosa <dbl[…]>
-#>  7  14.2 -5.35          4.6         3.4          1.4         0.3 setosa <dbl[…]>
-#>  8  15.3 -4.62          5           3.4          1.5         0.2 setosa <dbl[…]>
-#>  9  13.5 -5.33          4.4         2.9          1.4         0.2 setosa <dbl[…]>
-#> 10  13.8 -4.81          4.9         3.1          1.5         0.1 setosa <dbl[…]>
+#>  1  16.9  3.41          5.1         3.5          1.4         0.2 setosa <dbl[…]>
+#>  2  15.2  3.21          4.9         3            1.4         0.2 setosa <dbl[…]>
+#>  3  15.5  2.65          4.7         3.2          1.3         0.2 setosa <dbl[…]>
+#>  4  15.3  2.47          4.6         3.1          1.5         0.2 setosa <dbl[…]>
+#>  5  16.7  3.47          5           3.6          1.4         0.2 setosa <dbl[…]>
+#>  6  17.7  2.83          5.4         3.9          1.7         0.4 setosa <dbl[…]>
+#>  7  15.7  2.41          4.6         3.4          1.4         0.3 setosa <dbl[…]>
+#>  8  16.5  3.35          5           3.4          1.5         0.2 setosa <dbl[…]>
+#>  9  15.0  2.32          4.4         2.9          1.4         0.2 setosa <dbl[…]>
+#> 10  15.1  2.89          4.9         3.1          1.5         0.1 setosa <dbl[…]>
 #> # ℹ 140 more rows
 
 
@@ -702,6 +708,7 @@ pca_layout <- function(data){
   as_tibble()
   
 }
+
 
 #' @export
 compute_pca_rows <- function(data, scales){
@@ -746,7 +753,7 @@ geom_pca <- function(...){
 iris |> 
   mutate(dims = 
         dims_listed(Sepal.Length, Sepal.Width, 
-                Petal.Length, Petal.Width)) |>
+                    Petal.Length, Petal.Width)) |>
   select(color = Species, dims) |>
   compute_pca_rows() 
 #> # A tibble: 150 × 10
@@ -916,6 +923,13 @@ random_noise <- data.frame(dim1 = rnorm(500, sd = .3),
                            type = "A")
 ```
 
+``` r
+usethis::use_data(two_clusters, overwrite = T)
+usethis::use_data(big_and_small_cluster, overwrite = T)
+usethis::use_data(two_close_and_one_far, overwrite = T)
+usethis::use_data(random_noise, overwrite = T)
+```
+
 Let’s try to reproduce the following with our `geom_tsne()`:
 
 ``` r
@@ -939,7 +953,7 @@ pp2 <- ggplot(data = two_clusters) +
   labs(title = "perplexity = 2"); pp2
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-28-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 ``` r
 
@@ -949,7 +963,7 @@ pp5 <- ggplot(data = two_clusters) +
   labs(title = "perplexity = 5"); pp5
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-28-2.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-28-2.png)<!-- -->
 
 ``` r
 
@@ -959,7 +973,7 @@ pp30 <- ggplot(data = two_clusters) +
   labs(title = "perplexity = 30"); pp30
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-28-3.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-28-3.png)<!-- -->
 
 ``` r
 
@@ -967,11 +981,6 @@ pp50 <- ggplot(data = two_clusters) +
   aes(dims = dims(dim1:dim2)) +
   geom_tsne(perplexity = 50) + 
   labs(title = "perplexity = 50")
-
-
-layer_data() |> dims()
-#> NULL
-
 
 pp100 <- ggplot(data = two_clusters) + 
   aes(dims = dims(dim1:dim2)) +
@@ -984,7 +993,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &
   theme_ggdims() 
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-28-4.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-28-4.png)<!-- -->
 
 ``` r
 
@@ -994,7 +1003,7 @@ last_plot() &
   guides(fill = "none")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-28-5.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-28-5.png)<!-- -->
 
 ``` r
 
@@ -1012,7 +1021,7 @@ panel_of_six_tsne_two_cluster &
   ggplyr::data_replace(big_and_small_cluster)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-29-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 #### Side note on ggplyr::data_replace X google gemini quick search
 
@@ -1031,7 +1040,7 @@ panel_of_six_tsne_two_cluster &
   ggplyr::data_replace(two_close_and_one_far)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-30-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 ### 4. ‘Random noise doesn’t always look random’
 
@@ -1045,7 +1054,7 @@ panel_of_six_tsne_two_cluster &
   aes(fill = I("midnightblue"))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-31-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 ------------------------------------------------------------------------
 
@@ -1058,7 +1067,7 @@ palmerpenguins::penguins |>
   geom_umap() 
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-32-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
 
 ``` r
 
@@ -1066,7 +1075,7 @@ last_plot() +
   aes(fill = species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-32-2.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-32-2.png)<!-- -->
 
 ``` r
 unvotes::un_votes |> 
@@ -1085,16 +1094,21 @@ unvotes::un_votes |>
   mutate(continent = country_code |> 
            countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
   mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
-un_ga_country_wide_rcid
+unga_rcid_wide
 
 
-names(un_ga_country_wide_rcid) |> tail()
+names(unga_rcid_wide) |> tail()
 #> [1] "rc9143"    "rc9144"    "rc9145"    "rc9146"    "rc9147"    "continent"
 ```
 
 ``` r
+# maybe too big?
+# usethis::use_data(unga_rcid_wide, overwrite = T)
+```
+
+``` r
 dims_specs <- 
-  un_ga_country_wide_rcid |>
+  unga_rcid_wide |>
   ggplot() + 
   aes(dims = dims(rc3:rc9147), 
       fill = continent)
@@ -1109,4 +1123,4 @@ library(patchwork)
   plot_annotation(title = "UN General Assembly voting country projections")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-35-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-36-1.png)<!-- -->

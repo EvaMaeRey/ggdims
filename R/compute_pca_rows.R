@@ -1,3 +1,13 @@
+pca_layout <- function(data){
+  
+  data |>
+  ordr::ordinate(model = ~ prcomp(., scale. = TRUE)) |> 
+  _[[5]] |> 
+  as_tibble()
+  
+}
+
+
 #' @export
 compute_pca_rows <- function(data, scales){
   
@@ -8,13 +18,10 @@ clean_data <- data_for_reduction |>
   remove_missing()
 
 set.seed(1345)
-reduced <- clean_data |>
-  _[names(data_for_reduction)] |>
-  ordr::ordinate(model = ~ prcomp(., scale. = TRUE)) |> 
-  _[[5]] |> 
-  as_tibble()
 
-reduced |>
+clean_data |>
+  _[names(data_for_reduction)] |>
+  pca_layout() |>
  bind_cols(clean_data)
 
 }

@@ -1,26 +1,37 @@
+tsne_layout_2d <- function(data, perplexity){
+  
+  data |> 
+    as.matrix() |>
+    Rtsne::Rtsne(perplexity = perplexity) |>
+    _$Y |>
+    as_tibble() |>
+    rename(x = V1, y = V2)
+  
+}
+
+
 # compute_tsne allows individually listed variables that are all of the same type
 #' @export
 compute_tsne <- function(data, scales, perplexity = 20){
   
-data_for_reduction <- data_vars_unpack(data)
+  features <- data_vars_unpack(data)
+  non_feature_data <- data |> dplyr::select(-dims)
 
-dups <- data_for_reduction |>
-   duplicated()
+  # allowable for dimred
+  ind_not_dup <- !duplicated(features)
+  ind_no_missing <- complete.cases(features)
+  
+  ind_allowed <- ind_not_dup & ind_no_missing
 
-clean_data <- data_for_reduction |>
-    bind_cols(data) |>
-     _[!dups,] |> 
-  remove_missing()
-
-set.seed(1345)
-clean_data |>
-  _[names(data_for_reduction)] |>
-  as.matrix() |>
-  Rtsne::Rtsne(perplexity = perplexity) |>
-  _$Y |>
-  as_tibble() |>
- rename(x = V1, y = V2) |>
- bind_cols(clean_data)
+  # clean_data <- 
+ 
+  set.seed(1345)
+  features |>
+    _[ind_allowed, ] |>
+    tsne_layout_2d(perplexity = perplexity)  |>
+    bind_cols(non_feature_data |>
+                bind_cols(features) |>
+                _[ind_allowed, ])
 
 }
 

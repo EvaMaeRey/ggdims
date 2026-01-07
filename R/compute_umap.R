@@ -1,20 +1,29 @@
+umap_layout_2d <- function(data, n_components = 2, random_state = 15){
+  
+  data |> 
+  umap::umap(n_components = n_components, 
+             random_state = random_state)  |>
+  _$layout |>
+  as_tibble() |>
+ rename(x = V1, y = V2) 
+  
+  
+}
+
+
 #' @export
 compute_umap <- function(data, scales, n_components = 2, random_state = 15){
   
-data_for_reduction <- data_vars_unpack(data)
+features <- data_vars_unpack(data)
 
-clean_data <- data_for_reduction |>
+clean_data <- features |>
   bind_cols(data) |>
   remove_missing()
 
 set.seed(1345)
 clean_data |>
-  _[names(data_for_reduction)] |>
-  umap::umap(n_components = n_components, 
-             random_state = random_state)  |>
-  _$layout |>
-  as_tibble() |>
- rename(x = V1, y = V2) |>
+ _[names(features)] |>
+ umap_layout_2d(n_components, random_state) |>
  bind_cols(clean_data)
 
 }
