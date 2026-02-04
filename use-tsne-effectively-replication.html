@@ -1,0 +1,1012 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>{ggdims}</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Gina (Evangeline) Reynolds, ASA CO-WY Chapter meeting November 14, 2025" />
+    <script src="libs/header-attrs-2.30/header-attrs.js"></script>
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/hygge.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/ninjutsu.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+.title[
+# {ggdims}
+]
+.subtitle[
+## ‘How to Use t-SNE Effectively’ replication <br><br> From talk: Toward a viz- and code-first hitchhiker’s guide to dimensionality reduction
+]
+.author[
+### Gina (Evangeline) Reynolds, ASA CO-WY Chapter meeting November 14, 2025
+]
+
+---
+
+
+
+
+
+
+
+
+&lt;style type="text/css"&gt;
+/* Change default body text size */
+.remark-slide-content {
+  font-size: 32px; /* Or use em, rem, or viewport units like 2vw */
+}
+
+/* Change font size for a specific class (e.g., for larger text) */
+.large-text {
+  font-size: 1.5em;
+}
+
+/* Change font size for code blocks */
+.remark-code {
+  font-size: 0.9em;
+}
+
+/* Change font size for inline code */
+.remark-inline-code {
+  font-size: 0.9em;
+}
+
+
+
+&lt;/style&gt;
+
+--
+
+## Within-method fly-over? (tsne specifications, data)
+
+---
+
+![](images/clipboard-667229542.png)
+
+---
+
+
+![](images/clipboard-3992794559.png)
+
+
+---
+
+![](images/clipboard-2639177458.png)
+
+---
+
+![](use-tsne-effectively-replication_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+
+
+---
+
+count: false
+ 
+
+.panel1-pp2-auto[
+
+``` r
+*two_clusters
+```
+]
+ 
+.panel2-pp2-auto[
+
+```
+          dim1          dim2 type
+1   -0.4520367  0.0058172367    A
+2   -0.4993365  0.0252566478    A
+3   -0.5291291  0.0610447916    A
+4   -0.4750068 -0.0063136640    A
+5   -0.5137264  0.1273757685    A
+6   -0.5965400 -0.0656354711    A
+7   -0.5274751  0.0022600169    A
+8   -0.6393028 -0.0060978021    A
+9   -0.5290687 -0.0370174973    A
+10  -0.5650865  0.0781574830    A
+11  -0.3231209  0.0585823898    A
+12  -0.5066650 -0.0492384037    A
+13  -0.4623469 -0.1419387968    A
+14  -0.6354499 -0.1127064839    A
+15  -0.7108506  0.0550754599    A
+16  -0.5201720 -0.1722183023    A
+17  -0.4160399 -0.0583696046    A
+18  -0.4137262 -0.0035830001    A
+19  -0.4710442 -0.0335469850    A
+20  -0.6234966 -0.0191650262    A
+21  -0.6605154 -0.0251224100    A
+22  -0.3709784 -0.0510687144    A
+23  -0.5346120 -0.0769601553    A
+24  -0.5228641  0.0072346468    A
+25  -0.3447001  0.1456260497    A
+26  -0.5990761 -0.0739645180    A
+27  -0.6369443 -0.1057905931    A
+28  -0.3632513  0.1760295136    A
+29  -0.5448686  0.0123876504    A
+30  -0.5443222 -0.0311453124    A
+31  -0.3549683  0.1458379157    A
+32  -0.5267711  0.0352224933    A
+33  -0.4113566  0.1724493141    A
+34  -0.6101315  0.0571656585    A
+35  -0.4909550 -0.1651228361    A
+36  -0.4540140  0.0707704738    A
+37  -0.6830553 -0.0588953342    A
+38  -0.5152755  0.0404170376    A
+39  -0.5290097 -0.0051768046    A
+40  -0.5205562 -0.0861727353    A
+41  -0.5601720 -0.1225499550    A
+42  -0.4014522  0.0059772368    A
+43  -0.5508640  0.0447502204    A
+44  -0.5023871 -0.0397439444    A
+45  -0.3981803 -0.0536662281    A
+46  -0.5745393  0.0349569760    A
+47  -0.5159672  0.1010110889    A
+48  -0.3281323  0.1866079057    A
+49  -0.3913553 -0.0923754061    A
+50  -0.4928330  0.0010151776    A
+51  -0.7670062 -0.1108204906    A
+52  -0.2888034  0.0501030971    A
+53  -0.4387688  0.0893305472    A
+54  -0.5131741  0.0788510975    A
+55  -0.6414791 -0.1194303817    A
+56  -0.5935968  0.0904925830    A
+57  -0.4974829 -0.0196315676    A
+58  -0.5503983  0.0068472645    A
+59  -0.5289102 -0.1038272417    A
+60  -0.4983602  0.1904144039    A
+61  -0.5572448 -0.0359310447    A
+62  -0.5757613 -0.1697721526    A
+63  -0.3717224 -0.1299946552    A
+64  -0.3519310 -0.1156296172    A
+65  -0.5972488 -0.0693891761    A
+66  -0.3380723  0.0077683484    A
+67  -0.5583401  0.0867361697    A
+68  -0.6991327 -0.0035459136    A
+69  -0.4876158 -0.0457818299    A
+70  -0.4701239 -0.0199735642    A
+71  -0.4780791  0.1037128277    A
+72  -0.6492391 -0.0749865690    A
+73  -0.4656566  0.0041950432    A
+74  -0.5785328 -0.1366561207    A
+75  -0.5864728  0.1385739002    A
+76  -0.5504966  0.0361719595    A
+77  -0.4124992 -0.0307965098    A
+78  -0.3834848 -0.0971123480    A
+79  -0.6090875 -0.0347031459    A
+80  -0.5721960  0.0050986840    A
+81  -0.5535039 -0.0479754992    A
+82  -0.5980293  0.0273634484    A
+83  -0.4776927  0.1635816203    A
+84  -0.4864485 -0.0051542915    A
+85  -0.3577536 -0.0252363859    A
+86  -0.4105757  0.0519050091    A
+87  -0.3317230  0.0412396420    A
+88  -0.2868784 -0.0320471408    A
+89  -0.5297266 -0.0454466074    A
+90  -0.6594663  0.0544286173    A
+91  -0.5344796  0.2062836473    A
+92  -0.5120953 -0.1505241910    A
+93  -0.3817345  0.0783379974    A
+94  -0.4174778  0.0793442739    A
+95  -0.4874198 -0.0724763016    A
+96  -0.4718218  0.1340788664    A
+97  -0.5624778  0.0178310340    A
+98  -0.5226245 -0.1446210895    A
+99  -0.4337062  0.0652315880    A
+100 -0.4777246 -0.0915864500    A
+101 -0.5102718 -0.1118426739    A
+102  0.4004854 -0.1763170393    B
+103  0.5036164  0.1883929811    B
+104  0.5726161  0.0565758962    B
+105  0.5570631  0.2097211710    B
+106  0.5257708 -0.2262402437    B
+107  0.4369252  0.0246336586    B
+108  0.4827516  0.0360814830    B
+109  0.4052311 -0.0108010415    B
+110  0.3968748  0.1504363720    B
+111  0.5999593 -0.0343745316    B
+112  0.6167937 -0.2358476543    B
+113  0.5926709  0.1205952483    B
+114  0.4572384  0.3033020743    B
+115  0.5269420 -0.2171621444    B
+116  0.6315349  0.0525232781    B
+117  0.4033375 -0.0435441491    B
+118  0.4975679  0.1338965609    B
+119  0.5646551  0.1011873921    B
+120  0.6518042  0.0804319791    B
+121  0.3891546  0.0271452193    B
+122  0.4625713 -0.0743561360    B
+123  0.4272597 -0.0308566696    B
+124  0.4350989  0.0154620284    B
+125  0.4564893 -0.1126261501    B
+126  0.5081370 -0.0702429485    B
+127  0.4234433 -0.0649205359    B
+128  0.3071433  0.1323673348    B
+129  0.5460152  0.0613673503    B
+130  0.5416152 -0.1342704868    B
+131  0.3334123 -0.2048487075    B
+132  0.4867834 -0.1267820037    B
+133  0.4840960  0.1599582464    B
+134  0.5679914  0.0895341475    B
+135  0.5220893  0.1695146684    B
+136  0.5944587  0.0260052913    B
+137  0.5252627 -0.0445018427    B
+138  0.6197933  0.1767405029    B
+139  0.4433809  0.1209497977    B
+140  0.3910459 -0.0755449270    B
+141  0.3135397  0.0349915519    B
+142  0.4095435 -0.1777078592    B
+143  0.5425748 -0.0685065865    B
+144  0.4743921  0.0483038948    B
+145  0.4686062 -0.0001466367    B
+146  0.3629466 -0.0307379042    B
+147  0.5171284  0.2915467536    B
+148  0.4674759  0.0891140729    B
+149  0.6509928  0.0951547142    B
+150  0.3799022 -0.1789289627    B
+151  0.5519134 -0.1378853248    B
+152  0.5067871  0.1386343300    B
+153  0.3549466  0.0299271377    B
+154  0.3686323  0.1022992306    B
+155  0.3646647  0.0567563729    B
+156  0.4153529  0.0113360369    B
+157  0.6006252 -0.2523221300    B
+158  0.4263655 -0.0154817249    B
+159  0.7322124 -0.0047839797    B
+160  0.4991713 -0.2077001942    B
+161  0.3864329 -0.0015092053    B
+162  0.4226255  0.0194963476    B
+163  0.4442466 -0.1022966573    B
+164  0.5733162 -0.0479564355    B
+165  0.4596318  0.0138798534    B
+166  0.7611229 -0.0632910133    B
+167  0.5078787 -0.2001031841    B
+168  0.2910697  0.1361176738    B
+169  0.3857933  0.0559565169    B
+170  0.6018198  0.1007814509    B
+171  0.4848970  0.1023086978    B
+172  0.6193884 -0.0684396960    B
+173  0.3961042  0.2233612896    B
+174  0.3496056  0.1011487378    B
+175  0.4984689 -0.0394416312    B
+176  0.4896977  0.0621888093    B
+177  0.5188751  0.1401228720    B
+178  0.6859993  0.0287602188    B
+179  0.4338971  0.0603913171    B
+180  0.3330344  0.0234412025    B
+181  0.6634559 -0.0860450105    B
+182  0.5834890  0.1450219234    B
+183  0.5297658 -0.0683528489    B
+184  0.5075004 -0.0410591138    B
+185  0.6284248 -0.1267914565    B
+186  0.4284600  0.0623724574    B
+187  0.4632988  0.0416338690    B
+188  0.5863754  0.0249005929    B
+189  0.4074706 -0.0186185906    B
+190  0.5221318  0.0766800958    B
+191  0.2921612 -0.1144087071    B
+192  0.6375304  0.0827120274    B
+193  0.5148065  0.0066520480    B
+194  0.3226550  0.0620391745    B
+195  0.3778488 -0.1857848991    B
+196  0.6792985  0.0312111293    B
+197  0.3576872  0.1725128677    B
+198  0.6145902  0.1140768184    B
+199  0.4793113 -0.0123233302    B
+200  0.3754156  0.0376551266    B
+201  0.6271117 -0.0525913731    B
+202  0.5129670 -0.0065518493    B
+```
+]
+
+---
+count: false
+ 
+
+.panel1-pp2-auto[
+
+``` r
+two_clusters |&gt;
+* ggplot()
+```
+]
+ 
+.panel2-pp2-auto[
+![](use-tsne-effectively-replication_files/figure-html/pp2_auto_02_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp2-auto[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+* aes(dims = dims(dim1:dim2))
+```
+]
+ 
+.panel2-pp2-auto[
+![](use-tsne-effectively-replication_files/figure-html/pp2_auto_03_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp2-auto[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+* geom_tsne(perplexity = 2)
+```
+]
+ 
+.panel2-pp2-auto[
+![](use-tsne-effectively-replication_files/figure-html/pp2_auto_04_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp2-auto[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 2) +
+* labs(title = "perplexity = 2")
+```
+]
+ 
+.panel2-pp2-auto[
+![](use-tsne-effectively-replication_files/figure-html/pp2_auto_05_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp2-auto[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 2) +
+  labs(title = "perplexity = 2") +
+* aes(fill = type)
+```
+]
+ 
+.panel2-pp2-auto[
+![](use-tsne-effectively-replication_files/figure-html/pp2_auto_06_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp2-auto[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 2) +
+  labs(title = "perplexity = 2") +
+  aes(fill = type) -&gt;
+*pp2; pp2
+```
+]
+ 
+.panel2-pp2-auto[
+![](use-tsne-effectively-replication_files/figure-html/pp2_auto_07_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-pp2-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-pp2-auto {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-pp2-auto {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+
+count: false
+ 
+
+.panel1-pp5-2[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 5) +
+  labs(title = "perplexity = 5") +
+  aes(fill = type) -&gt;
+pp5; pp5
+```
+]
+ 
+.panel2-pp5-2[
+![](use-tsne-effectively-replication_files/figure-html/pp5_2_01_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp5-2[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 5) +
+  labs(title = "perplexity = 5") +
+  aes(fill = type) -&gt;
+pp5; pp5
+```
+]
+ 
+.panel2-pp5-2[
+![](use-tsne-effectively-replication_files/figure-html/pp5_2_02_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-pp5-2 {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-pp5-2 {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-pp5-2 {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+
+count: false
+ 
+
+.panel1-pp30-2[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 30) +
+  labs(title = "perplexity = 30") +
+  aes(fill = type) -&gt;
+pp30; pp30
+```
+]
+ 
+.panel2-pp30-2[
+![](use-tsne-effectively-replication_files/figure-html/pp30_2_01_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp30-2[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 30) +
+  labs(title = "perplexity = 30") +
+  aes(fill = type) -&gt;
+pp30; pp30
+```
+]
+ 
+.panel2-pp30-2[
+![](use-tsne-effectively-replication_files/figure-html/pp30_2_02_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-pp30-2 {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-pp30-2 {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-pp30-2 {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+
+---
+
+count: false
+ 
+
+.panel1-pp50-2[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 50) +
+  labs(title = "perplexity = 50") +
+  aes(fill = type) -&gt;
+pp50; pp50
+```
+]
+ 
+.panel2-pp50-2[
+![](use-tsne-effectively-replication_files/figure-html/pp50_2_01_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp50-2[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 50) +
+  labs(title = "perplexity = 50") +
+  aes(fill = type) -&gt;
+pp50; pp50
+```
+]
+ 
+.panel2-pp50-2[
+![](use-tsne-effectively-replication_files/figure-html/pp50_2_02_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-pp50-2 {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-pp50-2 {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-pp50-2 {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+
+---
+
+count: false
+ 
+
+.panel1-pp100-2[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 100) +
+  labs(title = "perplexity = 100") +
+  aes(fill = type) -&gt;
+pp100; pp100
+```
+]
+ 
+.panel2-pp100-2[
+![](use-tsne-effectively-replication_files/figure-html/pp100_2_01_output-1.png)&lt;!-- --&gt;
+]
+
+---
+count: false
+ 
+
+.panel1-pp100-2[
+
+``` r
+two_clusters |&gt;
+  ggplot() +
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 100) +
+  labs(title = "perplexity = 100") +
+  aes(fill = type) -&gt;
+pp100; pp100
+```
+]
+ 
+.panel2-pp100-2[
+![](use-tsne-effectively-replication_files/figure-html/pp100_2_02_output-1.png)&lt;!-- --&gt;
+]
+
+&lt;style&gt;
+.panel1-pp100-2 {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel2-pp100-2 {
+  color: black;
+  width: 49%;
+  hight: 32%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+.panel3-pp100-2 {
+  color: black;
+  width: NA%;
+  hight: 33%;
+  float: left;
+  padding-left: 1%;
+  font-size: 80%
+}
+&lt;/style&gt;
+
+
+
+
+
+---
+
+
+
+
+``` r
+library(patchwork)
+
+original + pp2 + pp5 + pp30 + pp50 + pp100
+```
+
+![](use-tsne-effectively-replication_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+
+---
+
+
+
+
+``` r
+library(patchwork)
+
+original + pp2 + pp5 + pp30 + pp50 + pp100 &amp;
+  guides(fill = "none") 
+```
+
+![](use-tsne-effectively-replication_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+
+---
+
+
+
+
+``` r
+library(patchwork)
+
+original + pp2 + pp5 + pp30 + pp50 + pp100 &amp;
+  guides(fill = "none") &amp;
+  theme_ggdims() 
+```
+
+![](use-tsne-effectively-replication_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+
+---
+
+
+
+
+``` r
+library(patchwork)
+
+original + pp2 + pp5 + pp30 + pp50 + pp100 &amp; 
+  guides(fill = "none") &amp;
+  theme_ggdims()  -&gt;
+two_clusters_5_perplexities_tsne
+```
+
+---
+
+![](images/clipboard-2639177458.png)
+
+
+---
+
+
+``` r
+two_clusters_5_perplexities_tsne &amp; # contains all six of the 'hello world of tsne' specifications
+  ggplyr::data_replace(two_close_and_one_far) #&lt;&lt; # change data
+```
+
+![](use-tsne-effectively-replication_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+
+
+---
+
+![](images/clipboard-1971882774.png)
+
+---
+
+
+``` r
+two_clusters_5_perplexities_tsne &amp; #contains all six of the 'hello world of tsne' specifications
+  ggplyr::data_replace(big_and_small_cluster) # change data
+```
+
+![](use-tsne-effectively-replication_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+
+---
+
+![](images/clipboard-553036957.png)
+
+
+---
+
+
+``` r
+two_clusters_5_perplexities_tsne  &amp; # contains all six of the 'hello world of tsne' specifications
+  ggplyr::data_replace(random_noise) &amp; # change data
+  aes(fill = I("navy"))
+```
+
+![](use-tsne-effectively-replication_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+
+
+
+
+
+&lt;style type="text/css"&gt;
+.remark-code{line-height: 1.5; font-size: 70%}
+
+@media print {
+  .has-continuation {
+    display: block;
+  }
+}
+
+code.r.hljs.remark-code{
+  position: relative;
+  overflow-x: hidden;
+}
+
+
+code.r.hljs.remark-code:hover{
+  overflow-x:visible;
+  width: 500px;
+  border-style: solid;
+}
+
+
+&lt;/style&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+  "ratio": "16:10",
+  "highlightStyle": "github",
+  "highlightLines": true,
+  "countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// add `data-at-shortcutkeys` attribute to <body> to resolve conflicts with JAWS
+// screen reader (see PR #262)
+(function(d) {
+  let res = {};
+  d.querySelectorAll('.remark-help-content table tr').forEach(tr => {
+    const t = tr.querySelector('td:nth-child(2)').innerText;
+    tr.querySelectorAll('td:first-child .key').forEach(key => {
+      const k = key.innerText;
+      if (/^[a-z]$/.test(k)) res[k] = t;  // must be a single letter (key)
+    });
+  });
+  d.body.setAttribute('data-at-shortcutkeys', JSON.stringify(res));
+})(document);
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -90,7 +90,7 @@ And maybe it should be.
 
 --
 
-* or is it and I don't know that?
+\* or is it and I don't know that?
 
 
 ---
@@ -109,7 +109,7 @@ class: inverse, middle, center
 
 --
 
-- A 3-week-old github repo/package 
+- ~~A 3-week-old github repo/package~~
 
 --
 
@@ -219,7 +219,7 @@ Martin Wattenberg 'How to use t-SNE effectively' 2016:
 
 ---
 
-> "Wattenberg is wrong - not rigorous, not a mathematician"
+> "Wattenberg is wrong, not rigorous..."
 
 ---
 
@@ -287,7 +287,7 @@ ggplot(cars) + # data
 
 ---
 
-# Online Posit Conf speaker training, July 22, 2025: "Give a Ted Talk like Sathiya"
+# Posit Conf speaker training, July 22, 2025: "Give a Ted Talk like Sathiya"
 
 Sathiya Manivannan, Center for Cardiovascular and Pulminary Research
 
@@ -523,7 +523,7 @@ library(patchwork)
 
 unga_pca + unga_tsne + unga_umap + 
   plot_layout(guides = "collect") + 
-  plot_annotation(title = "UN General Assembly voting projections")
+  plot_annotation(title = "UN General Assembly Role Call Voting")
 
 ```
 
@@ -544,6 +544,14 @@ unga_pca + unga_tsne + unga_umap +
 
 ---
 
+
+
+--
+
+## Within-method fly-over? (tsne specifications, data)
+
+---
+
 ![](images/clipboard-667229542.png)
 
 ---
@@ -551,6 +559,10 @@ unga_pca + unga_tsne + unga_umap +
 
 ![](images/clipboard-3992794559.png)
 
+
+---
+
+![](images/clipboard-2639177458.png)
 
 ---
 
@@ -578,7 +590,7 @@ original +
 
 ---
 
-`r chunk_reveal("pp2")`
+`r chunk_reveal("pp2", widths = c(1,1))`
 
 ```{r pp2, include= F}
 two_clusters |>
@@ -592,7 +604,7 @@ pp2; pp2
 
 ---
 
-`r chunk_reveal("pp5", break_type = 2)`
+`r chunk_reveal("pp5", break_type = 2, widths = c(1,1))`
 
 ```{r pp5, include=F}
 two_clusters |>
@@ -606,7 +618,7 @@ pp5; pp5
 
 ---
 
-`r chunk_reveal("pp30", break_type = 2)`
+`r chunk_reveal("pp30", break_type = 2, widths = c(1,1))`
 
 ```{r pp30, include=F}
 two_clusters |>
@@ -621,7 +633,7 @@ pp30; pp30
 
 ---
 
-`r chunk_reveal("pp50", break_type = 2)`
+`r chunk_reveal("pp50", break_type = 2, widths = c(1,1))`
 
 ```{r pp50, include=F}
 two_clusters |>
@@ -636,7 +648,7 @@ pp50; pp50
 
 ---
 
-`r chunk_reveal("pp100", break_type = 2)`
+`r chunk_reveal("pp100", break_type = 2, widths = c(1,1))`
 
 ```{r pp100, include=F}
 two_clusters |>
@@ -650,13 +662,25 @@ pp100; pp100
 
 ---
 
-```{r , fig.height=3}
+
+
+```{r , fig.height=4.5, fig.width=6}
+library(patchwork)
+
+original + pp2 + pp5 + pp30 + pp50 + pp100
+
+```
+
+
+---
+
+
+
+```{r , fig.height=4.5, fig.width=6}
 library(patchwork)
 
 original + pp2 + pp5 + pp30 + pp50 + pp100 &
-  theme_ggdims() + 
-  plot_layout(guides = "collect") ->
-two_clusters_5tsne
+  guides(fill = "none") 
 
 
 ```
@@ -665,32 +689,69 @@ two_clusters_5tsne
 ---
 
 
+
+```{r , fig.height=4.5, fig.width=6}
+library(patchwork)
+
+original + pp2 + pp5 + pp30 + pp50 + pp100 &
+  guides(fill = "none") &
+  theme_ggdims() 
+
+
+```
+
+
+---
+
+
+
+```{r , fig.height=4.5, fig.width=6}
+library(patchwork)
+
+original + pp2 + pp5 + pp30 + pp50 + pp100 & 
+  guides(fill = "none") &
+  theme_ggdims()  ->
+two_clusters_5_perplexities_tsne
+```
+
+---
 
 ![](images/clipboard-2639177458.png)
 
 
 ---
 
-```{r, fig.height=3}
-two_clusters_5tsne & # contains all six of the 'hello world of tsne' specifications
-  ggplyr::data_replace(two_close_and_one_far) # change data
+```{r, fig.height=4.5, fig.width=6}
+two_clusters_5_perplexities_tsne & # contains all six of the 'hello world of tsne' specifications
+  ggplyr::data_replace(two_close_and_one_far) #<< # change data
 ```
 
 
 ---
 
-```{r, fig.height=3}
-two_clusters_5tsne & #contains all six of the 'hello world of tsne' specifications
+![](images/clipboard-1971882774.png)
+
+---
+
+```{r, fig.height=4.5, fig.width=6}
+two_clusters_5_perplexities_tsne & #contains all six of the 'hello world of tsne' specifications
   ggplyr::data_replace(big_and_small_cluster) # change data
 ```
 
 ---
 
-```{r, fig.height=3}
-two_clusters_5tsne  & # contains all six of the 'hello world of tsne' specifications
+![](images/clipboard-553036957.png)
+
+
+---
+
+```{r, fig.height=4.5, fig.width=6}
+two_clusters_5_perplexities_tsne  & # contains all six of the 'hello world of tsne' specifications
   ggplyr::data_replace(random_noise) & # change data
   aes(fill = I("navy"))
 ```
+
+
 
 
 ---
@@ -725,23 +786,36 @@ Thank you!
 
 ---
 
-# To Do
+### To Do
 
-## `aes(dims = dims())` and `unpack()` implementation
-
-- geom_umap(aes(dims = dims(var1:var10)))
+#### gg sicd: `aes(dims = dims())` and `unpack()` implementation
 
 - ggpcp's approach (Heike)?
-- ggswim approach (Teun and Rich, via June)?
-- ggincerta (Maggie and Emi)?
+- ggswim approach (Teun and Rich, via June C.)?
 
-## on the dimred technical side
+--
 
-- layer_pca/layer_tsne/layer_umap requirements (Cory, Joyce, tsne authors, Leland McInnes)
-- borrow internals with tidymodels for consistency? (tidymodels team...)
+- fundamentally, can `aes(dims = dims())` be totally compatible w/ ggplot2? 
+
+--
+
+- ggplot2 allows new vars to be computed on-the-fly in aes, but classically from vectors (be they referenced from variables data or otherwise).
+
 
 ---
 
+### To do
+
+#### on the dimred side
+
+- layer_pca/layer_tsne/layer_umap requirements (e.g. Cory, Joyce for PCA)
+- borrow internals with tidymodels for consistency?
+
+---
+
+
+![](../mytidytuesday/2025-12-10-joss-umap-v-tidyverse/joss-gg-umap-2021.png)
+---
 
 ```{css, eval = TRUE, echo = FALSE}
 .remark-code{line-height: 1.5; font-size: 70%}

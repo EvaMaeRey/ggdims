@@ -84,7 +84,7 @@ And maybe it should be.
 
 --
 
-* or is it and I don't know that?
+\* or is it and I don't know that?
 
 
 ---
@@ -103,7 +103,7 @@ class: inverse, middle, center
 
 --
 
-- A 3-week-old github repo/package 
+- ~~A 3-week-old github repo/package~~
 
 --
 
@@ -214,7 +214,7 @@ Martin Wattenberg 'How to use t-SNE effectively' 2016:
 
 ---
 
-&gt; "Wattenberg is wrong - not rigorous, not a mathematician"
+&gt; "Wattenberg is wrong, not rigorous..."
 
 ---
 
@@ -376,7 +376,7 @@ ggplot(cars) + # data
 
 ---
 
-# Online Posit Conf speaker training, July 22, 2025: "Give a Ted Talk like Sathiya"
+# Posit Conf speaker training, July 22, 2025: "Give a Ted Talk like Sathiya"
 
 Sathiya Manivannan, Center for Cardiovascular and Pulminary Research
 
@@ -603,7 +603,7 @@ library(patchwork)
 
 unga_pca + unga_tsne + unga_umap + 
   plot_layout(guides = "collect") + 
-  plot_annotation(title = "UN General Assembly voting projections")
+  plot_annotation(title = "UN General Assembly Role Call Voting")
 ```
 
 ![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
@@ -625,6 +625,14 @@ unga_pca + unga_tsne + unga_umap +
 
 ---
 
+
+
+--
+
+## Within-method fly-over? (tsne specifications, data)
+
+---
+
 ![](images/clipboard-667229542.png)
 
 ---
@@ -632,6 +640,10 @@ unga_pca + unga_tsne + unga_umap +
 
 ![](images/clipboard-3992794559.png)
 
+
+---
+
+![](images/clipboard-2639177458.png)
 
 ---
 
@@ -973,7 +985,7 @@ two_clusters |&gt;
 &lt;style&gt;
 .panel1-pp2-auto {
   color: black;
-  width: 38.6060606060606%;
+  width: 49%;
   hight: 32%;
   float: left;
   padding-left: 1%;
@@ -981,7 +993,7 @@ two_clusters |&gt;
 }
 .panel2-pp2-auto {
   color: black;
-  width: 59.3939393939394%;
+  width: 49%;
   hight: 32%;
   float: left;
   padding-left: 1%;
@@ -1047,7 +1059,7 @@ pp5; pp5
 &lt;style&gt;
 .panel1-pp5-2 {
   color: black;
-  width: 38.6060606060606%;
+  width: 49%;
   hight: 32%;
   float: left;
   padding-left: 1%;
@@ -1055,7 +1067,7 @@ pp5; pp5
 }
 .panel2-pp5-2 {
   color: black;
-  width: 59.3939393939394%;
+  width: 49%;
   hight: 32%;
   float: left;
   padding-left: 1%;
@@ -1121,7 +1133,7 @@ pp30; pp30
 &lt;style&gt;
 .panel1-pp30-2 {
   color: black;
-  width: 38.6060606060606%;
+  width: 49%;
   hight: 32%;
   float: left;
   padding-left: 1%;
@@ -1129,7 +1141,7 @@ pp30; pp30
 }
 .panel2-pp30-2 {
   color: black;
-  width: 59.3939393939394%;
+  width: 49%;
   hight: 32%;
   float: left;
   padding-left: 1%;
@@ -1196,7 +1208,7 @@ pp50; pp50
 &lt;style&gt;
 .panel1-pp50-2 {
   color: black;
-  width: 38.6060606060606%;
+  width: 49%;
   hight: 32%;
   float: left;
   padding-left: 1%;
@@ -1204,7 +1216,7 @@ pp50; pp50
 }
 .panel2-pp50-2 {
   color: black;
-  width: 59.3939393939394%;
+  width: 49%;
   hight: 32%;
   float: left;
   padding-left: 1%;
@@ -1271,7 +1283,7 @@ pp100; pp100
 &lt;style&gt;
 .panel1-pp100-2 {
   color: black;
-  width: 38.6060606060606%;
+  width: 49%;
   hight: 32%;
   float: left;
   padding-left: 1%;
@@ -1279,7 +1291,7 @@ pp100; pp100
 }
 .panel2-pp100-2 {
   color: black;
-  width: 59.3939393939394%;
+  width: 49%;
   hight: 32%;
   float: left;
   padding-left: 1%;
@@ -1302,29 +1314,27 @@ pp100; pp100
 ---
 
 
+
+
+``` r
+library(patchwork)
+
+original + pp2 + pp5 + pp30 + pp50 + pp100
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+
+
+---
+
+
+
+
 ``` r
 library(patchwork)
 
 original + pp2 + pp5 + pp30 + pp50 + pp100 &amp;
-  theme_ggdims() + 
-  plot_layout(guides = "collect") -&gt;
-two_clusters_5tsne
-```
-
-
----
-
-
-
-![](images/clipboard-2639177458.png)
-
-
----
-
-
-``` r
-two_clusters_5tsne &amp; # contains all six of the 'hello world of tsne' specifications
-  ggplyr::data_replace(two_close_and_one_far) # change data
+  guides(fill = "none") 
 ```
 
 ![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
@@ -1333,23 +1343,80 @@ two_clusters_5tsne &amp; # contains all six of the 'hello world of tsne' specifi
 ---
 
 
+
+
 ``` r
-two_clusters_5tsne &amp; #contains all six of the 'hello world of tsne' specifications
-  ggplyr::data_replace(big_and_small_cluster) # change data
+library(patchwork)
+
+original + pp2 + pp5 + pp30 + pp50 + pp100 &amp;
+  guides(fill = "none") &amp;
+  theme_ggdims() 
 ```
 
 ![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+
+
+---
+
+
+
+
+``` r
+library(patchwork)
+
+original + pp2 + pp5 + pp30 + pp50 + pp100 &amp; 
+  guides(fill = "none") &amp;
+  theme_ggdims()  -&gt;
+two_clusters_5_perplexities_tsne
+```
+
+---
+
+![](images/clipboard-2639177458.png)
+
 
 ---
 
 
 ``` r
-two_clusters_5tsne  &amp; # contains all six of the 'hello world of tsne' specifications
+two_clusters_5_perplexities_tsne &amp; # contains all six of the 'hello world of tsne' specifications
+  ggplyr::data_replace(two_close_and_one_far) #&lt;&lt; # change data
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+
+
+---
+
+![](images/clipboard-1971882774.png)
+
+---
+
+
+``` r
+two_clusters_5_perplexities_tsne &amp; #contains all six of the 'hello world of tsne' specifications
+  ggplyr::data_replace(big_and_small_cluster) # change data
+```
+
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
+
+---
+
+![](images/clipboard-553036957.png)
+
+
+---
+
+
+``` r
+two_clusters_5_perplexities_tsne  &amp; # contains all six of the 'hello world of tsne' specifications
   ggplyr::data_replace(random_noise) &amp; # change data
   aes(fill = I("navy"))
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-22-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+
+
 
 
 ---
@@ -1384,23 +1451,36 @@ Thank you!
 
 ---
 
-# To Do
+### To Do
 
-## `aes(dims = dims())` and `unpack()` implementation
-
-- geom_umap(aes(dims = dims(var1:var10)))
+#### gg sicd: `aes(dims = dims())` and `unpack()` implementation
 
 - ggpcp's approach (Heike)?
-- ggswim approach (Teun and Rich, via June)?
-- ggincerta (Maggie and Emi)?
+- ggswim approach (Teun and Rich, via June C.)?
 
-## on the dimred technical side
+--
 
-- layer_pca/layer_tsne/layer_umap requirements (Cory, Joyce, tsne authors, Leland McInnes)
-- borrow internals with tidymodels for consistency? (tidymodels team...)
+- fundamentally, can `aes(dims = dims())` be totally compatible w/ ggplot2? 
+
+--
+
+- ggplot2 allows new vars to be computed on-the-fly in aes, but classically from vectors (be they referenced from variables data or otherwise).
+
 
 ---
 
+### To do
+
+#### on the dimred side
+
+- layer_pca/layer_tsne/layer_umap requirements (e.g. Cory, Joyce for PCA)
+- borrow internals with tidymodels for consistency?
+
+---
+
+
+![](../mytidytuesday/2025-12-10-joss-umap-v-tidyverse/joss-gg-umap-2021.png)
+---
 
 &lt;style type="text/css"&gt;
 .remark-code{line-height: 1.5; font-size: 70%}
