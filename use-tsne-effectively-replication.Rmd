@@ -254,6 +254,7 @@ two_clusters_5_perplexities_tsne & #contains all six of the 'hello world of tsne
 two_clusters_5_perplexities_tsne  & # contains all six of the 'hello world of tsne' specifications
   ggplyr::data_replace(random_noise) & # change data
   aes(fill = I("navy"))
+
 ```
 
 

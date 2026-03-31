@@ -124,9 +124,9 @@ class: inverse, middle, center
 
 `aes(color = sex) +`
 
-`aes(linetype = employment status) +`
+`aes(size = employment status) +`
 
-`geom_point()`
+`geom_line()`
 
 
 &lt;!-- --- --&gt;
@@ -214,7 +214,7 @@ Martin Wattenberg 'How to use t-SNE effectively' 2016:
 
 ---
 
-&gt; "Wattenberg is wrong, not rigorous..."
+&gt; "But maybe Wattenberg got it wrong..."
 
 ---
 
@@ -233,6 +233,7 @@ entire field of dimention reduction as I can in the time available."
 --
 
 &gt; 'The similarities are greater than the differences' ?...
+
 
 
 ---
@@ -274,7 +275,7 @@ count: false
 library(ggplot2)
 
 # data
-*ggplot(cars)
+*ggplot(mtcars)
 ```
 ]
  
@@ -292,10 +293,10 @@ count: false
 library(ggplot2)
 
 # data
-ggplot(cars) +
+ggplot(mtcars) +
 # variable mapping
-* aes(x = speed,
-*     y = dist)
+* aes(x = disp,
+*     y = mpg)
 ```
 ]
  
@@ -313,10 +314,10 @@ count: false
 library(ggplot2)
 
 # data
-ggplot(cars) +
+ggplot(mtcars) +
 # variable mapping
-  aes(x = speed,
-      y = dist) +
+  aes(x = disp,
+      y = mpg) +
 # layer
 * geom_point()
 ```
@@ -361,26 +362,31 @@ ggplot(cars) +
 
 
 ``` r
-ggplot(cars) + # data
+ggplot(mtcars) + # data
   aes(????)    # var mapping
   geom_pca()   # layer - options inside parentheses
 
-ggplot(cars) + # data
+ggplot(mtcars) + # data
   aes(????)    # var mapping
   geom_tsne()  # layer
 
-ggplot(cars) + # data
+ggplot(mtcars) + # data
   aes(????)    # var mapping
   geom_umap()  # layer
 ```
 
 ---
 
-# Posit Conf speaker training, July 22, 2025: "Give a Ted Talk like Sathiya"
+# Posit Conf speaker Orientation, July 18, 2025: "Give a Ted Talk like Sathiya"
 
 Sathiya Manivannan, Center for Cardiovascular and Pulminary Research
 
 ![](images/clipboard-964179201.png)
+
+---
+
+Posit::conf(2025) Speaker Orientation
+
 
 ---
 
@@ -392,11 +398,19 @@ Sathiya Manivannan, Center for Cardiovascular and Pulminary Research
 
 --
 
-Question the premise: Maybe there isn't a good ggplot2 extension to handle this?
+But maybe there isn't a good ggplot2 extension to handle this?
+
+
 
 ---
 
 ![](images/clipboard-3469228869.png)
+
+
+--
+
+[2025-07-18 t-SNE 'labnotebook' experiment](https://evamaerey.github.io/mytidytuesday/2025-07-18-seurat_tsne_plot/seurat_tsne_plot.html)
+
 
 ---
 
@@ -404,11 +418,11 @@ Question the premise: Maybe there isn't a good ggplot2 extension to handle this?
 
 ![](images/clipboard-2692987354.png)
 
----
+&lt;!-- --- --&gt;
 
-![](images/clipboard-2964959607.png)
+&lt;!-- ![](images/clipboard-2964959607.png) --&gt;
 
-&lt;https://phhp.ufl.edu/about/departments/biostatistics/about/faculty/&gt;
+&lt;!-- &lt;https://phhp.ufl.edu/about/departments/biostatistics/about/faculty/&gt; --&gt;
 
 
 
@@ -416,6 +430,10 @@ Question the premise: Maybe there isn't a good ggplot2 extension to handle this?
 ---
 
 ![](legislative_dim_red.jpg)
+
+--
+
+[umap labnotebook experiment, 2025-08-19](https://evamaerey.github.io/mytidytuesday/2025-08-19-umap/umap.html)
 
 ---
 
@@ -475,7 +493,7 @@ palmerpenguins::penguins %&gt;%
 
 ---
 
-tsne, umpa - big data (lots of variables)
+tsne, umap - big data (lots of variables)
 
 &gt; "It's easier to type thing which are smaller, but when things are getting bigger and bigger you prefer to click on buttons and work [with a GUI]."
 
@@ -517,17 +535,6 @@ ggdims::data_vars_unpack()
 ggdims::dims_expand()  #&lt;&lt; expand var1:var20
 ```
 
---
-
-### for defining compute w/ var1 &amp; var20 shortcut syntax and those in-between
-
-
-``` r
-ggdims::compute_pca()
-ggdims::compute_tsne()
-ggdims::compute_umap()
-```
-
 ---
 
 ### user-facing functions
@@ -538,6 +545,9 @@ ggdims::geom_pca()
 ggdims::geom_tsne()
 ggdims::geom_umap()
 ```
+
+
+
 
 ---
 
@@ -555,6 +565,7 @@ ggdims::geom_umap()
 
 ``` r
 library(ggdims)
+
 ggplot(unga_rcid_wide) + 
 * aes(dims = dims(rc3:rc9147)) +
 * geom_pca() +
@@ -570,6 +581,7 @@ unga_pca
 
 ``` r
 library(ggdims)
+
 ggplot(unga_rcid_wide) + 
 * aes(dims = dims(rc3:rc9147)) +
 * geom_tsne() +
@@ -585,6 +597,7 @@ unga_tsne
 
 ``` r
 library(ggdims)
+
 ggplot(unga_rcid_wide) + 
 * aes(dims = dims(rc3:rc9147)) +
 * geom_umap() +
@@ -606,7 +619,7 @@ unga_pca + unga_tsne + unga_umap +
   plot_annotation(title = "UN General Assembly Role Call Voting")
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
 
 
 
@@ -617,15 +630,78 @@ unga_pca + unga_tsne + unga_umap +
 
 ---
 
-## Across-methods fly-over (pca, tsne, umap)
+How does it work? (for extenders meetup) Under the hood:
+
+
+``` r
+ggplot(my_data) + 
+  aes(dims = dims(var1:var3, var7)) + 
+  dims_expand() + 
+  geom_umap0() 
+```
+
+# 1. `dims_expand`
+
+- a. look at plot data and mapping
 
 --
 
-## Within-method fly-over? (tsne specifications, data)
+- b. extract implicitly referenced variables in mapping from plot data
+
+var1:var3, var7 .... to var1, var2, var3, var7
 
 ---
 
+# 1. `dims_expand`
 
+- c. overwrite dims mapping with expression that lists all implicitly reference vars (future implementation my be new list col var that contains all referenced vars).
+
+--
+
+`dims = dims(var1:var3, var7)`
+
+`dims = dims_listed(var1, var2, var3, var7)`
+
+---
+  
+# 2. helper `geom_umap0` uses overwritten dim mapping for dimension reduction, taking input vars and computing x and y based on type dimred
+
+---
+
+# 3. We can write user-facing `geom_umap()`, bundles `dims_expand()` and helper `geom_umap0()`
+
+
+``` r
+geom_umap &lt;- function(...){
+  
+  list(dims_expand(),
+       geom_umap0(...))
+  
+}
+```
+
+---
+
+### Getting:
+
+
+``` r
+ggplot(my_data) + 
+  aes(dims = 
+        dims(var1:var10, var15)) +
+  geom_umap()
+```
+
+
+
+
+
+
+
+
+---
+
+## Across-methods fly-over (pca, tsne, umap)
 
 --
 
@@ -647,7 +723,7 @@ unga_pca + unga_tsne + unga_umap +
 
 ---
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -1322,7 +1398,7 @@ library(patchwork)
 original + pp2 + pp5 + pp30 + pp50 + pp100
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -1337,7 +1413,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &amp;
   guides(fill = "none") 
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-22-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -1353,7 +1429,7 @@ original + pp2 + pp5 + pp30 + pp50 + pp100 &amp;
   theme_ggdims() 
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -1380,10 +1456,10 @@ two_clusters_5_perplexities_tsne
 
 ``` r
 two_clusters_5_perplexities_tsne &amp; # contains all six of the 'hello world of tsne' specifications
-  ggplyr::data_replace(two_close_and_one_far) #&lt;&lt; # change data
+  two_close_and_one_far #&lt;&lt; # change data
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-23-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
 
 
 ---
@@ -1395,10 +1471,10 @@ two_clusters_5_perplexities_tsne &amp; # contains all six of the 'hello world of
 
 ``` r
 two_clusters_5_perplexities_tsne &amp; #contains all six of the 'hello world of tsne' specifications
-  ggplyr::data_replace(big_and_small_cluster) # change data
+  big_and_small_cluster # change data
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-24-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-26-1.png)&lt;!-- --&gt;
 
 ---
 
@@ -1410,11 +1486,11 @@ two_clusters_5_perplexities_tsne &amp; #contains all six of the 'hello world of 
 
 ``` r
 two_clusters_5_perplexities_tsne  &amp; # contains all six of the 'hello world of tsne' specifications
-  ggplyr::data_replace(random_noise) &amp; # change data
+  random_noise &amp; # change data
   aes(fill = I("navy"))
 ```
 
-![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-25-1.png)&lt;!-- --&gt;
+![](asa-cowy-fall-2025_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
 
 
 
@@ -1453,7 +1529,7 @@ Thank you!
 
 ### To Do
 
-#### gg sicd: `aes(dims = dims())` and `unpack()` implementation
+#### gg side: `aes(dims = dims())` and `unpack()` implementation
 
 - ggpcp's approach (Heike)?
 - ggswim approach (Teun and Rich, via June C.)?

@@ -262,6 +262,8 @@ p$mapping$dims0[[2]]
 
 ### `dims_expand`
 
+See also [a new approach](???) ??
+
 <details>
 
 ``` r
@@ -738,11 +740,25 @@ StatPcaRows <- ggproto("StatPcaRows", Stat,
 geom_pca0 <- make_constructor(GeomPointFill, stat = StatPcaRows)
 
 #' @export
+stat_pca0 <- make_constructor(StatPcaRows, geom = GeomPointFill)
+
+
+#' @export
 geom_pca <- function(...){
   
   list(
     dims_expand(),
     geom_pca0(...)
+  )
+  
+}
+
+#' @export
+stat_pca <- function(...){
+  
+  list(
+    dims_expand(),
+    stat_pca0(...)
   )
   
 }
@@ -1047,8 +1063,6 @@ panel_of_six_tsne_two_cluster &
 ![](images/clipboard-109741735.png)
 
 ``` r
-
-
 panel_of_six_tsne_two_cluster & 
   ggplyr::data_replace(random_noise) &
   aes(fill = I("midnightblue"))

@@ -36,6 +36,10 @@ StatPcaRows <- ggproto("StatPcaRows", Stat,
 geom_pca0 <- make_constructor(GeomPointFill, stat = StatPcaRows)
 
 #' @export
+stat_pca0 <- make_constructor(StatPcaRows, geom = GeomPointFill)
+
+
+#' @export
 geom_pca <- function(...){
   
   list(
@@ -44,3 +48,14 @@ geom_pca <- function(...){
   )
   
 }
+
+#' @export
+stat_pca <- function(...){
+  
+  list(
+    dims_expand(),
+    stat_pca0(...)
+  )
+  
+}
+
