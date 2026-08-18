@@ -803,7 +803,7 @@ gene_data <- tribble(~A, ~B, ~C,
                       T, T, T,
                       T, F, T) 
 
-features_to_venn(gene_data)
+features_to_venn(gene_data) |> head()
 
 features_to_venn_label(gene_data)
 
