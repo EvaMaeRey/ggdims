@@ -10,9 +10,9 @@ dims_listed <- function(...) {
 
 #' @export
 vars_unpack <- function(x) {
-  pca_vars <- x
-  df <- do.call(rbind, pca_vars)
-  colnames(df) <- attr(pca_vars, "varnames")
+  pack_vars <- x
+  df <- do.call(rbind, pack_vars)
+  colnames(df) <- attr(pack_vars, "varnames")
   as.data.frame(df)
   
 }

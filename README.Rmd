@@ -232,24 +232,17 @@ p$mapping$dims0[[2]]
 
 ### `dims_expand`
 
-See also [a new approach](???)  ??
-
 <details>
 
 ```{r dims_expand}
 #' @export
 dims <- function(...){}
 
-
-
 #' @export
 dims_expand <- function() {
 
   structure(
-    list(
-      # data_spec = data,
-         # vars_spec = rlang::enquo(vars)
-         ), 
+    list(), 
     class = "dims_expand"
     )
 
@@ -276,7 +269,9 @@ var_names <- c()
 
 for(i in 1:length(selected_var_names)){
 
-  new_var_names <- select(plot$data, !!!list(rlang::parse_expr(selected_var_names[i]))) |> names()
+  new_var_names <- select(plot$data,
+                      !!!list(rlang::parse_expr(selected_var_names[i]))) |>
+    names()
   
 var_names <- c(var_names, new_var_names)
   
@@ -322,9 +317,9 @@ dims_listed <- function(...) {
 
 #' @export
 vars_unpack <- function(x) {
-  pca_vars <- x
-  df <- do.call(rbind, pca_vars)
-  colnames(df) <- attr(pca_vars, "varnames")
+  pack_vars <- x
+  df <- do.call(rbind, pack_vars)
+  colnames(df) <- attr(pack_vars, "varnames")
   as.data.frame(df)
   
 }
@@ -391,8 +386,6 @@ compute_tsne <- function(data, scales, perplexity = 20){
   
   ind_allowed <- ind_not_dup & ind_no_missing
 
-  # clean_data <- 
- 
   set.seed(1345)
   features |>
     _[ind_allowed, ] |>
@@ -735,6 +728,265 @@ last_plot() +
 ```
 
 
+## A little Venn diagrams using [`ggVennDiagram`](https://github.com/gaospecial/ggVennDiagram)
+
+<details>
+
+```{r compute_venn}
+library(ggVennDiagram)
+
+df_conditions_inclusion_list <- function(df){
+
+  conditions <- df |> names()
+  
+  out <- list()
+
+  for(i in 1:length(conditions)){
+
+    out[[i]] <- which(df[conditions[i]] |> pull())
+
+  }
+
+  out
+  
+}
+
+
+features_to_venn <- function(features){
+  
+  df <- features |> 
+    df_conditions_inclusion_list() |>
+    ggVennDiagram:::Venn() |> 
+    ggVennDiagram:::process_data(shape_id = NULL) 
+  
+
+  left_join(ggVennDiagram:::get_shape_regionedge(df),
+            ggVennDiagram:::venn_region(df)) |> 
+  rename(x = X,
+         y = Y
+          )
+  
+  
+}
+
+features_to_venn_label <- function(features){
+  
+  df <- features |> 
+    df_conditions_inclusion_list() |>
+    ggVennDiagram:::Venn() |> 
+    ggVennDiagram:::process_data(shape_id = NULL) 
+
+  names_features <- names(features)  
+
+  left_join(ggVennDiagram:::get_shape_regionlabel(df),
+            ggVennDiagram:::venn_regionlabel(df)) |> 
+  rename(x = X,
+         y = Y
+          ) |> 
+    mutate(id = id |> 
+             str_replace("1", names_features[1])|> 
+             str_replace("2", names_features[2])|> 
+             str_replace("3", names_features[3])|> 
+             str_replace("4", names_features[4])|> 
+             str_replace("5", names_features[5])|> 
+             str_replace_all("/", "&"))
+  
+  
+}
+```
+
+
+
+```{r}
+gene_data <- tribble(~A, ~B, ~C,
+                      T, T, F, 
+                      T, T, T,
+                      T, F, T) 
+
+features_to_venn(gene_data)
+
+features_to_venn_label(gene_data)
+
+
+```
+
+
+
+```{r}
+compute_panel_venn <- function(data, scales){
+  
+  features <- data_vars_unpack(data)
+  
+  clean_data <- features |>
+  bind_cols(data) |>
+  remove_missing()
+  
+  clean_data |>
+     _[names(features)] |>
+     features_to_venn()
+
+}
+
+
+compute_panel_venn_label <- function(data, scales){
+  
+  features <- data_vars_unpack(data)
+  
+  clean_data <- features |>
+  bind_cols(data) |>
+  remove_missing()
+  
+  clean_data |>
+     _[names(features)] |>
+     features_to_venn_label()
+
+}
+
+#' @export
+StatVenn <- ggproto("StatVenn", 
+                    Stat, 
+                    compute_panel = compute_panel_venn,
+                    default_aes = aes(fill = after_stat(count),
+                                      group = after_stat(id) |> as.factor() |> as.numeric(),
+                                      label = after_stat(id)))
+
+
+StatVennLabel <- ggproto("StatVennLabel", 
+                    Stat, 
+                    compute_panel = compute_panel_venn_label,
+                    default_aes = aes(fill = after_stat(count),
+                                      group = after_stat(id) |> as.factor() |> as.numeric(),
+                                      label = after_stat(id)))
+
+#' @export
+geom_venn0 <- make_constructor(GeomPolygon, 
+                               stat = StatVenn, 
+                               color = "lightgrey")
+
+#' @export
+geom_venn_label0 <- make_constructor(GeomLabel, 
+                                     stat = StatVennLabel)
+
+
+
+#' @export#' @exportGeomPolygon
+geom_venn <- function(...){
+  
+  list(dims_expand(), 
+       geom_venn0(...))
+  
+}
+
+#' @export#' @exportGeomPolygon
+geom_venn_label <- function(...){
+  
+  list(dims_expand(), 
+       geom_venn_label0(...))
+  
+}
+
+
+features <- function(...){
+  
+  list(aes(dims = dims(...)),
+       dims_expand())
+  
+}
+
+```
+
+</details>
+
+```{r}
+df <- tribble(~A, ~B, ~C, ~combocount,
+        T, T, F, 6,
+        T, T, T, 11,
+        T, F, T, 11,
+        T, T, T, 20,
+        F, F, F, 100) |> 
+  uncount(combocount) 
+
+df |>
+  mutate(dims = 
+         dims_listed(A,B)) |>
+  select(dims) |>
+  compute_panel_venn() |>
+  head()
+
+df |>
+  mutate(dims = 
+         dims_listed(A,B)) |>
+  select(dims) |>
+  compute_panel_venn_label() |>
+  head()
+
+
+titanic <- Titanic |>
+  data.frame() |> 
+  uncount(Freq) |> 
+  mutate(
+    female = Sex == "Female",
+    survived = Survived == "Survived",
+    child = Age == "Child",
+    first_class = Class == "First",
+    male = Sex == "Male",
+    perished = Survived != "Survived")
+
+head(titanic)
+
+titanic |>
+  ggplot() + 
+  aes(dims = dims(female, survived)) + # indicator vars
+  geom_venn() + 
+  coord_equal() + 
+  geom_venn_label(color = "white") + 
+  scale_fill_viridis_c(option = "magma", begin = .2, end = .8)
+
+
+titanic |>
+  ggplot() + 
+  aes(dims = dims(female:child)) + 
+  geom_venn() + 
+  coord_equal() + 
+  geom_venn_label(color = "white") + 
+  scale_fill_viridis_c(option = "magma", begin = .2, end = .8)
+
+last_plot() + 
+  aes(dims = dims(survived)) + dims_expand()
+
+last_plot() + 
+  aes(dims = dims(female:survived)) + dims_expand()
+
+last_plot() + 
+  aes(dims = dims(male, perished)) + dims_expand()
+
+last_plot() + 
+  aes(dims = dims(male, perished, child)) + dims_expand()
+
+titanic |>
+  ggplot() + 
+  aes(dims = dims(female:child)) + 
+  geom_venn() + 
+  coord_equal() + 
+  dims_expand() +
+  geom_venn_label0() +
+  aes(color = I("green"))
+
+  
+
+ggplot(mtcars) + 
+  aes(cyl, mpg,
+      label = cyl) + 
+  geom_point() + 
+  stat_summary(geom = "label") + 
+  aes(color = "red" |> I())
+
+
+```
+
+
+
+
 # Minimal Packaging
 
 
@@ -965,3 +1217,52 @@ library(patchwork)
   plot_annotation(title = "UN General Assembly voting country projections")
 
 ```
+
+
+# a features() approach
+
+
+```{r, eval = F}
+# ggplot(alphabet) + 
+#   features(a:b, z) + 
+#   geom_dimred()
+
+
+library(rlang)
+features <- function(...){
+ 
+    dots <- enquos(...)
+    args <- c(dots)
+    args <- Filter(Negate(rlang::quo_is_missing), args)
+    local({
+        aes <- function(...) NULL
+        inject(aes(!!!args))
+    })
+    class_mapping(ggplot2:::rename_aes(args), env = parent.frame())
+    
+    out <- c()
+    
+    for(i in 1:length(args)){    
+      
+      out[i] <- args[[i]][2] |> as.character()
+      
+      }
+
+    out 
+      
+# Then grab full list from data
+    dims_expand()
+
+    
+# Then list all as class mappings feature1, feature2, etc..
+    
+    
+}
+
+
+features(a:b, x)
+
+
+```
+
+

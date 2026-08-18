@@ -23,8 +23,6 @@ compute_tsne <- function(data, scales, perplexity = 20){
   
   ind_allowed <- ind_not_dup & ind_no_missing
 
-  # clean_data <- 
- 
   set.seed(1345)
   features |>
     _[ind_allowed, ] |>

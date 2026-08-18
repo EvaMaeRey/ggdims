@@ -1,16 +1,11 @@
 #' @export
 dims <- function(...){}
 
-
-
 #' @export
 dims_expand <- function() {
 
   structure(
-    list(
-      # data_spec = data,
-         # vars_spec = rlang::enquo(vars)
-         ), 
+    list(), 
     class = "dims_expand"
     )
 
@@ -37,7 +32,9 @@ var_names <- c()
 
 for(i in 1:length(selected_var_names)){
 
-  new_var_names <- select(plot$data, !!!list(rlang::parse_expr(selected_var_names[i]))) |> names()
+  new_var_names <- select(plot$data,
+                      !!!list(rlang::parse_expr(selected_var_names[i]))) |>
+    names()
   
 var_names <- c(var_names, new_var_names)
   
