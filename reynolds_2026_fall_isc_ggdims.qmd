@@ -1,0 +1,365 @@
+---
+title: "Elegant dimensionality reduction for ggplot2"
+author: "Evangeline Reynolds"
+format: pdf
+editor: visual
+---
+
+```{r, include = F}
+knitr::opts_chunk$set(message = F, warning = F)
+library(tidyverse); library(ggplot2); library(ggdims)
+```
+
+
+# 1. Executive Summary
+
+```{=html}
+<!--
+This section provides a condensed view of the entire proposal, one page long.
+It should be a comprehensive high-level overview that captures the essence of the proposal, including its goals, methods, expected outcomes, deliverables, and budget.
+-->
+```
+
+The object of this proposal is to provide native support for cross-column ingestion in `ggplot2` so that dimension aggregation techniques like PCA, t-SNE, and UMAP, which are so prominent in modern data analytic workflows, can be specified as concisely and consistently as cross-row workhorse aggregation layers like `geom_histogram()`, `geom_density_2d()`, or `geom_boxplot()`. 
+
+This proposal is to provide infrastructure for the following tidy-select style syntax: 
+
+```{r, eval = T, out.width="45%", fig.align='center',}
+ggplot(data = penguins) +
+  aes(dims = dims(bill_len:body_mass),
+      fill = species) +
+  geom_pca()                          # or geom_umap(), geom_tsne()
+```
+
+In today’s data landscape, people need to make sense of many observations (rows) *and* many variables (columns).  Data visualization aids in this sense-making.  R's visualization capabilities help analysts reliably explore and communicate data structure, with ggplot2 and extensions especially prominent with R's visualization offerings.[^1] 
+
+[^1]: The reasons visualization is so deserving of our attention bears a quick mention.  John Tukey states -- "The simple graph has brought more information to the data analyst’s mind than any other device."   This is due to how effortlessly people to consume displayed patterns.  As Cleveland and McGill (1983) note, visuals are 'pre-attentively' processed, making their consumption highly efficient.
+
+`ggplot2` allows analysts to summarize large numbers of rows of data with its summary `geom` and `stat` function  Specifying density plots, histograms, or boxplots is consistent, terse and intuitive.
+
+```{r, eval = F}
+ggplot(my_data) + aes(x = var1) + geom_histogram()  
+ggplot(my_data) + aes(x = var1, y = var2) + geom_boxplot()  
+ggplot(my_data) + aes(x = var1, y = var2) + geom_density2d()  
+```
+
+<!-- `geom_histogram` aggregates across many rows for x, providing a helpful visual distribution. `geom_density2d()` likewise shows the joint distribution for x and y across as many rows as are in the declared dataframe.  -->
+
+<!-- Sensible defaults are provided for these common visualizations, but users also have access to arguments that allow for basic adjustments, e.g. the user can use the `binwidth` or `bins` argument in geom_histogram to more precisely specify the histogram's characteristics. -->
+
+This contrasts with a *lack* of native cross-column aggregation capability  in ggplot2, a fact that has here-to-fore precluded dimensionality reduction layers (`geoms` or `stats`) --- layers that *could* be very useful like `geom_pca()`, `geom_tsne()` or `geom_umap()`.   Natively, ggplot2 expects variables be individually passed to the plotting environment, for example `x = var1, color = var2`, and doesn't natively support ingesting large numbers of *columns*.  This proposal is driven by the perspective that is that this should no longer be the case --- that native cross-column specifications, allowing for cross-column specification and aggregation, *should* be supported.
+
+
+
+The project, requesting $8500, is 'raring to go' with much progress toward this end in the [ggdims repo](https://github.com/EvaMaeRey/ggdims).  Exploration began in the summer of 2025 and has been discussed in settings like the ASA (fall 2025 CO-WY chapter meeting) and ggplot2 extenders meetup (March 2026).  Talk slides, [here](https://evamaerey.github.io/ggdims/asa-cowy-fall-2025#1), detail motivation and strategy.  Its promise has been demonstrated by replicating several high-profile visualization projects like that of Google PAIR’s ‘How to Use t-SNE Effectively’’ (Martin Wattenberg - Harvard, Fernanda Viégas - Harvard, Ian Johnson - Orbital Industries) and ‘Understanding UMAP’ (Andy Coenen - Google Deep Mind, Adam Pearce - Anthropic Interpretability team) as well as cross-dimred-technique comparison projects (e.g. UN General assembly voting profiles through the PCA, t-SNE, and UMAP lenses). 
+
+To paraphrase Leland McInnes (author of UMAP), the ability to look at high dimensional data with many 'lenses' is paramount to understanding it.  The ggdims project aims to provide fundamental infrastructure that will allow many lenses to be focused on data in consistent, intuitive ways, e.g. `geom_pca()`, `geom_tsne()`, `geom_umap()`.  This in turn, should make R an even more attractive home for today's data analytic demands.
+
+
+# 2. Signatories
+
+```{=html}
+<!--
+This section provides the ISC with a view of the support received from
+the community for a proposal. Acceptance isn't predicated on
+popularity but community acceptance is important. Willingness to
+accept outside input is also a good marker for project delivery.
+
+An optional section would be for R-Core signatories where changes to R
+are proposed.
+-->
+```
+
+## Project team
+
+```{=html}
+<!--
+Who are the people responsible for actually delivering the project if
+the proposal gets accepted and are already signed up and rearing to
+go? Briefly describe all participants and the skills they will bring
+to the project.
+-->
+```
+
+I am responsible for the deliverables of this project.
+
+## Contributors
+
+```{=html}
+<!--
+Who are the people who have actively helped with this proposal but
+won't necessarily be on the core project team later?
+-->
+```
+
+June Choe contributed some early code ideas that helped with the initial exploration of this project, [here](https://github.com/ggplot2-extenders/ggplot-extension-club/discussions/18#discussioncomment-10219152).  
+
+Teun van den Brand has reviewed some of the content of this proposal and has volunteered to look at current {ggdims} internals and will suggest improvements that would make cross-variable specification work closer to ggplot2-PR ready.
+
+Josiah Perry and I discussed this proposal made several helpful suggestions.
+
+## Consulted
+
+Prominent ggplot2 maintainers and experts were consulted on the vizualization and syntax aspects of this project include Teun van den Brand, June Choe, Thomas Lin Pedersen, Hadley Wickham (rather early on about syntax). Those consulted on the dimension reduction side include Leland McInnes and Martin Wattenberg.  People like Cory Brunson, Joyce Robbins, James Otto, and Jan Broder Engler have feet in both the grammar of graphics and dimension reduction worlds; they are aware of this work through the extenders group and have weighed in on it, and would be asked to again provide feedback on a PR to ggplot2 if this proposal is funded. 
+
+
+```{=html}
+<!--
+Who has been given the opportunity to provide feedback on the
+proposal? This should include any R Consortium & ISC members who the
+proposal has been discussed with.
+-->
+```
+
+
+------------------------------------------------------------------------
+
+## <!-- bibliography: references.bib -->
+
+# 3. The Problem
+
+```{=html}
+<!--
+Outlining the issue / weak point / problem to be solved by this
+proposal. This should be a compelling section that sets the reader up
+for the next section - the proposed solution!
+
+It is important to cover:
+
+ - [ ] What the problem is
+ - [ ] Who it affects
+ - [ ] Why is it a problem
+ - [ ] What will solving the problem enable (why should it be solved)
+ - [ ] Brief summary of existing work and previous attempts (e.g., relevant R packages)
+ - [ ] If proposing changes to R itself: letter of support from R Core member
+-->
+```
+
+Dimension reduction techniques are used by many data professionals and produce useful data visualizations, summarizing across observations (rows) and across variables (columns). However, ggplot2 doesn't natively handle cross-column specification.  Packages that perform dimension reduction, such as ordr and Suerat, inconsistent interfaces with each other since extenders take a different approach to overcome cross-column aggregation challenges.  Offering a common interface for feature ingestion and layer computation, we believe that interfaces should begin to look more consistent. 
+
+
+# 4. The proposal
+
+
+
+```{=html}
+<!--
+How are you going to solve the problem? Include the concrete actions you
+will take and an estimated timeline. What are likely failure modes and
+how will you recover from them?
+
+This is where the proposal should be outlined.
+-->
+```
+
+
+
+
+
+## Overview
+
+```{=html}
+<!--
+At a high-level address what your proposal is and how it will address
+the problem identified. Highlight any benefits to the R Community that
+follow from solving the problem. This should be your most compelling
+section.
+
+Include concrete actions you will take and estimated timeline.
+-->
+```
+
+This project aims to make cross-column aggregation capabilities available natively in ggplot2 through an individual contributor pull request (PR), such that `geom_*()`s and `stat_*()`s like `geom_pca()` can be more consistently defined within ggplot2 itself and in extension packages.  
+
+
+## Detail
+
+```{=html}
+<!--
+Go into more detail about the specifics of the project and how it delivers
+against the problem.
+
+Depending on project type the detail section should include:
+-->
+```
+
+
+
+
+```{r, warning=F, echo = F, message=F}
+library(tidyverse)
+library(ggdims)
+```
+
+The proposed syntax for ggplot2 native cross-column aggregation specifications is as follows:
+
+```{r, message=F, warning=F, out.width="60%", fig.align='center', eval = F}
+library(ggplot2)
+
+ggplot(data = penguins) +
+  aes(dims = dims(bill_len:body_mass),
+      fill = species) +
+  geom_pca()
+```
+
+
+
+
+
+For demonstration purposes, a formulation of `geom_pca()` is available and defined via helpers `pca_layout()`, `compute_panel_pca()`, and `StatPcaRows`, with details available [here]( https://github.com/EvaMaeRey/ggdims#a-little-pca-using-ordrordinate).  The specific formulation, e.g. the tools supporting the Principle Componenet Analysis itself, are subject to change, and the author welcomes feedback in this area.
+
+### Minimum Viable Product
+
+```{=html}
+<!--
+What is the smallest thing you can build that delivers value to your users?
+-->
+```
+
+A pull request for cross-column aggregation specification in ggplot prepared, and submitted.  Indication from the ggplot2 maintainers of the direction they are likely to take.  If it's indicated that they don't intend to incorporate, then the work is published on CRAN as a ggplot2 extension pacakge, {ggdims}.
+
+
+### Architecture
+
+```{=html}
+<!--
+What does the high-level architecture look like?
+-->
+```
+
+The project is PR to ggplot, or barring that, a stand alone package that adapts ggplot2 to support visualizations based on cross-column specification.
+
+### Assumptions
+
+The main assumption is that the ggplot2 framework can be adapted to specify visuals that have cross-column 'knowledge' as seamlessly as its cross-row aggregation.  Preliminary work and discussion with ggplot2 maintainer Teun van den Brand suggests this can be done in a way that is compatible with ggplot2. 
+
+### External dependencies
+
+```{=html}
+<!--
+What external dependencies does the project have (e.g. libraries, services, other projects, etc.)?
+-->
+```
+
+The ultimate direction of the project depends on the stance of the ggplot2 maintainers (acceptance of a PR or not).
+
+# 5. Project plan
+
+## Start-up phase
+
+```{=html}
+<!--
+Covering the planning phase, this section should provide a relatively
+detailed plan of how work will start on the project. This section is
+important because projects need to get up and running quickly.
+
+
+ - [ ] Setting up collaboration platform inc. code for contributors etc.
+ - [ ] Licence decisions
+ - [ ] Reporting framework
+-->
+```
+
+In the start-up phase, I will create a 'ggdims' branch of ggplot2, I will make a licensing decision about a stand alone package in the event that the PR isn't accepted (probably MIT), and work out any clarifying details for reporting as required by the ISC, and will provide a reporting framework.
+
+## Technical delivery
+
+```{=html}
+<!--
+Covering the actual delivery of the project this section should
+provide at least a high-level description of the implementation.
+
+Including target dates is really important as you need to be committed
+and the ISC need to have a means of tracking delivery
+-->
+```
+
+Completion dates:
+
+-   Nov 30, 2026. Announce award on social media and schedule ggplot2 extenders meeting to discuss project, project goals, and strategy. (1st month)
+-   Jan 30, 2027. Gather feedback, reach out to experts, hold extenders meeting. Finalize multiple-variable ingestion strategy within ggdims (external repo). (Months 2 and 3)
+-   Mar 30, 2027. Draft ggplot2 PR for multiple variable ingestion. (Month 4 and 5)
+-   May 30, 2027. Solicit and incorporate feedback on PR. (Month 6 and 7)
+-   Jun 30, 2027. Clarify intent of maintainers to incorporate PR into ggplot2 or not. (Month 8)
+-   Aug 30, 2027. Publish examples (e.g. blog post on ggextenders website, Rworks, Posit blog) of how new multi-column ingestion can be used to define new layers (e.g. `geom_pca()`, `geom_venn()`). Move work to independent repository if maintainers pass on PR and submit to CRAN. (Month 9 and 10)
+-   Oct 30, 2027. Prepare executive summary for R Consortium and draft academic paper for JOSS or R Journal. (Month 11 and 12)
+
+## Other aspects
+
+```{=html}
+<!--
+How will you ensure that your work is available to the widest number
+of people? Please specify the open-source or creative commons license(s)
+you will use, how you will host your code so that others can contribute,
+and how you will publicize your work. We encourage you to plan content
+to be shared quarterly on the R Consortium blog.
+
+ - [ ] Announcement post
+ - [ ] Delivery blog post
+ - [ ] Social media
+ - [ ] UseR!
+ - [ ] ISC meetings
+-->
+```
+
+This work will be shared with individuals that can speak to technical and practical aspects of dimension reduction visualization and as well as 'gg' API decisions. I'll present to the [ggplot2 extenders group](https://ggplot2-extenders.github.io/ggplot-extension-club/) to get feedback about the design and technical decisions.
+
+I will share this award and work on social media, an ISC meeting if invited, and at a local stat/programming meeting like R Users Denver or ASA-COWY. I would explore to writing a blogpost with ISC, Posit, or similar.
+
+## Budget & funding plan
+
+
+```{=html}
+<!--
+Outline the milestones for development and how much funding will be
+required for each stage (as payments will be tied to project milestone
+completion). Each milestone should specify the work to be done and the
+expected outcomes, providing enough detail for the ISC to understand
+the scope of the project work and assess the likelihood of success.
+
+We expect that most of the budget will be allocated
+for labor costs. We do not cover indirect costs. The ISC grants cannot
+cover such things as travel, lodging, food, journal publication fees,
+or personal hardware. Cloud services may be covered if they are specific
+to the project and the project period. The ISC reserves the right to vet
+how funds are used for each project separately. If in doubt, please reach
+out to us.
+-->
+```
+
+# 6. Success
+
+```{=html}
+<!--
+Projects should have a definition of done that is measurable, and a
+thorough understanding going in of what the risks are to delivery
+-->
+```
+
+## Definition of done
+
+Determination on the PR to ggplot2 is made.  Examples of using the cross-variable ingestion are published either using ggplot2 or ggdims based on PR determination.  Executive report and draft academic paper are complete.
+
+## Measuring success
+
+```{=html}
+<!--
+How will we know when success is achieved, what markers can we use
+along the way
+-->
+```
+
+Success will be measured by completion of deliverables, and dissemination to the community.
+
+## Future work
+
+```{=html}
+<!--
+How could this be extended / developed in the future by yourself
+and/or the community in general?
+-->
+```
+
+Future involves solidifiying the exact formulations for function like `geom_pca()`, `geom_tsne()` and `geom_umap()`, i.e. dependencies used and arguments made available to users.  Once finalized these functions would be made available in a package submitted to CRAN. 
+
+

@@ -521,6 +521,170 @@ iris |>
   geom_tsne(perplexity = 10)
 ```
 
+
+# 'How to Use t-SNE Effectively' reproduction exercise
+
+Try to reproduce some of observations and figures in the Distill paper: 'How to Use t-SNE Effectively' <https://distill.pub/2016/misread-tsne/> with some verbatim visuals from the paper.
+
+```{r}
+knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
+```
+
+### 1. 'Those hyperparameters really matter'
+
+![](images/clipboard-3992794559.png){width="900"}
+
+<details>
+
+```{r data-prep}
+two_clusters <- data.frame(dim1 = 
+                                    rnorm(101, mean = -.5,
+                                          sd = .1) |>
+                                    c(rnorm(101, mean = .5,
+                                            sd = .1)),
+                                   
+                                  dim2 = rnorm(202, sd = .1),
+                                  type = c(rep("A", 101), rep("B", 101)))
+
+
+big_and_small_cluster <- data.frame(dim1 = c(rnorm(100, -.5, sd = .1),
+                                             rnorm(100, .7, sd = .03)),
+                                  dim2 = c(rnorm(100, sd = .1), 
+                                           rnorm(100, sd = .03)),
+                                  type = c(rep("A", 100), rep("B", 100)))
+
+
+two_close_and_one_far <- data.frame(dim1 = 
+                                    c(rnorm(150, -.75, .05), 
+                                      rnorm(150, -.35, .05),
+                                      rnorm(150, .75, .05)),
+                                    dim2 = rnorm(450, sd = .05),
+                                    type = c(rep("A", 150), 
+                                           rep("B", 150),
+                                           rep("C", 150)))
+
+random_noise <- data.frame(dim1 = rnorm(500, sd = .3),
+                           dim2 = rnorm(500, sd = .3),
+                           type = "A")
+
+```
+
+
+```{r}
+usethis::use_data(two_clusters, overwrite = T)
+usethis::use_data(big_and_small_cluster, overwrite = T)
+usethis::use_data(two_close_and_one_far, overwrite = T)
+usethis::use_data(random_noise, overwrite = T)
+```
+
+</details>
+
+Let's try to reproduce the following with our `geom_tsne()`:
+
+```{r}
+head(two_clusters)
+
+pp2 <- ggplot(data = two_clusters) + 
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 2) + 
+  labs(title = "perplexity = 2")
+
+pp5 <- ggplot(data = two_clusters) + 
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 5) + 
+  labs(title = "perplexity = 5")
+
+pp30 <- ggplot(data = two_clusters) + 
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 30) + 
+  labs(title = "perplexity = 30")
+```
+
+
+<details>
+
+```{r}
+pp50 <- ggplot(data = two_clusters) + 
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 50) + 
+  labs(title = "perplexity = 50")
+
+pp100 <- ggplot(data = two_clusters) + 
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 100) + 
+  labs(title = "perplexity = 100")
+
+original <- two_clusters |>
+  ggplot() + 
+  aes(x = dim1, 
+      y = dim2) + 
+  geom_point(shape = 21, color = "white",
+             alpha = .7, 
+             aes(size = from_theme(pointsize * 1.5))) + 
+  labs(title = "Original") + 
+  aes(fill = I("black")) + 
+  coord_equal(xlim = c(-1,1), ylim = c(-1,1))
+
+
+```
+
+</details>
+
+
+```{r}
+library(patchwork)
+original + pp2 + pp5 + pp30 + pp50 + pp100 &
+  theme_ggdims() 
+
+# with group id
+last_plot() & 
+  aes(fill = type) &
+  scale_fill_manual(values = c("darkblue", "darkgoldenrod1", "seagreen")) &
+  guides(fill = "none")
+
+
+panel_of_six_tsne_two_cluster <- last_plot()
+
+```
+
+### 2. 'Cluster sizes in a t-SNE plot mean nothing'
+
+Let's try to reproduce this (we'll shortcut but switching out the data across plot specifications): ![](images/clipboard-4082290261.png)
+
+```{r}
+panel_of_six_tsne_two_cluster & 
+  big_and_small_cluster
+
+```
+
+<!-- #### Side note on ggplyr::data_replace X google gemini quick search -->
+
+<!-- ![](images/clipboard-3482018450.png) -->
+
+### 3. 'Distances between clusters might not mean anything'
+
+Now let's look at these three clusters, where one cluster is far out:
+
+![](images/clipboard-2639177458.png){width="900"}
+
+```{r}
+
+
+panel_of_six_tsne_two_cluster & 
+  two_close_and_one_far
+
+```
+
+### 4. 'Random noise doesn't always look random'
+
+![](images/clipboard-109741735.png)
+
+```{r}
+panel_of_six_tsne_two_cluster & 
+  random_noise
+```
+
+
 ## A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
 
 <details>
@@ -728,6 +892,60 @@ last_plot() +
 ```
 
 
+# UNGA voting patterns through PCA, t-SNE, and UMAP lenses
+
+<details>
+
+```{r}
+unvotes::un_votes |> 
+  arrange(rcid) |>
+  mutate(rcid = paste0("rc",rcid) |> fct_inorder()) |>
+  mutate(num_vote = case_when(vote == "yes" ~ 1,
+                              vote == "abstain" ~ .5,
+                              vote == "no" ~ 0,
+                              TRUE ~ .5 )) |>
+  # filter(rcid %in% 1:30) |>
+  pivot_wider(id_cols = c(country, country_code),
+    names_from = rcid, 
+              values_from = num_vote,
+              values_fill = .5
+            ) |>
+  mutate(continent = country_code |> 
+           countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
+  mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
+unga_rcid_wide
+
+
+names(unga_rcid_wide) |> tail()
+```
+
+```{r}
+# maybe too big?
+# usethis::use_data(unga_rcid_wide, overwrite = T)
+```
+
+</details>
+
+```{r, out.width="100%"}
+dims_base <- 
+  unga_rcid_wide |>
+  ggplot() + 
+  aes(dims = dims(rc3:rc9147), 
+      fill = continent)
+```
+
+
+```{r, fig.width = 12, fig.height = 5}
+library(patchwork)
+(dims_base + geom_pca()  + labs(title = "PCA")) + 
+(dims_base + geom_tsne() + labs(title = "t-SNE")) +  
+(dims_base + geom_umap() + labs(title = "UMAP")) + 
+  patchwork::plot_layout(guides = "collect") + 
+  plot_annotation(title = "UN General Assembly voting country projections")
+
+```
+
+
 ## A little Venn diagrams using [`ggVennDiagram`](https://github.com/gaospecial/ggVennDiagram)
 
 <details>
@@ -895,7 +1113,7 @@ features <- function(...){
 
 ```
 
-</details>
+
 
 ```{r}
 df <- tribble(~A, ~B, ~C, ~combocount,
@@ -962,27 +1180,23 @@ last_plot() +
 
 last_plot() + 
   aes(dims = dims(male, perished, child)) + dims_expand()
+```
 
+</details>
+
+```{r}
 titanic |>
   ggplot() + 
-  aes(dims = dims(female:child)) + 
+  aes(dims = dims(female, child, survived)) + 
   geom_venn() + 
-  coord_equal() + 
-  dims_expand() +
-  geom_venn_label0() +
-  aes(color = I("green"))
-
-  
-
-ggplot(mtcars) + 
-  aes(cyl, mpg,
-      label = cyl) + 
-  geom_point() + 
-  stat_summary(geom = "label") + 
-  aes(color = "red" |> I())
-
-
+  geom_venn_label(fill = "snow") +
+  coord_equal()
 ```
+
+
+
+
+
 
 
 
@@ -1006,218 +1220,6 @@ devtools::document()
 devtools::check(".")
 devtools::install(".", upgrade = "never")
 ```
-
-# Reproduction exercise
-
-Try to reproduce some of observations and figures in the Distill paper: 'How to Use t-SNE Effectively' <https://distill.pub/2016/misread-tsne/> with some verbatim visuals from the paper.
-
-```{r}
-knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
-
-
-```
-
-### 1. 'Those hyperparameters really matter'
-
-![](images/clipboard-3992794559.png){width="900"}
-
-```{r data-prep}
-two_clusters <- data.frame(dim1 = 
-                                    rnorm(101, mean = -.5,
-                                          sd = .1) |>
-                                    c(rnorm(101, mean = .5,
-                                            sd = .1)),
-                                   
-                                  dim2 = rnorm(202, sd = .1),
-                                  type = c(rep("A", 101), rep("B", 101)))
-
-
-big_and_small_cluster <- data.frame(dim1 = c(rnorm(100, -.5, sd = .1),
-                                             rnorm(100, .7, sd = .03)),
-                                  dim2 = c(rnorm(100, sd = .1), 
-                                           rnorm(100, sd = .03)),
-                                  type = c(rep("A", 100), rep("B", 100)))
-
-
-two_close_and_one_far <- data.frame(dim1 = 
-                                    c(rnorm(150, -.75, .05), 
-                                      rnorm(150, -.35, .05),
-                                      rnorm(150, .75, .05)),
-                                    dim2 = rnorm(450, sd = .05),
-                                    type = c(rep("A", 150), 
-                                           rep("B", 150),
-                                           rep("C", 150)))
-
-random_noise <- data.frame(dim1 = rnorm(500, sd = .3),
-                           dim2 = rnorm(500, sd = .3),
-                           type = "A")
-
-```
-
-
-```{r}
-usethis::use_data(two_clusters, overwrite = T)
-usethis::use_data(big_and_small_cluster, overwrite = T)
-usethis::use_data(two_close_and_one_far, overwrite = T)
-usethis::use_data(random_noise, overwrite = T)
-```
-
-Let's try to reproduce the following with our `geom_tsne()`:
-
-```{r}
-dim(two_clusters)
-
-original <- two_clusters |>
-  ggplot() + 
-  aes(x = dim1, 
-      y = dim2) + 
-  geom_point(shape = 21, color = "white",
-             alpha = .7, 
-             aes(size = from_theme(pointsize * 1.5))) + 
-  labs(title = "Original") + 
-  aes(fill = I("black")) + 
-  coord_equal(xlim = c(-1,1), ylim = c(-1,1))
-
-pp2 <- ggplot(data = two_clusters) + 
-  aes(dims = dims(dim1:dim2)) +
-  geom_tsne(perplexity = 2) + 
-  labs(title = "perplexity = 2"); pp2
-
-pp5 <- ggplot(data = two_clusters) + 
-  aes(dims = dims(dim1:dim2)) +
-  geom_tsne(perplexity = 5) + 
-  labs(title = "perplexity = 5"); pp5
-
-pp30 <- ggplot(data = two_clusters) + 
-  aes(dims = dims(dim1:dim2)) +
-  geom_tsne(perplexity = 30) + 
-  labs(title = "perplexity = 30"); pp30
-
-pp50 <- ggplot(data = two_clusters) + 
-  aes(dims = dims(dim1:dim2)) +
-  geom_tsne(perplexity = 50) + 
-  labs(title = "perplexity = 50")
-
-pp100 <- ggplot(data = two_clusters) + 
-  aes(dims = dims(dim1:dim2)) +
-  geom_tsne(perplexity = 100) + 
-  labs(title = "perplexity = 100")
-
-
-library(patchwork)
-original + pp2 + pp5 + pp30 + pp50 + pp100 &
-  theme_ggdims() 
-
-# with group id
-last_plot() & 
-  aes(fill = type) &
-  guides(fill = "none")
-
-
-panel_of_six_tsne_two_cluster <- last_plot()
-
-```
-
-### 2. 'Cluster sizes in a t-SNE plot mean nothing'
-
-Let's try to reproduce this (we'll shortcut but switching out the data across plot specifications): ![](images/clipboard-4082290261.png)
-
-```{r}
-panel_of_six_tsne_two_cluster & 
-  ggplyr::data_replace(big_and_small_cluster)
-
-```
-
-#### Side note on ggplyr::data_replace X google gemini quick search
-
-![](images/clipboard-3482018450.png)
-
-### 3. 'Distances between clusters might not mean anything'
-
-Now let's look at these three clusters, where one cluster is far out:
-
-![](images/clipboard-2639177458.png){width="900"}
-
-```{r}
-
-
-panel_of_six_tsne_two_cluster & 
-  ggplyr::data_replace(two_close_and_one_far)
-
-```
-
-### 4. 'Random noise doesn't always look random'
-
-![](images/clipboard-109741735.png)
-
-```{r}
-panel_of_six_tsne_two_cluster & 
-  ggplyr::data_replace(random_noise) &
-  aes(fill = I("midnightblue"))
-```
-
-------------------------------------------------------------------------
-
-```{r}
-palmerpenguins::penguins |> 
-  sample_n(size = 200) |>
-  remove_missing() |> 
-  ggplot() + 
-  aes(dims = dims(bill_length_mm:body_mass_g)) + 
-  geom_umap() 
-
-last_plot() + 
-  aes(fill = species)
-```
-
-```{r}
-unvotes::un_votes |> 
-  arrange(rcid) |>
-  mutate(rcid = paste0("rc",rcid) |> fct_inorder()) |>
-  mutate(num_vote = case_when(vote == "yes" ~ 1,
-                              vote == "abstain" ~ .5,
-                              vote == "no" ~ 0,
-                              TRUE ~ .5 )) |>
-  # filter(rcid %in% 1:30) |>
-  pivot_wider(id_cols = c(country, country_code),
-    names_from = rcid, 
-              values_from = num_vote,
-              values_fill = .5
-            ) |>
-  mutate(continent = country_code |> 
-           countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
-  mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
-unga_rcid_wide
-
-
-names(unga_rcid_wide) |> tail()
-```
-
-```{r}
-# maybe too big?
-# usethis::use_data(unga_rcid_wide, overwrite = T)
-```
-
-
-```{r, out.width="100%"}
-dims_specs <- 
-  unga_rcid_wide |>
-  ggplot() + 
-  aes(dims = dims(rc3:rc9147), 
-      fill = continent)
-```
-
-
-```{r, width = 12, height = 4}
-library(patchwork)
-(dims_specs + geom_pca() + labs(title = "PCA")) + 
-  (dims_specs + geom_tsne() + labs(title = "Tsne")) +  
-  (dims_specs + geom_umap() + labs(title = "UMAP")) + 
-  patchwork::plot_layout(guides = "collect") + 
-  plot_annotation(title = "UN General Assembly voting country projections")
-
-```
-
 
 # a features() approach
 

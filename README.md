@@ -18,14 +18,8 @@
   - [compute_tsne, geom_tsne, using
     `Rtsne::Rtsne`](#compute_tsne-geom_tsne-using-rtsnertsne)
     - [Different perplexity](#different-perplexity)
-  - [A little UMAP using `umap::umap`](#a-little-umap-using-umapumap)
-  - [A little PCA using
-    `ordr::ordinate`](#a-little-pca-using-ordrordinate)
-    - [w/ penguins](#w-penguins)
-  - [A little Venn diagrams using
-    `ggVennDiagram`](#a-little-venn-diagrams-using-ggvenndiagram)
-- [Minimal Packaging](#minimal-packaging)
-- [Reproduction exercise](#reproduction-exercise)
+- [‘How to Use t-SNE Effectively’ reproduction
+  exercise](#how-to-use-t-sne-effectively-reproduction-exercise)
   - [1. ‘Those hyperparameters really
     matter’](#1-those-hyperparameters-really-matter)
   - [2. ‘Cluster sizes in a t-SNE plot mean
@@ -34,6 +28,15 @@
     anything’](#3-distances-between-clusters-might-not-mean-anything)
   - [4. ‘Random noise doesn’t always look
     random’](#4-random-noise-doesnt-always-look-random)
+  - [A little UMAP using `umap::umap`](#a-little-umap-using-umapumap)
+  - [A little PCA using
+    `ordr::ordinate`](#a-little-pca-using-ordrordinate)
+    - [w/ penguins](#w-penguins)
+- [UNGA voting patterns through PCA, t-SNE, and UMAP
+  lenses](#unga-voting-patterns-through-pca-t-sne-and-umap-lenses)
+  - [A little Venn diagrams using
+    `ggVennDiagram`](#a-little-venn-diagrams-using-ggvenndiagram)
+- [Minimal Packaging](#minimal-packaging)
 - [a features() approach](#a-features-approach)
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
@@ -599,6 +602,185 @@ iris |>
 
 <img src="README_files/figure-gfm/unnamed-chunk-17-1.png" width="55%" />
 
+# ‘How to Use t-SNE Effectively’ reproduction exercise
+
+Try to reproduce some of observations and figures in the Distill paper:
+‘How to Use t-SNE Effectively’ <https://distill.pub/2016/misread-tsne/>
+with some verbatim visuals from the paper.
+
+``` r
+knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
+```
+
+### 1. ‘Those hyperparameters really matter’
+
+<img src="images/clipboard-3992794559.png" width="900" />
+
+<details>
+
+``` r
+two_clusters <- data.frame(dim1 = 
+                                    rnorm(101, mean = -.5,
+                                          sd = .1) |>
+                                    c(rnorm(101, mean = .5,
+                                            sd = .1)),
+                                   
+                                  dim2 = rnorm(202, sd = .1),
+                                  type = c(rep("A", 101), rep("B", 101)))
+
+
+big_and_small_cluster <- data.frame(dim1 = c(rnorm(100, -.5, sd = .1),
+                                             rnorm(100, .7, sd = .03)),
+                                  dim2 = c(rnorm(100, sd = .1), 
+                                           rnorm(100, sd = .03)),
+                                  type = c(rep("A", 100), rep("B", 100)))
+
+
+two_close_and_one_far <- data.frame(dim1 = 
+                                    c(rnorm(150, -.75, .05), 
+                                      rnorm(150, -.35, .05),
+                                      rnorm(150, .75, .05)),
+                                    dim2 = rnorm(450, sd = .05),
+                                    type = c(rep("A", 150), 
+                                           rep("B", 150),
+                                           rep("C", 150)))
+
+random_noise <- data.frame(dim1 = rnorm(500, sd = .3),
+                           dim2 = rnorm(500, sd = .3),
+                           type = "A")
+```
+
+``` r
+usethis::use_data(two_clusters, overwrite = T)
+usethis::use_data(big_and_small_cluster, overwrite = T)
+usethis::use_data(two_close_and_one_far, overwrite = T)
+usethis::use_data(random_noise, overwrite = T)
+```
+
+</details>
+
+Let’s try to reproduce the following with our `geom_tsne()`:
+
+``` r
+head(two_clusters)
+#>         dim1        dim2 type
+#> 1 -0.3859232 -0.11488884    A
+#> 2 -0.5123233 -0.10509291    A
+#> 3 -0.4623449 -0.08725114    A
+#> 4 -0.5525914 -0.02380329    A
+#> 5 -0.5065518  0.26569050    A
+#> 6 -0.4705747  0.01369980    A
+
+pp2 <- ggplot(data = two_clusters) + 
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 2) + 
+  labs(title = "perplexity = 2")
+
+pp5 <- ggplot(data = two_clusters) + 
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 5) + 
+  labs(title = "perplexity = 5")
+
+pp30 <- ggplot(data = two_clusters) + 
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 30) + 
+  labs(title = "perplexity = 30")
+```
+
+<details>
+
+``` r
+pp50 <- ggplot(data = two_clusters) + 
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 50) + 
+  labs(title = "perplexity = 50")
+
+pp100 <- ggplot(data = two_clusters) + 
+  aes(dims = dims(dim1:dim2)) +
+  geom_tsne(perplexity = 100) + 
+  labs(title = "perplexity = 100")
+
+original <- two_clusters |>
+  ggplot() + 
+  aes(x = dim1, 
+      y = dim2) + 
+  geom_point(shape = 21, color = "white",
+             alpha = .7, 
+             aes(size = from_theme(pointsize * 1.5))) + 
+  labs(title = "Original") + 
+  aes(fill = I("black")) + 
+  coord_equal(xlim = c(-1,1), ylim = c(-1,1))
+```
+
+</details>
+
+``` r
+library(patchwork)
+original + pp2 + pp5 + pp30 + pp50 + pp100 &
+  theme_ggdims() 
+```
+
+![](README_files/figure-gfm/unnamed-chunk-22-1.png)<!-- -->
+
+``` r
+
+# with group id
+last_plot() & 
+  aes(fill = type) &
+  scale_fill_manual(values = c("darkblue", "darkgoldenrod1", "seagreen")) &
+  guides(fill = "none")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-22-2.png)<!-- -->
+
+``` r
+
+
+panel_of_six_tsne_two_cluster <- last_plot()
+```
+
+### 2. ‘Cluster sizes in a t-SNE plot mean nothing’
+
+Let’s try to reproduce this (we’ll shortcut but switching out the data
+across plot specifications): ![](images/clipboard-4082290261.png)
+
+``` r
+panel_of_six_tsne_two_cluster & 
+  big_and_small_cluster
+```
+
+![](README_files/figure-gfm/unnamed-chunk-23-1.png)<!-- -->
+
+<!-- #### Side note on ggplyr::data_replace X google gemini quick search -->
+
+<!-- ![](images/clipboard-3482018450.png) -->
+
+### 3. ‘Distances between clusters might not mean anything’
+
+Now let’s look at these three clusters, where one cluster is far out:
+
+<img src="images/clipboard-2639177458.png" width="900" />
+
+``` r
+
+
+panel_of_six_tsne_two_cluster & 
+  two_close_and_one_far
+```
+
+![](README_files/figure-gfm/unnamed-chunk-24-1.png)<!-- -->
+
+### 4. ‘Random noise doesn’t always look random’
+
+![](images/clipboard-109741735.png)
+
+``` r
+panel_of_six_tsne_two_cluster & 
+  random_noise
+```
+
+![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
+
 ## A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
 
 <details>
@@ -683,7 +865,7 @@ iris |>
   geom_umap()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-18-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-26-1.png)<!-- -->
 
 ``` r
 
@@ -691,7 +873,7 @@ last_plot() +
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-18-2.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-26-2.png)<!-- -->
 
 ## A little PCA using `ordr::ordinate`
 
@@ -794,7 +976,7 @@ iris |>
   geom_pca()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-20-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-28-1.png)<!-- -->
 
 ``` r
 
@@ -802,7 +984,7 @@ last_plot() +
   aes(fill = Species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-20-2.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-28-2.png)<!-- -->
 
 ``` r
 
@@ -811,7 +993,7 @@ last_plot() +
   aes(y = after_stat(PC3))
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-20-3.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-28-3.png)<!-- -->
 
 ``` r
 library(ggdims)
@@ -824,7 +1006,7 @@ iris |>
 iris_pca; iris_pca
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-21-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-29-1.png)<!-- -->
 
 ``` r
 
@@ -833,7 +1015,7 @@ ggplyr::last_plot_wipe() +
 iris_tsne; iris_tsne
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-21-2.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-29-2.png)<!-- -->
 
 ``` r
 
@@ -842,14 +1024,14 @@ ggplyr::last_plot_wipe() +
 iris_umap; iris_umap
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-21-3.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-29-3.png)<!-- -->
 
 ``` r
 library(patchwork)
 iris_pca + iris_tsne + iris_umap + patchwork::plot_layout(guides = "collect")
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-22-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-30-1.png)<!-- -->
 
 ### w/ penguins
 
@@ -860,7 +1042,7 @@ palmerpenguins::penguins |>
   geom_pca()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-23-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
 
 ``` r
 
@@ -868,7 +1050,61 @@ last_plot() +
   aes(fill = species)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-23-2.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-31-2.png)<!-- -->
+
+# UNGA voting patterns through PCA, t-SNE, and UMAP lenses
+
+<details>
+
+``` r
+unvotes::un_votes |> 
+  arrange(rcid) |>
+  mutate(rcid = paste0("rc",rcid) |> fct_inorder()) |>
+  mutate(num_vote = case_when(vote == "yes" ~ 1,
+                              vote == "abstain" ~ .5,
+                              vote == "no" ~ 0,
+                              TRUE ~ .5 )) |>
+  # filter(rcid %in% 1:30) |>
+  pivot_wider(id_cols = c(country, country_code),
+    names_from = rcid, 
+              values_from = num_vote,
+              values_fill = .5
+            ) |>
+  mutate(continent = country_code |> 
+           countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
+  mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
+unga_rcid_wide
+
+
+names(unga_rcid_wide) |> tail()
+#> [1] "rc9143"    "rc9144"    "rc9145"    "rc9146"    "rc9147"    "continent"
+```
+
+``` r
+# maybe too big?
+# usethis::use_data(unga_rcid_wide, overwrite = T)
+```
+
+</details>
+
+``` r
+dims_base <- 
+  unga_rcid_wide |>
+  ggplot() + 
+  aes(dims = dims(rc3:rc9147), 
+      fill = continent)
+```
+
+``` r
+library(patchwork)
+(dims_base + geom_pca()  + labs(title = "PCA")) + 
+(dims_base + geom_tsne() + labs(title = "t-SNE")) +  
+(dims_base + geom_umap() + labs(title = "UMAP")) + 
+  patchwork::plot_layout(guides = "collect") + 
+  plot_annotation(title = "UN General Assembly voting country projections")
+```
+
+![](README_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
 
 ## A little Venn diagrams using [`ggVennDiagram`](https://github.com/gaospecial/ggVennDiagram)
 
@@ -1045,8 +1281,6 @@ features <- function(...){
 }
 ```
 
-</details>
-
 ``` r
 df <- tribble(~A, ~B, ~C, ~combocount,
         T, T, F, 6,
@@ -1119,7 +1353,7 @@ titanic |>
   scale_fill_viridis_c(option = "magma", begin = .2, end = .8)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-26-1.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-38-1.png)<!-- -->
 
 ``` r
 
@@ -1133,7 +1367,7 @@ titanic |>
   scale_fill_viridis_c(option = "magma", begin = .2, end = .8)
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-26-2.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-38-2.png)<!-- -->
 
 ``` r
 
@@ -1141,7 +1375,7 @@ last_plot() +
   aes(dims = dims(survived)) + dims_expand()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-26-3.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-38-3.png)<!-- -->
 
 ``` r
 
@@ -1149,7 +1383,7 @@ last_plot() +
   aes(dims = dims(female:survived)) + dims_expand()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-26-4.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-38-4.png)<!-- -->
 
 ``` r
 
@@ -1157,7 +1391,7 @@ last_plot() +
   aes(dims = dims(male, perished)) + dims_expand()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-26-5.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-38-5.png)<!-- -->
 
 ``` r
 
@@ -1165,35 +1399,20 @@ last_plot() +
   aes(dims = dims(male, perished, child)) + dims_expand()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-26-6.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-38-6.png)<!-- -->
+
+</details>
 
 ``` r
-
 titanic |>
   ggplot() + 
-  aes(dims = dims(female:child)) + 
+  aes(dims = dims(female, child, survived)) + 
   geom_venn() + 
-  coord_equal() + 
-  dims_expand() +
-  geom_venn_label0() +
-  aes(color = I("green"))
+  geom_venn_label(fill = "snow") +
+  coord_equal()
 ```
 
-<img src="README_files/figure-gfm/unnamed-chunk-26-7.png" width="55%" />
-
-``` r
-
-  
-
-ggplot(mtcars) + 
-  aes(cyl, mpg,
-      label = cyl) + 
-  geom_point() + 
-  stat_summary(geom = "label") + 
-  aes(color = "red" |> I())
-```
-
-<img src="README_files/figure-gfm/unnamed-chunk-26-8.png" width="55%" />
+![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
 
 # Minimal Packaging
 
@@ -1213,252 +1432,6 @@ devtools::document()
 devtools::check(".")
 devtools::install(".", upgrade = "never")
 ```
-
-# Reproduction exercise
-
-Try to reproduce some of observations and figures in the Distill paper:
-‘How to Use t-SNE Effectively’ <https://distill.pub/2016/misread-tsne/>
-with some verbatim visuals from the paper.
-
-``` r
-knitr::opts_chunk$set(out.width = NULL, fig.show = "asis")
-```
-
-### 1. ‘Those hyperparameters really matter’
-
-<img src="images/clipboard-3992794559.png" width="900" />
-
-``` r
-two_clusters <- data.frame(dim1 = 
-                                    rnorm(101, mean = -.5,
-                                          sd = .1) |>
-                                    c(rnorm(101, mean = .5,
-                                            sd = .1)),
-                                   
-                                  dim2 = rnorm(202, sd = .1),
-                                  type = c(rep("A", 101), rep("B", 101)))
-
-
-big_and_small_cluster <- data.frame(dim1 = c(rnorm(100, -.5, sd = .1),
-                                             rnorm(100, .7, sd = .03)),
-                                  dim2 = c(rnorm(100, sd = .1), 
-                                           rnorm(100, sd = .03)),
-                                  type = c(rep("A", 100), rep("B", 100)))
-
-
-two_close_and_one_far <- data.frame(dim1 = 
-                                    c(rnorm(150, -.75, .05), 
-                                      rnorm(150, -.35, .05),
-                                      rnorm(150, .75, .05)),
-                                    dim2 = rnorm(450, sd = .05),
-                                    type = c(rep("A", 150), 
-                                           rep("B", 150),
-                                           rep("C", 150)))
-
-random_noise <- data.frame(dim1 = rnorm(500, sd = .3),
-                           dim2 = rnorm(500, sd = .3),
-                           type = "A")
-```
-
-``` r
-usethis::use_data(two_clusters, overwrite = T)
-usethis::use_data(big_and_small_cluster, overwrite = T)
-usethis::use_data(two_close_and_one_far, overwrite = T)
-usethis::use_data(random_noise, overwrite = T)
-```
-
-Let’s try to reproduce the following with our `geom_tsne()`:
-
-``` r
-dim(two_clusters)
-#> [1] 202   3
-
-original <- two_clusters |>
-  ggplot() + 
-  aes(x = dim1, 
-      y = dim2) + 
-  geom_point(shape = 21, color = "white",
-             alpha = .7, 
-             aes(size = from_theme(pointsize * 1.5))) + 
-  labs(title = "Original") + 
-  aes(fill = I("black")) + 
-  coord_equal(xlim = c(-1,1), ylim = c(-1,1))
-
-pp2 <- ggplot(data = two_clusters) + 
-  aes(dims = dims(dim1:dim2)) +
-  geom_tsne(perplexity = 2) + 
-  labs(title = "perplexity = 2"); pp2
-```
-
-![](README_files/figure-gfm/unnamed-chunk-31-1.png)<!-- -->
-
-``` r
-
-pp5 <- ggplot(data = two_clusters) + 
-  aes(dims = dims(dim1:dim2)) +
-  geom_tsne(perplexity = 5) + 
-  labs(title = "perplexity = 5"); pp5
-```
-
-![](README_files/figure-gfm/unnamed-chunk-31-2.png)<!-- -->
-
-``` r
-
-pp30 <- ggplot(data = two_clusters) + 
-  aes(dims = dims(dim1:dim2)) +
-  geom_tsne(perplexity = 30) + 
-  labs(title = "perplexity = 30"); pp30
-```
-
-![](README_files/figure-gfm/unnamed-chunk-31-3.png)<!-- -->
-
-``` r
-
-pp50 <- ggplot(data = two_clusters) + 
-  aes(dims = dims(dim1:dim2)) +
-  geom_tsne(perplexity = 50) + 
-  labs(title = "perplexity = 50")
-
-pp100 <- ggplot(data = two_clusters) + 
-  aes(dims = dims(dim1:dim2)) +
-  geom_tsne(perplexity = 100) + 
-  labs(title = "perplexity = 100")
-
-
-library(patchwork)
-original + pp2 + pp5 + pp30 + pp50 + pp100 &
-  theme_ggdims() 
-```
-
-![](README_files/figure-gfm/unnamed-chunk-31-4.png)<!-- -->
-
-``` r
-
-# with group id
-last_plot() & 
-  aes(fill = type) &
-  guides(fill = "none")
-```
-
-![](README_files/figure-gfm/unnamed-chunk-31-5.png)<!-- -->
-
-``` r
-
-
-panel_of_six_tsne_two_cluster <- last_plot()
-```
-
-### 2. ‘Cluster sizes in a t-SNE plot mean nothing’
-
-Let’s try to reproduce this (we’ll shortcut but switching out the data
-across plot specifications): ![](images/clipboard-4082290261.png)
-
-``` r
-panel_of_six_tsne_two_cluster & 
-  ggplyr::data_replace(big_and_small_cluster)
-```
-
-![](README_files/figure-gfm/unnamed-chunk-32-1.png)<!-- -->
-
-#### Side note on ggplyr::data_replace X google gemini quick search
-
-![](images/clipboard-3482018450.png)
-
-### 3. ‘Distances between clusters might not mean anything’
-
-Now let’s look at these three clusters, where one cluster is far out:
-
-<img src="images/clipboard-2639177458.png" width="900" />
-
-``` r
-
-
-panel_of_six_tsne_two_cluster & 
-  ggplyr::data_replace(two_close_and_one_far)
-```
-
-![](README_files/figure-gfm/unnamed-chunk-33-1.png)<!-- -->
-
-### 4. ‘Random noise doesn’t always look random’
-
-![](images/clipboard-109741735.png)
-
-``` r
-panel_of_six_tsne_two_cluster & 
-  ggplyr::data_replace(random_noise) &
-  aes(fill = I("midnightblue"))
-```
-
-![](README_files/figure-gfm/unnamed-chunk-34-1.png)<!-- -->
-
-------------------------------------------------------------------------
-
-``` r
-palmerpenguins::penguins |> 
-  sample_n(size = 200) |>
-  remove_missing() |> 
-  ggplot() + 
-  aes(dims = dims(bill_length_mm:body_mass_g)) + 
-  geom_umap() 
-```
-
-![](README_files/figure-gfm/unnamed-chunk-35-1.png)<!-- -->
-
-``` r
-
-last_plot() + 
-  aes(fill = species)
-```
-
-![](README_files/figure-gfm/unnamed-chunk-35-2.png)<!-- -->
-
-``` r
-unvotes::un_votes |> 
-  arrange(rcid) |>
-  mutate(rcid = paste0("rc",rcid) |> fct_inorder()) |>
-  mutate(num_vote = case_when(vote == "yes" ~ 1,
-                              vote == "abstain" ~ .5,
-                              vote == "no" ~ 0,
-                              TRUE ~ .5 )) |>
-  # filter(rcid %in% 1:30) |>
-  pivot_wider(id_cols = c(country, country_code),
-    names_from = rcid, 
-              values_from = num_vote,
-              values_fill = .5
-            ) |>
-  mutate(continent = country_code |> 
-           countrycode::countrycode(origin = "iso2c", destination = "continent")) |>
-  mutate(continent = continent |> is.na() |> ifelse("unknown", continent)) ->
-unga_rcid_wide
-
-
-names(unga_rcid_wide) |> tail()
-#> [1] "rc9143"    "rc9144"    "rc9145"    "rc9146"    "rc9147"    "continent"
-```
-
-``` r
-# maybe too big?
-# usethis::use_data(unga_rcid_wide, overwrite = T)
-```
-
-``` r
-dims_specs <- 
-  unga_rcid_wide |>
-  ggplot() + 
-  aes(dims = dims(rc3:rc9147), 
-      fill = continent)
-```
-
-``` r
-library(patchwork)
-(dims_specs + geom_pca() + labs(title = "PCA")) + 
-  (dims_specs + geom_tsne() + labs(title = "Tsne")) +  
-  (dims_specs + geom_umap() + labs(title = "UMAP")) + 
-  patchwork::plot_layout(guides = "collect") + 
-  plot_annotation(title = "UN General Assembly voting country projections")
-```
-
-![](README_files/figure-gfm/unnamed-chunk-39-1.png)<!-- -->
 
 # a features() approach
 
