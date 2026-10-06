@@ -341,9 +341,8 @@ data |>
 
 </details>
 
-# Applications: tsne, umap, PCA
 
-## compute_tsne, geom_tsne, using [`Rtsne::Rtsne`](https://github.com/jkrijthe/Rtsne)
+# compute_tsne, geom_tsne, using [`Rtsne::Rtsne`](https://github.com/jkrijthe/Rtsne)
 
 <details>
 
@@ -422,7 +421,7 @@ geom_tsne0 <- make_constructor(GeomPointFill,
                                perplexity = 30)
 
 #' @export
-geom_tsne_label0 <- make_constructor(GeomText, 
+geom_tsne_label0 <- make_constructor(GeomLabel, 
                                      stat = StatTsneGroup,
                                      perplexity = 30)
 ```
@@ -685,7 +684,7 @@ panel_of_six_tsne_two_cluster &
 ```
 
 
-## A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
+# A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
 
 <details>
 
@@ -759,7 +758,7 @@ last_plot() +
 
 ```
 
-## A little PCA using `ordr::ordinate`
+# A little PCA using `ordr::ordinate`
 
 <details>
 

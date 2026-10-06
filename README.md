@@ -14,10 +14,9 @@
     - [`dims_expand`](#dims_expand)
   - [Now let’s actually define `dims_listed()` and
     `vars_unpack`](#now-lets-actually-define-dims_listed-and-vars_unpack)
-- [Applications: tsne, umap, PCA](#applications-tsne-umap-pca)
-  - [compute_tsne, geom_tsne, using
-    `Rtsne::Rtsne`](#compute_tsne-geom_tsne-using-rtsnertsne)
-    - [Different perplexity](#different-perplexity)
+- [compute_tsne, geom_tsne, using
+  `Rtsne::Rtsne`](#compute_tsne-geom_tsne-using-rtsnertsne)
+  - [Different perplexity](#different-perplexity)
 - [‘How to Use t-SNE Effectively’ reproduction
   exercise](#how-to-use-t-sne-effectively-reproduction-exercise)
   - [1. ‘Those hyperparameters really
@@ -28,10 +27,10 @@
     anything’](#3-distances-between-clusters-might-not-mean-anything)
   - [4. ‘Random noise doesn’t always look
     random’](#4-random-noise-doesnt-always-look-random)
-  - [A little UMAP using `umap::umap`](#a-little-umap-using-umapumap)
-  - [A little PCA using
-    `ordr::ordinate`](#a-little-pca-using-ordrordinate)
-    - [w/ penguins](#w-penguins)
+- [A little UMAP using `umap::umap`](#a-little-umap-using-umapumap)
+- [A little PCA using
+  `ordr::ordinate`](#a-little-pca-using-ordrordinate)
+  - [w/ penguins](#w-penguins)
 - [UNGA voting patterns through PCA, t-SNE, and UMAP
   lenses](#unga-voting-patterns-through-pca-t-sne-and-umap-lenses)
   - [A little Venn diagrams using
@@ -379,9 +378,7 @@ data |>
 
 </details>
 
-# Applications: tsne, umap, PCA
-
-## compute_tsne, geom_tsne, using [`Rtsne::Rtsne`](https://github.com/jkrijthe/Rtsne)
+# compute_tsne, geom_tsne, using [`Rtsne::Rtsne`](https://github.com/jkrijthe/Rtsne)
 
 <details>
 
@@ -460,7 +457,7 @@ geom_tsne0 <- make_constructor(GeomPointFill,
                                perplexity = 30)
 
 #' @export
-geom_tsne_label0 <- make_constructor(GeomText, 
+geom_tsne_label0 <- make_constructor(GeomLabel, 
                                      stat = StatTsneGroup,
                                      perplexity = 30)
 ```
@@ -781,7 +778,7 @@ panel_of_six_tsne_two_cluster &
 
 ![](README_files/figure-gfm/unnamed-chunk-25-1.png)<!-- -->
 
-## A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
+# A little UMAP using [`umap::umap`](https://github.com/tkonopka/umap)
 
 <details>
 
@@ -875,7 +872,7 @@ last_plot() +
 
 ![](README_files/figure-gfm/unnamed-chunk-26-2.png)<!-- -->
 
-## A little PCA using `ordr::ordinate`
+# A little PCA using `ordr::ordinate`
 
 <details>
 

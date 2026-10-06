@@ -59,6 +59,6 @@ geom_tsne0 <- make_constructor(GeomPointFill,
                                perplexity = 30)
 
 #' @export
-geom_tsne_label0 <- make_constructor(GeomText, 
+geom_tsne_label0 <- make_constructor(GeomLabel, 
                                      stat = StatTsneGroup,
                                      perplexity = 30)
